@@ -6,7 +6,7 @@ const path = require('path');
 const PORT = process.env.PORT || 5000;
 dbConnect();
 
-app.set()
+app.set('view engine','ejs');
 
 app.use('/public',express.static(path.join(__dirname,'public')))
 
