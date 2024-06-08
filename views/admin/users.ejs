@@ -1,0 +1,141 @@
+<%- include ('adminHeader') %>
+
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Users</h2>
+                <p>Users Management</p>
+            </div>
+            <div>
+                <a href="#" class="btn btn-primary btn-sm rounded">Add new users</a>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <header class="card-header">
+                <div class="row align-items-center">
+                    <div class="col col-check flex-grow-0">
+                        <div class="form-check ms-2">
+                            <input class="form-check-input" type="checkbox" value="">
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                        <select class="form-select">
+                            <option selected>All category</option>
+                            <option>Electronics</option>
+                            <option>Clothes</option>
+                            <option>Automobile</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <input type="date" value="02.05.2021" class="form-control">
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <select class="form-select">
+                            <option selected>Status</option>
+                            <option>Active</option>
+                            <option>Disabled</option>
+                            <option>Show all</option>
+                        </select>
+                    </div>
+                </div>
+            </header> <!-- card-header end// -->
+
+            <div class="col-lg-12 mt-4">
+                <div class="table-responsive">
+                    <% if(users !="" ) { %>
+                        <table class="table table-striped text-center">
+                            <thead>
+                                <tr class="table-primary">
+                                    <th>SL.NO.</th>
+                                    <th>UserName</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% users.forEach((row,index)=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= index %>
+                                        </td>
+                                        <td>
+                                            <%= row.name %>
+                                        </td>
+                                        <td>
+                                            <%= row.email %>
+                                        </td>
+                                        <td>
+                                            <%= row.mobile %>
+                                        </td>
+                                        <td>
+                                            <%= row.status ?"Active":"Blocked"%>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-secondary btn-sm"
+                                                onclick="UserStatusConfirmation('<%= row._id %>')">
+                                                <%= row.status ? 'Block' : 'Unblock' %>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                        <% } else { %>
+                            <h1 class="text-center text-secondary mt-5">No Users found in the database</h1>
+                            <% } %>
+                </div>
+            </div>
+
+            <div class="pagination-area mt-30 mb-50">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-start">
+                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                        <li class="page-item"><a class="page-link" href="#">02</a></li>
+                        <li class="page-item"><a class="page-link" href="#">03</a></li>
+                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="#">16</a></li>
+                        <li class="page-item"><a class="page-link" href="#"><i
+                                    class="material-icons md-chevron_right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+    </section> <!-- content-main end// -->
+
+    <!-- Bootstrap Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to proceed?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function UserStatusConfirmation(itemId) {
+    // Store the itemId in a global variable or data attribute to access it later
+    document.getElementById('confirmBtn').setAttribute('data-id', itemId);
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modal.show();
+}
+
+// Event listener for the confirm button in the modal
+document.getElementById('confirmBtn').addEventListener('click', function() {
+    const itemId = this.getAttribute('data-id');
+    window.location.href = "/admin/userblock/" + itemId;
+});
+</script>
+
+<%- include ('adminfooter') %>

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Defining the Schema of the Mongo model
 var otpSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -11,15 +10,13 @@ var otpSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  createdAt: {
+  expiry: {
     type: Date,
-    default: Date.now,
-    expires: 60
+    default:new Date(),
+    required:true
   }
 });
 
-// creating a model
-const otpModel = new mongoose.model('otpDetails', otpSchema);
+const otpModel = mongoose.model('otpDetails', otpSchema);
 
-//Export the model
 module.exports = otpModel;

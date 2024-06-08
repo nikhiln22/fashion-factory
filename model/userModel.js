@@ -1,4 +1,4 @@
-const mongoose = require('mongoose'); 
+const mongoose = require('mongoose');
 
 // Defining the Schema of the Mongo model
 var userSchema = new mongoose.Schema({
@@ -14,7 +14,7 @@ var userSchema = new mongoose.Schema({
   mobile: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   password: {
     type: String,
@@ -28,12 +28,14 @@ var userSchema = new mongoose.Schema({
   status: {
     type: Boolean,
     required: true,
-    default: false
+    default: true
   }
+}, {
+  timestamps: true
 });
 
-// creating a model
-const userModel = new mongoose.model('userDetails', userSchema)
+// Creating a model
+const userModel = mongoose.model('userDetails', userSchema);
 
-//Export the model
+// Export the model
 module.exports = userModel;

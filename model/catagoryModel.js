@@ -8,19 +8,16 @@ var catagorySchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    requiured: true
+    required: true
   },
   types: {
     type: Array,
     default: ['All']
   },
-  is_listed: {
+  status: {
     type: Boolean,
+    required:true,
     default: true
-  },
-  is_deleted: {
-    type: Boolean,
-    default: false
   }
 });
 

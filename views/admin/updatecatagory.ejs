@@ -1,0 +1,82 @@
+<%- include ('adminHeader') %>
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Update Category</h2>
+                <p>Add, edit or delete a category</p>
+            </div>
+            <div>
+                <input type="text" placeholder="Search Categories" class="form-control bg-white">
+            </div>
+        </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <form method="post" action="/admin/updatecatagory/<%= catagory._id %>" onsubmit="return validateForm()">
+                            <div class="mb-4">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="name" name="name" value="<%=catagory.name %>" required />
+                                <div id="nameError" class="text-danger"></div>
+                            </div>
+                            <!-- <div class="mb-4">
+                                <label for="product_slug" class="form-label">Slug</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
+                            </div> -->
+                            <!-- <div class="mb-4">
+                                <label class="form-label">Parent</label>
+                                <select class="form-select">
+                                    <option>Clothes</option>
+                                    <option>T-Shirts</option>
+                                </select>
+                            </div> -->
+                            <div class="mb-4">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea placeholder="Type here" class="form-control" id="description" name="description" required><%= catagory.description %></textarea>
+                                <div id="descriptionError" class="text-danger"></div>
+                            </div>
+                            <% if(catError){%>
+                                <div style="color: red; font-size: 16px; font-weight: bold;">
+                                  <%= catError%>
+                                </div>
+                            <%}%>
+                            <div class="d-grid">
+                                <button class="btn btn-primary">update category</button>
+                            </div>
+                        </form>
+                    </div>
+                    </div> <!-- .col// -->
+                </div> <!-- .row // -->
+            </div> <!-- card body .// -->
+    </section> <!-- content-main end// -->
+
+    <script>
+
+        function validateForm(){
+        var name = document.getElementById('name').value;
+        var description = document.getElementById('description').value;
+        var nameError = document.getElementById('nameError');
+        var descriptionError = document.getElementById('descriptionError');
+
+        nameError.innerHTML = '';
+        descriptionError.innerHTML = '';
+
+        // validating name
+        if(name.trim()===''){
+            nameError.innerHTML = 'Name is Required';
+            return false;
+        }else if(/\d/.test(name)){
+            nameError.innerHTML = 'Name shouldnt contain numbers';
+            return false;
+        }
+
+
+        // validating description
+        if(description.trim()===''){
+            descriptionError.innerHTML = 'Description is required';
+            return false;
+        }
+        return true;
+    }
+    </script>
+
+    <%-include('adminfooter')%>
