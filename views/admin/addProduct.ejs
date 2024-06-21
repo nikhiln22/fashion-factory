@@ -1,0 +1,179 @@
+<%- include ('adminHeader') %>
+    <section class="content-main">
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h1 class="content-title">Add New Product</h1>
+                    <!-- <p>List of Product</p> -->
+                </div>
+            </div>
+            <form id="addProductForm" action="/admin/addproduct" method="post" enctype="multipart/form-data"
+                onsubmit="return validateForm()">
+                <div class="form-group mb-3 col-md-6">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                    <div id="nameError" class="text-danger"></div>
+                </div>
+                <div class="form-group mb-3 col-md-6">
+                    <label for="category">Category:</label>
+                    <select class="form-select" id="category" name="category" required>
+                        <option value="" disabled>Select Category</option>
+                        <% category.forEach(category=> { %>
+                            <option value="<%= category._id %>">
+                                <%= category.name %>
+                            </option>
+                            <% }); %>
+                    </select>
+                    <div id="categoryError" class="text-danger"></div>
+                </div>
+                <div class="form-group mb-3 col-md-6">
+                    <label for="description">Description:</label>
+                    <textarea class="form-control" id="description" name="description" required></textarea>
+                    <div id="descriptionError" class="text-danger"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group mb-3 col-md-6">
+                        <label for="price">Price:</label>
+                        <input type="number" class="form-control" id="price" name="price" min="0" required>
+                        <div id="priceError" class="text-danger"></div>
+                    </div>
+                    <!-- <div class="form-group col-md-6">
+          <label for="price">Discount: (in Percentage)</label>
+          <input type="number" class="form-control" id="discount" name="discount" min="0" required>
+          <div id="discountError" class="text-danger"></div>
+        </div> -->
+                    <div class="form-group mb-3 col-md-6">
+                        <label for="stock">Stock:</label>
+                        <div class="mb-3 d-flex">
+                            <label class="form-label">XS:</label>
+                            <input id="s1" type="number" class="form-control ml-3 stock-input" name="s1" min="0"
+                                required>
+                            <label class="form-label ml-2">S:</label>
+                            <input id="s2" type="number" class="form-control ml-3 stock-input" name="s2" min="0"
+                                required>
+                            <label class="form-label ml-2">M:</label>
+                            <input id="s3" type="number" class="form-control ml-3 stock-input" name="s3" min="0"
+                                required>
+                            <label class="form-label ml-2">L:</label>
+                            <input id="s4" type="number" class="form-control ml-3 stock-input" name="s4" min="0"
+                                required>
+                            <label class="form-label ml-2">XL:</label>
+                            <input id="s5" type="number" class="form-control ml-3 stock-input" name="s5" min="0"
+                                required>
+                        </div>
+                        <div id="stockError" class="text-danger"></div>
+                    </div>
+
+                    <div class="form-group mb-3 col-md-6">
+                        <label for="image">Image:</label>
+                        <input type="file" class="form-control-file" id="image" name="images" accept="image/*" multiple
+                            required>
+                        <div id="imageError" class="text-danger"></div>
+                    </div>
+                </div>
+
+
+                <div id="imagePreview"></div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        function validateForm() {
+            console.log('hyy from add product side validation.........');
+            var name = document.getElementById('name').value;
+            var category = document.getElementById('category').value;
+            var description = document.getElementById('description').value;
+            var price = document.getElementById('price').value;
+            var image = document.getElementById('image').value;
+
+            var nameError = document.getElementById('nameError');
+            var categoryError = document.getElementById('categoryError');
+            var descriptionError = document.getElementById('descriptionError');
+            var priceError = document.getElementById('priceError');
+            var imageError = document.getElementById('imageError');
+
+            // Reset error messages
+            nameError.innerHTML = '';
+            categoryError.innerHTML = '';
+            descriptionError.innerHTML = '';
+            priceError.innerHTML = '';
+            imageError.innerHTML = '';
+
+            // Validate name
+            if (name.trim() === '') {
+                nameError.innerHTML = 'Name is required.';
+                console.log('name is required');
+                return false;
+            }
+
+            // Validate category
+            if (category === '') {
+                categoryError.innerHTML = 'Category is required.';
+                console.log('Category is required.');
+                return false;
+            }
+
+            // Validate description
+            if (description.trim() === '') {
+                descriptionError.innerHTML = 'Description is required.';
+                console.log('Description is required.');
+                return false;
+            }
+
+            // Validate price
+            if (isNaN(price) || price <= 0) {
+                priceError.innerHTML = 'Price must be a positive number.';
+                console.log('Price must be a positive number.');
+                return false;
+            }
+
+            // Validate image (you can also check if a file is selected)
+            if (!image) {
+                imageError.innerHTML = 'Image is required.';
+                console.log('Image is required.');
+                return false;
+            }
+
+            // Validate stock
+            var stocks = document.querySelectorAll('.stock-input');
+            var totalStock = Array.from(stocks).reduce((acc, input) => acc + parseInt(input.value), 0);
+            var stockError = document.getElementById('stockError');
+            if (totalStock === 0) {
+                stockError.innerText = 'Please provide stock for at least one size.';
+                console.log('Please provide stock for at least one size.');
+                return false;
+            } else {
+                stockError.innerText = '';
+            }
+
+            return true;
+        }
+
+        // Image preview functionality
+        document.getElementById("image").addEventListener("change", function () {
+            var files = this.files;
+            var imagePreview = document.getElementById("imagePreview");
+
+            imagePreview.innerHTML = "";
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var img = document.createElement("img");
+                    img.src = e.target.result;
+                    img.style.maxWidth = "100px";
+                    img.style.maxHeight = "100px";
+                    img.style.marginRight = "10px";
+                    img.style.marginBottom = "10px";
+                    imagePreview.appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+    <%- include ('adminfooter') %>

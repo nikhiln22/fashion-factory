@@ -1,19 +1,18 @@
 <%- include('navbar') -%>
 
-<style>
-    .otp__input--container {
-        display: flex;
-        gap: 10px;
-    }
+    <style>
+        .otp__input--container {
+            display: flex;
+            gap: 10px;
+        }
 
-    .otp__input {
-        width: 50px;
-        text-align: center;
-        font-size: 18px;
-    }
-</style>
+        .otp__input {
+            width: 50px;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
     <main class="main__content_wrapper">
-
         <!-- Start breadcrumb section -->
         <section class="breadcrumb__section breadcrumb__bg">
             <div class="container">
@@ -34,9 +33,7 @@
         </section>
         <!-- End breadcrumb section -->
 
-
-
-        <!-- Start login section -->
+        <!-- Start otp section -->
         <div class="login__section section--padding">
             <div class="container">
                 <form id="otp-form" action="/verifyotp" method="post">
@@ -45,7 +42,7 @@
                             <div class="col">
                                 <div class="account__login otp">
                                     <div class="account__login--header mb-25">
-                                        <h2 class="account__login--header__title h3 mb-10">Verify OTP</h2>
+                                        <h2 class="account__login--header__title h3 mb-10 text-center">Verify OTP</h2>
                                         <p class="account__login--header__desc">Enter the OTP sent to your email</p>
                                     </div>
                                     <div class="account__login--inner">
@@ -61,124 +58,51 @@
                                         </div>
                                         <button class="account__login--btn primary__btn mb-10" type="submit">Submit
                                             OTP</button>
-                                        <p class="account__login--signup__text">
-                                            Didn't receive the OTP? <span id="resend-timer">60</span> seconds
-                                        </p>
-
                                         <% if (expressFlash.otperror) { %>
                                             <p style="color: red;">
                                                 <%= expressFlash.otperror %>
                                             </p>
                                             <% } %>
-                                                <form action="/resendOtp" method="post" style="display:none;"
-                                                    id="resend-form">
-                                                    <button id="resend-btn"
-                                                        class="account__login--btn primary__btn mb-10"
-                                                        type="submit">Resend OTP</button>
-                                                </form>
-                                                <div id="timer"></div>
+                                        <div id="timer" class="text-center text-danger"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
+                <form action="/resendotp" method="post"
+                id="resend-form">
+                <button id="resend-btn" style="display:none;"
+                    class="account__login--btn primary__btn mb-10"
+                    type="submit">Resend OTP</button>
+            </form>
             </div>
         </div>
-        <!-- End login section -->
-
-
-        <!-- Start shipping section -->
-        <section class="shipping__section2 shipping__style3 section--padding pt-0">
-            <div class="container">
-                <div class="shipping__section2--inner shipping__style3--inner d-flex justify-content-between">
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="/public/userasset/img/other/shipping1.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Shipping</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="/public/userasset/img/other/shipping2.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Payment</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="/public/userasset/img/other/shipping3.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Return</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="/public/userasset/img/other/shipping4.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Support</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- End shipping section -->
-
     </main>
+    <!-- End otp section -->
 
     <%- include('footer') -%>
-    
-    <!-- Scroll top bar -->
-    <button id="scroll__top"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48"
-                d="M112 244l144-144 144 144M256 120v292" />
-        </svg></button>
 
 
-    <!-- All Script JS Plugins here  -->
-    <script src="/public/userasset/js/vendor/popper.js" defer="defer"></script>
-    <script src="/public/userasset/js/vendor/bootstrap.min.js" defer="defer"></script>
-    <script src="/public/userasset/js/plugins/swiper-bundle.min.js"></script>
-    <script src="/public/userasset/js/plugins/glightbox.min.js"></script>
+        <script>
+            (function startTimer() {
+                timerInterval = setInterval(function () {
+                    var expiryTime = '<%= otp.expiry.getTime() %>';
+                    var currTime = new Date().getTime()
+                    var Timeleft = Math.round((expiryTime - currTime) / 1000)
+                    document.getElementById('timer').innerHTML = 'OTP Expires in ' + Timeleft + ' sec';
 
-    <!-- Customscript js -->
-    <script src="/public/userasset/js/script.js"></script>
+                    if (Timeleft < 0) {
+                        clearInterval(timerInterval);
+                        document.getElementById('timer').innerHTML = ''
+                        document.getElementById('resend-btn').style.display = 'block'
+                    }
+                }, 1000)
+            })()
 
-    <script>
-
-        (function startTimer() {
-            timerInterval = setInterval(function () {
-                var expiryTime = '<%= otp.expiry.getTime() %>';
-                var currTime = new Date().getTime()
-                var Timeleft = Math.round((expiryTime - currTime) / 1000)
-                document.getElementById('timer').innerHTML = 'OTP Expires in ' + Timeleft + ' sec';
-
-                if (Timeleft < 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById('resend-timer').innerHTML = ''
-                    document.getElementById('resend-form').style.display = 'block'
+            function moveToNext(currInput, nextInputId) {
+                if (currInput.value.length >= 1) {
+                    document.getElementById(nextInputId).focus();
                 }
-            }, 1000)
-        })()
-
-        function moveToNext(currInpt, nextInputId) {
-            if (currInput.value.length >= 1) {
-                document.getElementById(nextInputId).focus();
             }
-        }
-
-
-    </script>
-
-</body>
-
-</html>
+        </script>

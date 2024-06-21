@@ -1,5 +1,24 @@
 <%- include('navbar') -%>
 
+<style>
+.account__login--password {
+    position: relative;
+}
+
+.account__login--password__icon {
+    position: absolute;
+    top: 40%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #999;
+}
+
+.account__login--input {
+    padding-right: 30px; /* Add padding to accommodate the eye button */
+}
+</style>
 
 
     <main class="main__content_wrapper">
@@ -10,10 +29,10 @@
                 <div class="row row-cols-1">
                     <div class="col">
                         <div class="breadcrumb__content text-center">
-                            <h1 class="breadcrumb__content--title text-white mb-25">Account Page</h1>
+                            <h1 class="breadcrumb__content--title text-white mb-25">SignUp</h1>
                             <ul class="breadcrumb__content--menu d-flex justify-content-center">
-                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="index.html">Home</a></li>
-                                <li class="breadcrumb__content--menu__items"><span class="text-white">Account Page</span></li>
+                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a></li>
+                                <li class="breadcrumb__content--menu__items"><span class="text-white">SignUp</span></li>
                             </ul>
                         </div>
                     </div>
@@ -40,7 +59,7 @@
                   <% } %>
                 </div>
 
-                <form action="/signupPost" method="post">
+                <form action="/signup" method="post">
 
                     <div class="login__section--inner">
                         <div class="row row-cols-md-2 row-cols-1">
@@ -48,19 +67,25 @@
                             <div class="col">
                                 <div class="account__login register">
                                     <div class="account__login--header mb-25">
-                                        <h2 class="account__login--header__title h3 mb-10">Create an Account</h2>
-                                        <p class="account__login--header__desc">Register here if you are a new customer</p>
+                                        <h2 class="account__login--header__title h3 mb-10 text-center">Create an Account</h2>
+                                        <p class="account__login--header__desc text-center">Register here if you are a new customer</p>
                                     </div>
                                     <div class="account__login--inner">
                                         <input class="account__login--input" name="username" id="username" placeholder="Username" type="text" onblur="validateUsername()" required>
                                         <span id="usernameerror"></span>
-                                        <input class="account__login--input" name="email" id="email" placeholder="Email Addres" type="text" onblur="validateEmail()" required>
+                                        <input class="account__login--input" name="email" id="email" placeholder="Email Addres" type="email" onblur="validateEmail()" required>
                                         <span id="emailerror"></span>
-                                        <input class="account__login--input" name="phone" id="phone" placeholder="Mobile Number" type="number" onblur="validateNumber()" required>
+                                        <input class="account__login--input" name="phone" id="phone" placeholder="Mobile Number" type="text" onblur="validateNumber()" required>
                                         <span id="numbererror"></span>    
+                                        <div class="account__login--password">
                                         <input class="account__login--input" name="password" id="password" placeholder="Password" type="password" onblur="validatePassword()" required>
-                                        <span id="passworderror"></span>
+                                        <span class="account__login--password__icon" onclick="togglePasswordVisibility('password')">&#128065;</span>
+                                        </div>
+                                        <span id="passworderror"></span>                                       
+                                        <div class="account__login--password">
                                         <input class="account__login--input" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" type="password" onblur="validateConfirmPassword()" required>
+                                        <span class="account__login--password__icon" onclick="togglePasswordVisibility('confirmPassword')">&#128065;</span>
+                                        </div>
                                         <span id="ConfirmPassworderror"></span>
                                         <button class="accountror__login--btn primary__btn mb-10" type="submit">Submit & Register</button>
                                         <p class="account__login--signup__text">Already an existing user?<a href="/login">login</a></p>
@@ -71,63 +96,11 @@
                     </div>
                 </form>
             </div>     
-        </div>
-        <!-- End login section  -->
-
-        <!-- Start shipping section -->
-        <section class="shipping__section2 shipping__style3 section--padding pt-0">
-            <div class="container">
-                <div class="shipping__section2--inner shipping__style3--inner d-flex justify-content-between">
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="assets/img/other/shipping1.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Shipping</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="assets/img/other/shipping2.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Payment</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="assets/img/other/shipping3.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Return</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                    <div class="shipping__items2 d-flex align-items-center">
-                        <div class="shipping__items2--icon">
-                            <img src="assets/img/other/shipping4.png" alt="">
-                        </div>
-                        <div class="shipping__items2--content">
-                            <h2 class="shipping__items2--content__title h3">Support</h2>
-                            <p class="shipping__items2--content__desc">From handpicked sellers</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- End shipping section -->
-
+        </div>  
     </main>
-
+ <!-- End login section  -->
     <%- include('footer') -%>
   
-    <!-- Scroll top bar -->
-    <button id="scroll__top"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 244l144-144 144 144M256 120v292"/></svg></button>
-
-    
-  <!-- All Script JS Plugins here  -->
   <script>
     function validateUsername() {
         console.log('ekrfjol');
@@ -200,13 +173,16 @@
     } 
 </script>
 
-  <script src="/public/userasset/js/vendor/popper.js" defer="defer"></script>
-  <script src="/public/userasset/js/vendor/bootstrap.min.js" defer="defer"></script>
-  <script src="/public/userasset/js/plugins/swiper-bundle.min.js"></script>
-  <script src="/public/userasset/js/plugins/glightbox.min.js"></script>
-
-  <!-- Customscript js -->
-  <script src="/public/userasset/js/script.js"></script>
-  
-</body>
-</html>
+<script>
+    function togglePasswordVisibility(inputId) {
+    var passwordInput = document.getElementById(inputId);
+    var eyeIcon = passwordInput.nextElementSibling;
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeIcon.innerHTML = "&#128064;"; // Change to open eye icon
+    } else {
+        passwordInput.type = "password";
+        eyeIcon.innerHTML = "&#128065;"; // Change to closed eye icon
+    }
+}
+</script>

@@ -12,7 +12,6 @@ var otpSchema = new mongoose.Schema({
   },
   expiry: {
     type: Date,
-    default:new Date(),
     required:true
   }
 });

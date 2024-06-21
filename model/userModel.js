@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 // Defining the Schema of the Mongo model
 var userSchema = new mongoose.Schema({
-  name: {
+  username: {
     type: String,
     required: true,
   },
@@ -11,14 +11,13 @@ var userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  mobile: {
+  phone: {
     type: String,
     required: true,
-    unique: true
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   isAdmin: {
     type: Boolean,
@@ -29,7 +28,10 @@ var userSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
     default: true
-  }
+  },
+  // googleToken:{
+  //   type:String
+  // }
 }, {
   timestamps: true
 });

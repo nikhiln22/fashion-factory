@@ -55,8 +55,8 @@ const addCatagoryPost = async (req, res) => {
             return res.redirect('/admin/Addcategories');
         } else {
             console.log('Adding new category.');
-            await catModel.create({ name: catName, description: catDescription });
-            console.log('Category added successfully:', { name: catName, description: catDescription });
+            await catModel.create({ name: catagoryName, description: catDescription });
+            console.log('Category added successfully:', { name: catagoryName, description: catDescription });
             req.flash('catSuccess', 'Category added successfully');
             return res.redirect('/admin/catagories');
         }
@@ -69,13 +69,15 @@ const addCatagoryPost = async (req, res) => {
 // unlisting the catagory added
 const unlist = async (req, res) => {
     try {
+        console.log('entering the catagory listing/unlisting page');
         const id = req.params.id;
         const category = await catModel.findById(id);
+        console.log('category Id:',id);
         category.status = !category.status;
         await category.save();
         res.redirect('/admin/catagories')
     } catch (error) {
-        console.log('error while unlisting the catagory');
+        console.log('error while unlisting the catagory:',error);
         res.render('admin/serverror');
     }
 }

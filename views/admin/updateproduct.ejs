@@ -1,0 +1,137 @@
+<%- include ('adminHeader') %>
+    <section class="content-main">
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Update Product</h2>
+                    <div>
+                        <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                        <button class="btn btn-md rounded font-sm hover-up">Publish</button>
+                    </div>
+                </div>
+            </div>
+            <form id="addProductForm" action="/admin/updateProduct/<%= product._id %>" method="post" enctype="application/x-www-form-urlencoded"
+                onsubmit="return validateForm()">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" value="<%=product.name%>" required>
+                    <div id="nameError" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea class="form-control" id="description" name="description" value="<%=product.description%>"
+                        required></textarea>
+                    <div id="descriptionError" class="text-danger"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="price">Price:</label>
+                        <input type="number" class="form-control" id="price" name="price" min="0"
+                            value="<%=product.price%>" required>
+                        <div id="priceError" class="text-danger"></div>
+                    </div>
+
+                    <!-- <div class="form-group col-md-6">
+                    <label for="discount">Discount: (in Percentage)</label>
+                    <input type="number" class="form-control" id="discount" name="discount" min="0" required>
+                    <div id="discountError" class="text-danger"></div>
+                </div> -->
+
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <div class="mb-3 d-flex">
+                        <label class="form-label">XS:</label>
+                        <input id="s1" type="number" class="form-control ml-3 stock-input" name="s1" min="0"
+                            value="<%=product.stock[0].quantity%>" required>
+                        <label class="form-label ml-2">S:</label>
+                        <input id="s2" type="number" class="form-control ml-3 stock-input" name="s2" min="0"
+                            value="<%=product.stock[1].quantity%>" required>
+                        <label class="form-label ml-2">M:</label>
+                        <input id="s3" type="number" class="form-control ml-3 stock-input" name="s3" min="0"
+                            value="<%=product.stock[2].quantity%>" required>
+                        <label class="form-label ml-2">L:</label>
+                        <input id="s4" type="number" class="form-control ml-3 stock-input" name="s4" min="0"
+                            value="<%=product.stock[3].quantity%>" required>
+                        <label class="form-label ml-2">XL:</label>
+                        <input id="s5" type="number" class="form-control ml-3 stock-input" name="s5" min="0"
+                            value="<%=product.stock[4].quantity%>" required>
+                    </div>
+                    <div id="stockError" class="text-danger"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Images:</label>
+                    <% if(product.image&&product.image.length>0){ %>
+                        <% product.image.forEach(item=>{ %>
+                            <img style=" width: 100px;height: 100px;" src="/<%= item %>">
+                            <% }) %>
+                                <% } %>
+                </div>
+                <a href="/admin/updateimage/<%= product._id %>" class="btn btn-primary">Update Images</a>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        function validateForm() {
+            var name = document.getElementById('name').value;
+            var category = document.getElementById('category').value;
+            var description = document.getElementById('description').value;
+            var price = document.getElementById('price').value;
+            var image = document.getElementById('image').value;
+            console.log(name,category,description,price,image,'--------------');
+
+            // resetting the error messages
+            nameError.innerHTML = '';
+            categoryError.innerHTML = '';
+            descriptionError.innerHTML = '';
+            priceError.innerHTML = '';
+            imageError.innerHTML = '';
+
+            // validate name
+            if (name.trim() === '') {
+                nameError.innerHTML = 'name is required';
+                return false;
+            }
+
+            // validate category
+            if (category === '') {
+                categoryError.innerHTML = 'category is required';
+                return false;
+            }
+
+            // validate description
+            if (description.trim() === '') {
+                descriptionError.innerHTML = 'description is required';
+                return false;
+            }
+
+            // validate price
+            if (isNaN(price) || price <= 0) {
+                priceError.innerHTML = 'price is required';
+                return false;
+            }
+
+            // validate image
+            if (!image) {
+                imageError.innerHTML = 'image is required';
+                return false;
+            }
+
+            // validate stock
+            var stocks = document.querySelectorAll('.stock-input');
+            var totalStock = Array.from(stocks).reduce((acc, input) => acc + parseInt(input.value), 0);
+            var stockError = document.getElementById('stockError');
+            if (totalStock === 0) {
+                stockError.innerText = 'Please provide stock for at least one size.';
+                return false;
+            } else {
+                stockError.innerText = '';
+            }
+
+            return true;
+        }
+    </script>
+
+    <%- include ('adminfooter') %>

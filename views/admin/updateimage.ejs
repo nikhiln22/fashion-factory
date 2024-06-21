@@ -1,0 +1,111 @@
+<%- include ('adminHeader') %>
+  <section class="content-main">
+    <div class="row">
+      <div class="col-9">
+        <div class="content-header">
+          <h1 class="content-title">Update Product Images</h1>
+        </div>
+      </div>
+      <% if(imageNotFound && imageNotFound.length> 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>
+            <%= imageNotFound %>
+          </strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <% } %>
+          <form action="/admin/updateimage/<%= product._id %>" method="post" enctype="multipart/form-data">
+
+            <div class="row">
+              <% if(product.image && product.image.length> 0){ %>
+
+                <% product.image.forEach(item=> { %>
+                  <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="image-button-container">
+                      <% if(item && item.length> 0){ %>
+                        <img src="/<%= item %>" alt="image not found" class="img-fluid" style="height: 200px;">
+
+                        <% }else{ %>
+                          <h2>No Image Found.</h2>
+                          <% } %>
+
+                            <div class="mt-2">
+                              <a onclick="delImage('?pid=<%= encodeURIComponent(product._id) %>&filename=<%= encodeURIComponent(item) %>')"
+                                class="btn btn-danger btn-xs">
+                                Delete
+                              </a>
+                            </div>
+                    </div>
+                  </div>
+                  <% }) %>
+
+                    <% }else{ %>
+                      <div class="col-12">
+                        <h2 class="text-danger text-center">No Images Found!. </h2>
+                      </div>
+                      <% } %>
+            </div>
+
+            <div class="mb-3">
+              <label for="image" class="form-label">Add New Images:</label>
+              <input type="file" class="form-control" id="image" name="image" accept="image/*" multiple>
+            </div>
+            <div id="imagePreview"></div>
+            <button type="submit" class="btn btn-primary">Save Image</button>
+          </form>
+    </div>
+  </section>
+
+  <script>
+    document.getElementById("image").addEventListener("change", function () {
+      var files = this.files;
+      var imagePreview = document.getElementById("imagePreview");
+
+      imagePreview.innerHTML = "";
+
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          var img = document.createElement("img");
+          img.src = e.target.result;
+          img.style.maxWidth = "100px";
+          img.style.maxHeight = "100px";
+          img.style.marginRight = "10px";
+          img.style.marginBottom = "10px";
+          imagePreview.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+    function delImage(id) {
+      console.log('im the deleting image function.............');
+      
+      Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to proceed?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Confirm",
+        cancelButtonText: "Cancel",
+        dangerMode: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/admin/deleteimage"+ id;
+        } else {
+          console.log("User canceled");
+        }
+      }).catch((error) => {
+        console.error("An error occurred:", error);
+        // Handle error or provide feedback to the user
+      });
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+  <%- include ('adminfooter') %>

@@ -10,7 +10,7 @@ const adlogin = async (req, res) => {
     try {
         res.render('admin/adminlogin', { passwordError: ' ' });
     } catch (error) {
-        console.log(error);    
+        console.log(error);
     }
 }
 
@@ -42,12 +42,12 @@ const admin_panel = async (req, res) => {
     } catch (error) {
         console.log('error admin panel ----------->   ', error);
     }
-} 
+}
 
 
 const users = async (req, res) => {
     try {
-        console.log('user listing page from admin side-------------->> ');
+        console.log('user listing page from admin side--------------->> ');
         const user = await adminModel.find({ isAdmin: false });
         res.render('admin/users', { users: user })
     } catch (error) {
@@ -74,5 +74,15 @@ const checkUserStatus = async (req, res) => {
     }
 }
 
+// admin logout
+const adLogOut = async (req, res) => {
+    try {
+        req.session.isAdAuth = false;
+        res.redirect('/admin');
+    } catch (error) {
+        console.log('error while logging out the admin');
+        res.render('admin/servererror');
+    }
+}
 
-module.exports = { adlogin, adloginpost, admin_panel, users, checkUserStatus};
+module.exports = { adlogin, adloginpost, admin_panel, users, checkUserStatus, adLogOut };

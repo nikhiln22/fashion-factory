@@ -2,12 +2,10 @@
     <section class="content-main">
         <div class="content-header">
             <div>
-                <h2 class="content-title card-title"> Add Categories </h2>
-                <p>Add, edit or delete a category</p>
+                <h1 class="content-title card-title"> Add Categories </h1>
+              
             </div>
-            <div>
-                <input type="text" placeholder="Search Categories" class="form-control bg-white">
-            </div>
+            
         </div>
             <div class="card-body">
                 <div class="row">
@@ -19,29 +17,18 @@
                                 <input type="text" placeholder="Type here" class="form-control" id="name" name="name" required/>
                                 <div id="nameError" class="text-danger"></div>
                             </div>
-                            <!-- <div class="mb-4">
-                                <label for="product_slug" class="form-label">Slug</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
-                            </div> -->
-                            <!-- <div class="mb-4">
-                                <label class="form-label">Parent</label>
-                                <select class="form-select">
-                                    <option>Clothes</option>
-                                    <option>T-Shirts</option>
-                                </select>
-                            </div> -->
                             <div class="mb-4">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea placeholder="Type here" class="form-control" id="description" name="description" required></textarea>
                                 <div id="descriptionError" class="text-danger"></div>
                             </div>
                             <% if(catError){%>
-                                <div style="color: black; font-size: 16px; font-weight: bold;">
+                                <div style="color: red; font-size: 16px; font-weight: bold;">
                                   <%= catError%>
                                 </div>
                             <%}%>
                             
-                                <button type="submit" class="btn btn-primary">Add category</button>
+                                <button type="submit" class="btn btn-dark">Add category</button>
                             
                         </form>
                     </div>
