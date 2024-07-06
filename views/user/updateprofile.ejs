@@ -1,0 +1,136 @@
+<%- include('navbar') -%>
+
+<style>
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+</style>
+
+<!-- <main class="main__content_wrapper"> -->
+
+<!-- Start breadcrumb section -->
+<section class="breadcrumb__section breadcrumb__bg">
+    <div class="container">
+        <div class="row row-cols-1">
+            <div class="col">
+                <div class="breadcrumb__content text-center">
+                    <h1 class="breadcrumb__content--title text-white mb-25">My Account</h1>
+                    <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                        <li class="breadcrumb__content--menu__items"><a class="text-white" href="index.html">Home</a></li>
+                        <li class="breadcrumb__content--menu__items"><span class="text-white">My Account</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End breadcrumb section -->
+
+<!-- my account section start -->
+<section class="my__account--section section--padding">
+    <div class="container">
+        <div class="my__account--section__inner border-radius-10 d-flex">
+            <div class="account__left--sidebar">
+                <ul class="account__menu">
+                    <li class="account__menu--list"><a href="/profile">My Profile</a></li>
+                    <li class="account__menu--list"><a href="/orders">Orders</a></li>
+                    <li class="account__menu--list"><a href="/address">Addresses</a></li>
+                    <li class="account__menu--list"><a href="/resetpassword">Change Password</a></li>
+                    <li class="account__menu--list"><a href="wishlist.html">Wishlist</a></li>
+                    <li class="account__menu--list"><a href="/logout">Log Out</a></li>
+                </ul>
+            </div>
+
+            <!-- Profile Details Section -->
+            <div class="account__right--sidebar">
+                <h2 class="account__content--title h3 mb-20 text-center" style="color: #000000;">Edit Profile</h2>
+                <div class="account__details--wrapper">
+                    <form action="/updateProfile" method="POST" onsubmit="return validateForm()">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-4"><i class="fas fa-user" style="color: #6c7ae0;"></i>👤 Personal Information</h5>
+                                        <div class="form-group mb-3">
+                                            <label for="username" class="form-label"><strong>Username:</strong></label>
+                                            <input type="text" class="form-control" id="username" name="username" value="<%= user.username %>" required style="width: 100%; max-width: 300px;" aria-describedby="usernameHelp" onblur="validateUsername()">
+                                            <span id="usernameerror" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email" class="form-label"><strong>Email Address:</strong></label>
+                                            <p class="form-control-static"><%= user.email %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-4"><i class="fas fa-phone" style="color: #6c7ae0;"></i>📞 Contact Information</h5>
+                                        <div class="form-group">
+                                            <label for="phone" class="form-label"><strong>Phone Number:</strong></label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" value="<%= user.phone %>" required style="width: 100%; max-width: 300px;" aria-describedby="phoneHelp" onblur="validateNumber()">
+                                            <span id="numbererror" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Save Changes Button -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary px-4" style="width: 200px;">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- End Profile Details Section -->
+        </div>
+    </div>
+</section>
+<!-- my account section end -->
+
+<script>
+    function validateForm() {
+        return validateUsername() && validateNumber();
+    }
+
+    function validateUsername() {
+        var usernameError = document.getElementById('usernameerror');
+        var username = document.getElementById('username').value.trim();
+        if (username === '') {
+            usernameError.innerHTML = 'Username cannot be empty.';
+            return false;
+        }
+        if (!username.match(/^(?![\s*]+$)[a-zA-Z0-9]+$/)) {
+            usernameError.innerHTML = 'Username is invalid. It must not contain spaces or special characters.';
+            return false;
+        } else {
+            usernameError.innerHTML = '';
+            return true;
+        }
+    }
+
+    function validateNumber() {
+        var numberError = document.getElementById('numbererror');
+        var number = document.getElementById('phone').value;
+        if (!number.match(/^\d{10}$/)) {
+            numberError.innerHTML = 'Number is invalid. It must be 10 digits.';
+            return false;
+        } else {
+            numberError.innerHTML = '';
+            return true;
+        }
+    }
+</script>
+
+
+
+<%- include('footer') -%>

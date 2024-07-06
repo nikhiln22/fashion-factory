@@ -22,15 +22,15 @@ const shopSingle = async (req, res) => {
         console.log('entering the single product shopping page');
         const productId = req.params.id;
         const categories = await catagoryModel.find();
-        let singleProduct = await productModel.findById(productId);
-        console.log(singleProduct);
+        const singleProduct = await productModel.findById(productId);
+        let pass;
         if (singleProduct.totalstock === 0) {
-            let pass = 'Out of Stock';
+            pass = 'Out of Stock';
         }
         const products = await productModel.find({ category: singleProduct.category });
-        const productCount = req.session.cartCount;
-        console.log(categories, singleProduct, products, productCount);
-        res.render('user/shopsingle', { singleProduct, products });
+        const itemCount = req.session.cartCount;
+        console.log(itemCount);
+        res.render('user/shopsingle', { singleProduct, products, pass, itemCount });
     } catch (error) {
         console.log('Error occure while rendering the single product shopping page', error);
         res.render('user/error');

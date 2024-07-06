@@ -24,6 +24,13 @@ dbConnect().catch(err => {
 
 const app = express();
 
+// const time = new Date()
+
+// console.log(time,'time');
+// const formatTime = time.toLocaleDateString('en-GB')
+// console.log(formatTime,'formateed time');
+
+
 // Middleware setup
 app.use(session({
   secret: 'ababababba',
@@ -76,7 +83,7 @@ app.use((req,res,next)=>{
 })
 
 // Set view engine
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs'); 
 app.set('views', path.join(__dirname, 'views'));
 
 // User routes & admin routes

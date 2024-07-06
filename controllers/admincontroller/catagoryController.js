@@ -1,26 +1,58 @@
 const adminModel = require('../../model/userModel');
 const catModel = require('../../model/catagoryModel');
 const productModel = require('../../model/productModel');
+const flash = require('express-flash');
 
 
-
-// rendering catagory page
+// rendering the caregory listing from the admin side
 
 const catagory = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
     try {
-        console.log('entered the main catagory page.............');
         const updateSucess = req.flash('updateSuccess');
         const catSuccess = req.flash('catSuccess');
-        const catagories = await catModel.find({});
-        res.render('admin/catagory', { catagory: catagories, updateSucess, catSuccess });
+        const catagories = await catModel.find({}).sort({ _id: -1 }).limit(limit).skip(skip);
+        const count = await catModel.countDocuments({});
+        console.log('count:', count);
+        const totalpages = Math.ceil(count / limit);
+        res.render('admin/catagory', {
+            catagory: catagories,
+            updateSucess,
+            catSuccess,
+            currentPage: page,
+            totalPages: totalpages,
+            hasNextPage: page < totalpages,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: totalpages,
+            activePage: 'category'
+        })
     } catch (error) {
-        console.log('Error while loading the catagory page..');
+        console.log('Error while loading the catagory page..', error);
         res.render('admin/servererror');
     }
 }
 
+
+// rendering catagory page
+// const catagory = async (req, res) => {
+//     try {
+//         console.log('entered the main catagory page.............');
+//         const updateSucess = req.flash('updateSuccess');
+//         const catSuccess = req.flash('catSuccess');
+//         const catagories = await catModel.find({});
+//         res.render('admin/catagory', { catagory: catagories, updateSucess, catSuccess });
+//     } catch (error) {
+//         console.log('Error while loading the catagory page..');
+//         res.render('admin/servererror');
+//     }
+// }
+
 // rendering catagory adding page
-const Add_category = async (req, res) => {
+const addCategory = async (req, res) => {
     try {
         console.log('entering the catagories page..........');
         const catError = req.flash('catError');
@@ -29,7 +61,7 @@ const Add_category = async (req, res) => {
 
     } catch (error) {
         console.log('error while loading category page, ', error);
-        // res.render('admin/servererror');
+        res.render('admin/servererror');
     }
 }
 
@@ -37,13 +69,11 @@ const Add_category = async (req, res) => {
 // adding category by admin
 
 const addCatagoryPost = async (req, res) => {
-    console.log('Entered categocccccccccccccry adding page------------->');
-
     try {
         console.log('Entered category adding page------------->');
-        console.log(req.body);
         const catagoryName = req.body.name;
         const catDescription = req.body.description;
+        const discount = req.body.discount;
 
         // Check if the category already exists (case-insensitive)
         const catExisting = await catModel.findOne({ name: { $regex: new RegExp('^' + catagoryName + '$', 'i') } });
@@ -55,8 +85,8 @@ const addCatagoryPost = async (req, res) => {
             return res.redirect('/admin/Addcategories');
         } else {
             console.log('Adding new category.');
-            await catModel.create({ name: catagoryName, description: catDescription });
-            console.log('Category added successfully:', { name: catagoryName, description: catDescription });
+            await catModel.create({ name: catagoryName, description: catDescription, discount: discount });
+            console.log('Category added successfully:', { name: catagoryName, description: catDescription, discount: discount });
             req.flash('catSuccess', 'Category added successfully');
             return res.redirect('/admin/catagories');
         }
@@ -72,12 +102,12 @@ const unlist = async (req, res) => {
         console.log('entering the catagory listing/unlisting page');
         const id = req.params.id;
         const category = await catModel.findById(id);
-        console.log('category Id:',id);
+        console.log('category Id:', id);
         category.status = !category.status;
         await category.save();
         res.redirect('/admin/catagories')
     } catch (error) {
-        console.log('error while unlisting the catagory:',error);
+        console.log('error while unlisting the catagory:', error);
         res.render('admin/serverror');
     }
 }
@@ -114,9 +144,18 @@ const updateCatagoryPost = async (req, res) => {
             }
         }
         catagory.description = req.body.description;
+        catagory.discount = req.body.discount;
         catagory.name = catagoryName;
         await catagory.save();
-        console.log(catagory);
+        const catagoryDiscount = catagory.discount;
+        product.forEach(async (element) => {
+            if (catagoryDiscount > element.discount) {
+                element.discount = catagoryDiscount
+            }
+            element.discountPrice = element.price - (element.price * (element.discount / 100));
+            await element.save();
+        })
+        console.log(catagoryDiscount);
         req.flash('updateSuccess', 'catagory updated successfully')
         res.redirect('/admin/catagories');
     } catch (error) {
@@ -126,4 +165,4 @@ const updateCatagoryPost = async (req, res) => {
 }
 
 
-module.exports = { Add_category, addCatagoryPost, catagory, unlist, updateCatagory, updateCatagoryPost };
+module.exports = { addCategory, addCatagoryPost, catagory, unlist, updateCatagory, updateCatagoryPost };

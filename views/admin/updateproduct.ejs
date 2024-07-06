@@ -31,11 +31,11 @@
                         <div id="priceError" class="text-danger"></div>
                     </div>
 
-                    <!-- <div class="form-group col-md-6">
+                     <div class="form-group col-md-6">
                     <label for="discount">Discount: (in Percentage)</label>
-                    <input type="number" class="form-control" id="discount" name="discount" min="0" required>
+                    <input type="number" class="form-control" id="discount" name="discount" min="0" value="<%=product.discount%>" required>
                     <div id="discountError" class="text-danger"></div>
-                </div> -->
+                </div> 
 
                 </div>
                 <div class="form-group">
@@ -80,7 +80,7 @@
             var description = document.getElementById('description').value;
             var price = document.getElementById('price').value;
             var image = document.getElementById('image').value;
-            console.log(name,category,description,price,image,'--------------');
+            
 
             // resetting the error messages
             nameError.innerHTML = '';

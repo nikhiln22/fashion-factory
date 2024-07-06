@@ -1,0 +1,96 @@
+<%- include('adminHeader') %>
+<style>
+    .table-bordered {
+        border: 1px solid #000000;
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #000000;
+    }
+</style>
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h1 class="content-title card-title">Order List </h1>
+                    <p>List of orders:</p>
+                </div>
+            </div>
+           
+                <div class="col-lg-12 mt-4">
+                    <div class="table-responsive">
+                        <% if (orderDetails!='') { %>
+                         
+                        
+                        <table class="table table-bordered mt-2 text-center"">
+                            <thead>
+                                <tr class="table-primary">
+                                    <th style="width: 50px;">ID</th>
+                                    <th>Order Number</th>
+                                    <th>Date</th>
+                                    <th>Customer details</th>
+                                    <th>Payment Method</th>
+                                    <th>Total Price</th>
+                                    <th style="width: 200px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% let itemNumber = (currentPage - 1) * limit + 1; %>
+                                <% for (let i = 0; i < orderDetails.length; i++, itemNumber++) { %>
+                                <tr>
+                                    <td><%= itemNumber %></td>
+                                    <td><%= orderDetails[i].orderId %></td>
+                                    <td><%= orderDetails[i].formattedCreatedAt %></td>
+                                    <td>
+                                        <% if (orderDetails[i].address && orderDetails[i].address.length > 0) { %>
+                                            <span><%= orderDetails[i].address[0].name %></span>, 
+                                            <span><%= orderDetails[i].address[0].mobile %></span>, 
+                                            <span><%= orderDetails[i].address[0].street %></span>,
+                                            <span><%= orderDetails[i].address[0].state %></span>,
+                                            <span><%= orderDetails[i].address[0].pincode %></span>
+                                        <% } else { %>
+                                            <span>No address information available</span>
+                                        <% } %>
+                                    </td>
+                                    <td><%= orderDetails[i].payment %></td>
+                                    <td>₹<%= orderDetails[i].amount %></td>
+                                    <td>
+                                        <a href="/admin/singleorder?orderId=<%= orderDetails[i]._id %>" class="btn border btn-dark view-btn">View</a>
+                                    </td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table> 
+                    </div> 
+                </div> 
+                <!---Pagination starts here-->
+                <nav aria-label="Page navigation example" class="d-flex justify-content-centre my-4">
+                    <ul class="pagination">
+                        <% if (hasPreviousPage) { %>
+                        <li class="page-item"><a class="page-link" href="/admin/orders?page=1">First</a></li>
+                        <li class="page-item"><a class="page-link" href="/admin/orders?page=<%= previousPage %>">Previous</a></li>
+                        <% } else { %>
+                        <li class="page-item disabled"><span class="page-link">First</span></li>
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                        <% } %>
+                        
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>"><a class="page-link" href="/admin/orders?page=<%= i %>"><%= i %></a></li>
+                        <% } %>
+    
+                        <% if (hasNextPage) { %>
+                        <li class="page-item"><a class="page-link" href="/admin/orders?page=<%= nextPage %>">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="/admin/orders?page=<%= lastPage %>">Last</a></li>
+                        <% } else { %>
+                        <li class="page-item disabled"><span class="page-link">Next</span></li>
+                        <li class="page-item disabled"><span class="page-link">Last</span></li>
+                        <% } %>
+                    </ul>
+                </nav>
+                <!---Pagination ends here-->
+                <% }  else { %>
+                    <h1 class="text-center text-secondary mt-5">No Orders has been placed so far....!
+                    </h1>
+                    <% } %>
+        </section> 
+<%- include('adminfooter') %>

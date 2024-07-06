@@ -1,0 +1,282 @@
+<%- include('navbar') %>
+
+    <style>
+        .order__details--table__product--img {
+            max-width: 40px;
+            height: auto;
+        }
+
+        .order__details--table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .order__details--table__header th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .order__details--table__body--items {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .order__details--table__product {
+            display: flex;
+            align-items: center;
+        }
+
+        .order__details--table__product--img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .order__details--table__product--title {
+            margin: 0;
+        }
+
+        .order__details--action {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .swal-wide {
+            width: 600px !important;
+            font-size: 16px !important;
+        }
+
+        .swal-wide .swal2-content {
+            font-size: 18px !important;
+        }
+    </style>
+
+
+    <main class="main__content_wrapper">
+        <!-- Breadcrumb section -->
+        <section class="breadcrumb__section breadcrumb__bg">
+            <div class="container">
+                <div class="row row-cols-1">
+                    <div class="col">
+                        <div class="breadcrumb__content text-center">
+                            <h1 class="breadcrumb__content--title text-white mb-25">Order Details</h1>
+                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a>
+                                </li>
+                                <li class="breadcrumb__content--menu__items"><a class="text-white"
+                                        href="/orders">Orders</a></li>
+                                <li class="breadcrumb__content--menu__items"><span class="text-white">Order #<%=
+                                            orderDetails.orderId %></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End breadcrumb section -->
+
+        <!-- Order details section start -->
+        <section class="order__details--section section--padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="order__details--inner">
+                            <h2 class="order__details--title h3 mb-15">Order #<%= orderDetails.orderId %>
+                            </h2>
+                            <div class="order__details--top d-flex justify-content-between align-items-center">
+                                <div class="order__details--top__left">
+                                    <h3 class="order__details--top__title h4">Order Info</h3>
+                                    <ul class="order__details--top__list">
+                                        <li><strong>Date:</strong>
+                                            <%= new Date(orderDetails.createdAt).toLocaleDateString() %>
+                                        </li>
+                                        <li><strong>Payment Method:</strong>
+                                            <%= orderDetails.payment=='cod'?"Cash On Delivery":orderDetails.payment %>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="order__details--top__right">
+                                    <h3 class="order__details--top__title h4">Delivery Address</h3>
+                                    <address>
+                                        <%= orderDetails.address[0].saveAs %><br>
+                                            <%= orderDetails.address[0].street %><br>
+                                                <%= orderDetails.address[0].city %>, <%= orderDetails.address[0].pincode
+                                                        %>
+                                    </address>
+                                </div>
+                            </div>
+                            <div class="order__details--products">
+                                <h3 class="order__details--products__title h4 mb-15">Order Items</h3>
+                                <table class="order__details--table">
+                                    <thead class="order__details--table__header">
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Size</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="order__details--table__body">
+                                        <% orderDetails.items.forEach(function(item) { %>
+                                            <tr>
+                                                <td class="order__details--table__body--items">
+                                                    <div
+                                                        class="order__details--table__product d-flex align-items-center">
+                                                        <img class="order__details--table__product--img"
+                                                            src="<%= item.productId.image[0] %>"
+                                                            alt="<%= item.productId.name %>">
+                                                        <div class="order__details--table__product--content">
+                                                            <h3 class="order__details--table__product--title h4">
+                                                                <%= item.productId.name %>
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="order__details--table__body--items">
+                                                    <%= item.size %>
+                                                </td>
+                                                <td class="order__details--table__body--items">₹<%=
+                                                        item.price.toFixed(2) %>
+                                                </td>
+                                                <td class="order__details--table__body--items">
+                                                    <%= item.quantity %>
+                                                </td>
+                                                <td class="order__details--table__body--items">₹<%= (item.price *
+                                                        item.quantity).toFixed(2) %>
+                                                </td>
+                                                <td class="order__details--table__body--items">
+                                                    <%= item.status %>
+                                                </td>
+                                                <td class="order__details--table__body--items">
+                                                    <% if (item.status==="pending" ) { %>
+                                                        <div class="order__details--action mt-15">
+                                                            <button class="btn btn-primary cancel-order"
+                                                                data-order-id="<%= orderDetails._id %>"
+                                                                data-product-id="<%= item.productId._id %>">Cancel
+                                                                Order</button>
+                                                        </div>
+                                                        <% } %>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="order__details--footer d-flex justify-content-between">
+                                <div class="order__details--footer__left">
+                                    <!-- <h3 class="order__details--footer__title h4">Order Notes</h3>
+                                    <p class="order__details--footer__notes">
+                                        <%= orderDetails.notes || 'No notes for this order.' %>
+                                    </p> -->
+                                </div>
+                                <div class="order__details--footer__right">
+                                    <h3 class="order__details--footer__title h4">Order Summary</h3>
+                                    <ul class="order__details--footer__list">
+                                        <li><span>Subtotal:</span> ₹<%= orderDetails.amount.toFixed(2) %>
+                                        </li>
+                                        <li><span>Shipping:</span> ₹<%= orderDetails.shippingCost ?
+                                                orderDetails.shippingCost.toFixed(2) : '0.00' %>
+                                        </li>
+                                        <li><span>Total:</span> ₹<%= (orderDetails.amount + (orderDetails.shippingCost
+                                                || 0)).toFixed(2) %>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Order details section end -->
+    </main>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.cancel-order').forEach(function (cancelButton) {
+            cancelButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                const orderId = this.getAttribute('data-order-id');
+                const productId = this.getAttribute('data-product-id');
+    
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Do you really want to cancel this product?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No, keep it',
+                    customClass: {
+                        popup: 'swal-wide'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/cancelproduct`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ orderId, productId })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: 'Cancelled!',
+                                        text: 'The product has been cancelled.',
+                                        icon: 'success',
+                                        customClass: {
+                                            popup: 'swal-wide'
+                                        }
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Failed!',
+                                        text: 'Failed to cancel the product.',
+                                        icon: 'error',
+                                        customClass: {
+                                            popup: 'swal-wide'
+                                        }
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'An error occurred while cancelling the product.',
+                                    icon: 'error',
+                                    customClass: {
+                                        popup: 'swal-wide'
+                                    }
+                                });
+                            });
+                    }
+                });
+            });
+        });
+    });    
+</script>
+    <%- include('footer') %>

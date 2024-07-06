@@ -10,12 +10,16 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-8">
-                        <form method="post" action="/admin/Addcategories" onsubmit="return validateForm()">
-
+                        <form method="post" action="/admin/addcategories" onsubmit="return validateForm()">
                             <div class="mb-4">
                                 <label for="name" class="form-label">Name</label>
                                 <input type="text" placeholder="Type here" class="form-control" id="name" name="name" required/>
                                 <div id="nameError" class="text-danger"></div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="price" class="form-label">Discount: (in percentage)</label>
+                                <input type="number" placeholder="Type here" class="form-control" id="discount" name="discount" min="0" required/>
+                                <div id="discountError" class="text-danger"></div>
                             </div>
                             <div class="mb-4">
                                 <label for="description" class="form-label">Description</label>

@@ -18,17 +18,11 @@
                                 <input type="text" placeholder="Type here" class="form-control" id="name" name="name" value="<%=catagory.name %>" required />
                                 <div id="nameError" class="text-danger"></div>
                             </div>
-                            <!-- <div class="mb-4">
-                                <label for="product_slug" class="form-label">Slug</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
-                            </div> -->
-                            <!-- <div class="mb-4">
-                                <label class="form-label">Parent</label>
-                                <select class="form-select">
-                                    <option>Clothes</option>
-                                    <option>T-Shirts</option>
-                                </select>
-                            </div> -->
+                            <div class="mb-4">
+                                <label for="price" class="form-label">Discount: (in percentage)</label>
+                                <input type="number" placeholder="Type here" class="form-control" id="discount" name="discount" value="<%=catagory.discount %>" min="0" required/>
+                                <div id="discountError" class="text-danger"></div>
+                            </div>
                             <div class="mb-4">
                                 <label for="description" class="form-label">Description</label>
                                 <textarea placeholder="Type here" class="form-control" id="description" name="description" required><%= catagory.description %></textarea>

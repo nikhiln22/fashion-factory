@@ -1,0 +1,295 @@
+<%- include('navbar') -%>
+
+<style>
+    .custom-input {
+        height: 60px !important;
+        font-size: 18px !important;
+        padding: 10px 15px !important;
+    }
+    .form-label {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+    .custom-button {
+    padding: 12px 30px;
+    font-size: 18px;
+    height: 60px;
+    min-width: 200px;
+}
+</style>
+
+    <main class="main__content_wrapper">
+        <!-- Start breadcrumb section -->
+        <section class="breadcrumb__section breadcrumb__bg">
+            <div class="container">
+                <div class="row row-cols-1">
+                    <div class="col">
+                        <div class="breadcrumb__content text-center">
+                            <h1 class="breadcrumb__content--title text-white mb-25">My Account</h1>
+                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="index.html">Home</a></li>
+                                <li class="breadcrumb__content--menu__items"><span class="text-white">My Account</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End breadcrumb section -->
+        
+        <!-- my account section start -->
+        <section class="my__account--section section--padding">
+            <div class="container">
+                <div class="my__account--section__inner border-radius-10 d-flex">
+                    <div class="account__left--sidebar">
+                        <ul class="account__menu">
+                            <li class="account__menu--list"><a href="/profile">My Profile</a></li>
+                            <li class="account__menu--list"><a href="my-account-2.html">Orders</a></li>
+                            <li class="account__menu--list"><a href="/address">Addresses</a></li>
+                            <li class="account__menu--list"><a href="/resetpassword">change password</a></li>
+                            <li class="account__menu--list"><a href="wishlist.html">Wishlist</a></li>
+                            <li class="account__menu--list"><a href="/logout">Log Out</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!--Address section starts-->
+                    <div class="account__wrapper">
+                        <div class="account__content">
+                            <div id="addressFormContainer">
+                                <h3 class="mb-4">Edit Address</h3>
+                                <form action="/editaddress/<%= address.address._id %>" id="addressForm" method="POST">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="saveas" class="form-label">Save as</label>  
+                                            <input type="text" id="saveas" name="saveas" class="form-control form-control-lg custom-input"
+                                            value="<%= address.address.saveAs %>" required>
+                                            <span id="saveasError" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="fullname" class="form-label">Full Name</label>
+                                            <input type="text" id="fullname" name="name" class="form-control form-control-lg custom-input"
+                                            value="<%= address.address.name %>" required>
+                                            <span id="fullnameError" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" id="email" name="email" class="form-control form-control-lg custom-input"
+                                            value="<%= address.address.email %>" required>
+                                            <span id="emailError" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="adname" class="form-label">House Name / Flat No</label>
+                                            <input type="text" id="adname" name="housename" class="form-control form-control-lg custom-input"
+                                            value="<%= address.address.houseName %>" required>
+                                            <span id="adnameError" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="street" class="form-label">Street</label>
+                                            <input type="text" id="street" name="street" class="form-control form-control-lg custom-input"
+                                            value="<%= address.address.street %>" required>
+                                            <span id="streetError" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pincode" class="form-label">Pincode</label>
+                                            <input type="number" id="pincode" name="pincode" class="form-control form-control-lg custom-input"
+                                            value="<%= address.address.pincode %>" required>
+                                            <span id="pincodeError" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="city" class="form-label">City</label>
+                                            <input type="text" id="city" name="city" class="form-control form-control-lg custom-input"
+                                            value="<%= address.address.city %>" required>
+                                            <span id="cityError" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="state" class="form-label">State</label>
+                                            <select id="state" name="state" class="form-select form-select-lg custom-input" 
+                                            value="<%= address.address.state %>"required>
+                                            </select>
+                                            <span id="stateError" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="country" class="form-label">Country</label>
+                                            <select id="country" name="country" class="form-select form-select-lg custom-input" 
+                                            value="<%= address.address.country %>" required>
+                                                <option value="India">India</option>
+                                            </select>
+                                            <span id="countryError" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="mobile" class="form-label">Phone Number</label>
+                                            <input type="number" id="mobile" name="mobile" class="form-control form-control-lg custom-input" 
+                                            value="<%= address.address.mobile %>" required>
+                                            <span id="mobileError" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        <button id="saveChangesButton" class="btn btn-primary custom-button" type="submit">Save Changes</button>                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!---Address section Ends--->
+                </div>
+            </div>
+        </section>
+        <!-- my account section end -->
+
+        <%- include('footer') -%>      
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addressForm');
+    const saveChangesButton = document.getElementById('saveChangesButton');
+    
+    // Add event listeners to each input field
+    document.getElementById('saveas').addEventListener('blur', validateSaveAs);
+    document.getElementById('fullname').addEventListener('blur', validateFullName);
+    document.getElementById('email').addEventListener('blur', validateEmail);
+    document.getElementById('adname').addEventListener('blur', validateHouseName);
+    document.getElementById('street').addEventListener('blur', validateStreet);
+    document.getElementById('pincode').addEventListener('blur', validatePincode);
+    document.getElementById('city').addEventListener('blur', validateCity);
+    document.getElementById('state').addEventListener('blur', validateState);
+    document.getElementById('mobile').addEventListener('blur', validateMobile);
+
+    // Add submit event listener to the form
+    form.addEventListener('submit', function(event) {
+        if (!validateAddress()) {
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+
+    // Add input event listeners to enable/disable submit button
+    form.addEventListener('input', updateSubmitButton);
+});
+
+function validateSaveAs() {
+    const saveas = document.getElementById('saveas');
+    const saveasError = document.getElementById('saveasError');
+    if (saveas.value.trim() === '') {
+        saveasError.textContent = 'Please enter a name for this address';
+        return false;
+    }
+    saveasError.textContent = '';
+    return true;
+}
+
+function validateFullName() {
+    const fullname = document.getElementById('fullname');
+    const fullnameError = document.getElementById('fullnameError');
+    if (fullname.value.trim() === '') {
+        fullnameError.textContent = 'Please enter your full name';
+        return false;
+    }
+    fullnameError.textContent = '';
+    return true;
+}
+
+function validateEmail() {
+    const email = document.getElementById('email');
+    const emailError = document.getElementById('emailError');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.value)) {
+        emailError.textContent = 'Please enter a valid email address';
+        return false;
+    }
+    emailError.textContent = '';
+    return true;
+}
+
+function validateHouseName() {
+    const adname = document.getElementById('adname');
+    const adnameError = document.getElementById('adnameError');
+    if (adname.value.trim() === '') {
+        adnameError.textContent = 'Please enter your house name or flat number';
+        return false;
+    }
+    adnameError.textContent = '';
+    return true;
+}
+
+function validateStreet() {
+    const street = document.getElementById('street');
+    const streetError = document.getElementById('streetError');
+    if (street.value.trim() === '') {
+        streetError.textContent = 'Please enter your street name';
+        return false;
+    }
+    streetError.textContent = '';
+    return true;
+}
+
+function validatePincode() {
+    const pincode = document.getElementById('pincode');
+    const pincodeError = document.getElementById('pincodeError');
+    if (pincode.value.trim() === '' || pincode.value.length !== 6 || isNaN(pincode.value)) {
+        pincodeError.textContent = 'Please enter a valid 6-digit pincode';
+        return false;
+    }
+    pincodeError.textContent = '';
+    return true;
+}
+
+function validateCity() {
+    const city = document.getElementById('city');
+    const cityError = document.getElementById('cityError');
+    if (city.value.trim() === '') {
+        cityError.textContent = 'Please enter your city';
+        return false;
+    }
+    cityError.textContent = '';
+    return true;
+}
+
+function validateState() {
+    const state = document.getElementById('state');
+    const stateError = document.getElementById('stateError');
+    if (state.value === '') {
+        stateError.textContent = 'Please select a state';
+        return false;
+    }
+    stateError.textContent = '';
+    return true;
+}
+
+function validateMobile() {
+    const mobile = document.getElementById('mobile');
+    const mobileError = document.getElementById('mobileError');
+    if (mobile.value.trim() === '' || mobile.value.length !== 10 || isNaN(mobile.value)) {
+        mobileError.textContent = 'Please enter a valid 10-digit mobile number';
+        return false;
+    }
+    mobileError.textContent = '';
+    return true;
+}
+
+function validateAddress() {
+    return validateSaveAs() && 
+           validateFullName() && 
+           validateEmail() && 
+           validateHouseName() && 
+           validateStreet() && 
+           validatePincode() && 
+           validateCity() && 
+           validateState() && 
+           validateMobile();
+}
+
+function updateSubmitButton() {
+    const saveChangesButton = document.getElementById('saveChangesButton');
+    if (validateAddress()) {
+        saveChangesButton.disabled = false;
+    } else {
+        saveChangesButton.disabled = true;
+    }
+}
+</script>

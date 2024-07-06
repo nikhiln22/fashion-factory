@@ -1,0 +1,95 @@
+
+<%- include('navbar') -%>
+
+    <main class="main__content_wrapper">
+
+        <!-- Start breadcrumb section -->
+        <section class="breadcrumb__section breadcrumb__bg">
+            <div class="container">
+                <div class="row row-cols-1">
+                    <div class="col">
+                        <div class="breadcrumb__content text-center">
+                            <h1 class="breadcrumb__content--title text-white mb-25">My Account</h1>
+                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="index.html">Home</a></li>
+                                <li class="breadcrumb__content--menu__items"><span class="text-white">My Account</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End breadcrumb section -->
+        
+        <!-- my account section start -->
+        <section class="my__account--section section--padding">
+            <div class="container">
+                <p class="account__welcome--text">Hello, <%= user.username %> welcome to your profile!</p>
+                <% if (updateSuccess  && updateSuccess.length > 0) { %>
+                    <div style="color: red; font-size: 16px; font-weight: bold;">
+                    <%= updateSuccess %>  
+                    </div>
+                <% } %>
+                
+                <% if (userExist && userExist.length > 0) { %>
+                    <div style="color: red; font-size: 16px; font-weight: bold;">
+                        <%= userExist %>
+                    </div>
+                <% } %>
+                
+                <% if (error && error.length > 0) { %>
+                    <div style="color: red; font-size: 16px; font-weight: bold;">
+                        <%= error %>
+                    </div>
+                <% } %>
+                <div class="my__account--section__inner border-radius-10 d-flex">
+                    <div class="account__left--sidebar">
+                        <ul class="account__menu">
+                            <li class="account__menu--list"><a href="/profile">My Profile</a></li>
+                            <li class="account__menu--list"><a href="/orders">Orders</a></li>
+                            <li class="account__menu--list"><a href="/address">Addresses</a></li>
+                            <li class="account__menu--list"><a href="/resetpassword">change password</a></li>
+                            <li class="account__menu--list"><a href="wishlist.html">Wishlist</a></li>
+                            <li class="account__menu--list"><a href="/logout">Log Out</a></li>
+                        </ul>
+                    </div>
+        
+                    <!-- Profile Details Section -->
+                    <div class="account__right--sidebar">
+                        <h2 class="account__content--title h3 mb-20 text-center" style="color: #000000;">Profile Details</h2>
+                        <div class="account__details--wrapper">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">👤 Personal Information</h5>
+                                            <p><strong>Username:</strong> <span id="userFirstName"></span> <%= user.username %></p>
+                                            <p><strong>Email Address:</strong> <span id="userEmail"></span> <%= user.email %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">📞 Contact Information</h5>
+                                            <p><strong>Phone Number:</strong> <span id="userPhone"></span> <%= user.phone %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Profile Button -->
+                        <div class="text-center mt-4">
+                            <a href="/updateProfile" class="btn btn-primary px-4" style="width: 150px;"> 
+                                <i class="fas fa-pencil-alt"></i> Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                    <!-- End Profile Details Section -->
+                </div>
+            </div>
+        </section>
+        <!-- my account section end -->
+        <%- include('footer') -%> 
+        

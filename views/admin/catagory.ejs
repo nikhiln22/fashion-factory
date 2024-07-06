@@ -1,15 +1,15 @@
 <%- include ('adminHeader') %>
 
-<style>
-    .table-bordered {
-  border: 1px solid #000000;
-}
+    <style>
+        .table-bordered {
+            border: 1px solid #000000;
+        }
 
-.table-bordered th,
-.table-bordered td {
-  border: 1px solid #000000;
-}
-</style>
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000000;
+        }
+    </style>
 
     <section class="content-main">
         <div class="content-header">
@@ -21,94 +21,133 @@
                 <a href="/admin/Addcategories" class="btn btn-dark btn-sm rounded">Add new catagory</a>
             </div>
         </div>
-       
 
-            <% if (updateSucess.length> 0) { %>
-                <script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: '<%= updateSucess %>',
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                </script>
-                <% } %>
 
-                    <% if (catSuccess.length> 0) { %>
-                        <script>
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: '<%= catSuccess %>',
-                                timer: 3000,
-                                showConfirmButton: false
-                            });
-                        </script>
-                        <% } %>
-                       
+        <% if (updateSucess.length> 0) { %>
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '<%= updateSucess %>',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            </script>
+            <% } %>
 
-            
-                    <% if(catagory !="" ) { %>
-                        <table class="table table-bordered mt-2 text-center">
-                            <thead>
-                                <tr class="table-primary">
-                                    <th>SL.NO.</th>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>Change Status</th>
-                                    <th>Update</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% catagory.forEach((row,index)=> { %>
-                                    <tr>
-                                        <td>
-                                            <%= index + 1 %>
-                                        </td>
-                                        <td>
-                                                <%= row.name %>
-                                        </td>
-                                        <td>
-                                                <%= row.description %>
-                                        </td>
-                                        <td>
-                                                <%= row.status?'Listed':'Unlisted' %>
-                                        </td>
-                                        <td>
-                                            <a class="btn btn-danger btn-sm rounded"
-                                                onclick="categoryStatusConfirmation('<%= row._id %>')">
-                                                <%= row.status ? 'Unlist' : 'List' %>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="/admin/updatecatagory/<%= row._id %>"
-                                                class="btn btn-dark btn-sm rounded">Update
-                                            </a>
-                                        </td>
+                <% if (catSuccess.length> 0) { %>
+                    <script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: '<%= catSuccess %>',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    </script>
+                    <% } %>
+                        <% if(catagory !="" ) { %>
+                            <table class="table table-bordered mt-2 text-center">
+                                <thead>
+                                    <tr class="table-primary">
+                                        <th>SL.NO.</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Discount</th>
+                                        <th>Status</th>
+                                        <th>Change Status</th>
+                                        <th>Update</th>
                                     </tr>
-                                    <% }) %>
-                            </tbody>
-                        </table>
-                        <% } else { %>
-                            <h1 class="text-center text-secondary mt-5">No catagories found in the database</h1>
-                            <% } %>
-          
-            <div class="pagination-area mt-30 mb-50">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-start">
-                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                        <li class="page-item"><a class="page-link" href="#">02</a></li>
-                        <li class="page-item"><a class="page-link" href="#">03</a></li>
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">16</a></li>
-                        <li class="page-item"><a class="page-link" href="#">
-                                <iclass="material-icons md-chevron_right"></i></a></li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
+                                </thead>
+                                <tbody>
+                                    <% catagory.forEach((row,index)=> { %>
+                                        <tr>
+                                            <td>
+                                                <%= index + 1 %>
+                                            </td>
+                                            <td>
+                                                <%= row.name %>
+                                            </td>
+                                            <td>
+                                                <%= row.description %>
+                                            </td>
+                                            <td>
+                                                <%= row.discount %>
+                                            </td>
+                                            <td>
+                                                <%= row.status?'Listed':'Unlisted' %>
+                                            </td>
+                                            <td>
+                                                <a class="btn btn-danger btn-sm rounded"
+                                                    onclick="categoryStatusConfirmation('<%= row._id %>')">
+                                                    <%= row.status ? 'Unlist' : 'List' %>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="/admin/updatecatagory/<%= row._id %>"
+                                                    class="btn btn-dark btn-sm rounded">Update
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                           
+                                    <!----Pagination------->
+                                    <nav aria-label="Product navigation" class="mt-4">
+                                        <ul class="pagination justify-content-centre">
+                                            <% if(hasPreviousPage) { %>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page=1" aria-label="First">First</a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page=<%= previousPage %>"
+                                                        aria-label="Previous">Previous</a>
+                                                </li>
+                                                <% } else { %>
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link" aria-hidden="true">First</span>
+                                                    </li>
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link" aria-hidden="true">Previous</span>
+                                                    </li>
+                                                    <% } %>
+
+                                                        <% for(let i=1; i <=totalPages; i++) { %>
+                                                            <li
+                                                                class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                                                <a class="page-link" href="?page=<%= i %>">
+                                                                    <%= i %>
+                                                                </a>
+                                                            </li>
+                                                            <% } %>
+
+                                                                <% if(hasNextPage) { %>
+                                                                    <li class="page-item">
+                                                                        <a class="page-link"
+                                                                            href="?page=<%= nextPage %>"
+                                                                            aria-label="Next">Next</a>
+                                                                    </li>
+                                                                    <li class="page-item">
+                                                                        <a class="page-link"
+                                                                            href="?page=<%= lastPage %>"
+                                                                            aria-label="Last">Last</a>
+                                                                    </li>
+                                                                    <% } else { %>
+                                                                        <li class="page-item disabled">
+                                                                            <span class="page-link"
+                                                                                aria-hidden="true">Next</span>
+                                                                        </li>
+                                                                        <li class="page-item disabled">
+                                                                            <span class="page-link"
+                                                                                aria-hidden="true">Last</span>
+                                                                        </li>
+                                                                        <% } %>
+                                        </ul>
+                                    </nav>
+                                    <% } else { %>
+                                        <h1 class="text-center text-secondary mt-5">No catagories found in the database</h1>
+                                        <% } %>
     </section>
 
     <script>
@@ -134,7 +173,7 @@
         }
     </script>
 
-     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 
     <%- include ('adminfooter') %>

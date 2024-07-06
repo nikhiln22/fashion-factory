@@ -1,0 +1,199 @@
+<%- include('navbar') %>
+
+
+    <style>
+        .swal2-popup {
+            font-size: 1.6rem !important;
+            width: 30em !important;
+            max-width: 100% !important;
+        }
+
+        .payment-method__option {
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-method__option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .payment-method__label {
+            margin-bottom: 0;
+            font-size: 1.6rem;
+            line-height: 1.5;
+        }
+    </style>
+
+    <!-- Start breadcrumb section -->
+    <section class="breadcrumb__section breadcrumb__bg">
+        <div class="container">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <div class="breadcrumb__content text-center">
+                        <h1 class="breadcrumb__content--title text-white mb-25">Checkout</h1>
+                        <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a></li>
+                            <li class="breadcrumb__content--menu__items"><span class="text-white">Checkout</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End breadcrumb section -->
+
+    <!-- Start checkout page area -->
+    <div class="checkout__page--area">
+        <div class="container">
+            <div class="checkout__page--inner d-flex">
+                <div class="main checkout__mian">
+                    <header class="main__header checkout__mian--header mb-30">
+                        <h2 class="main__logo--title h3">Place Order</h2>
+                        <p class="mb-0">Please fill in the details below to complete your purchase.</p>
+                    </header>
+                    <main class="main__content_wrapper">
+                        <form id="orderform" action="/placeorder" method="post">
+                            <div class="checkout__content--step section__shipping--address">
+                                <div class="section__header mb-25">
+                                    <h3 class="section__header--title">Shipping address</h3>
+                                </div>
+                                <div class="section__shipping--address__content">
+                                    <div class="address-list">
+                                        <!-- Address radio buttons dynamically generated -->
+                                        <% if (address && address.address) { %>
+                                            <% address.address.forEach((address, index)=> { %>
+                                                <div class="address-item btn border">
+                                                    <label for="address<%= index + 1 %>">
+                                                        <input type="radio" name="address" id="address<%= index + 1 %>"
+                                                            value="<%= index %>" class="address-radio"
+                                                            data-address-id="<%= address._id %>">
+                                                        <span class="larger-text font-weight-bold text-black">
+                                                            <%= address.saveAs %>
+                                                        </span>
+                                                        <div class="address-details larger-text">
+                                                            <!-- Display address details here -->
+                                                            <p><span class="key">Full Name: </span>
+                                                                <%= address.name %>
+                                                            </p>
+                                                            <p><span class="key">House name/Flat no:</span>
+                                                                <%= address.houseName %>
+                                                            </p>
+                                                            <p><span class="key">Street:</span>
+                                                                <%= address.street %>
+                                                            </p>
+                                                            <p><span class="key">City:</span>
+                                                                <%= address.city %>
+                                                            </p>
+                                                            <p><span class="key">Pin-Code:</span>
+                                                                <%= address.pincode %>
+                                                            </p>
+                                                            <p><span class="key">State:</span>
+                                                                <%= address.state %>
+                                                            </p>
+                                                            <p><span class="key">Country:</span>
+                                                                <%= address.country %>
+                                                            </p>
+                                                            <!-- Add other address properties as needed -->
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                <% }); %>
+                                                    <% } else { %>
+                                                        <div>No addresses found.</div>
+                                                        <% } %>
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-primary mt-3" href="/addaddress">Add Address</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="checkout__content--step section__payment--method">
+                                <div class="section__header mb-25">
+                                    <h3 class="section__header--title">Payment method</h3>
+                                </div>
+                                <div class="section__payment--method__content">
+                                    <div class="payment-method">
+                                        <div class="payment-method__option">
+                                            <input type="radio" name="paymentMethod" id="cod" value="cod" checked>
+                                            <label for="cod" class="payment-method__label">Cash on Delivery</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">Place Order</button>
+                        </form>
+                    </main>
+                </div>
+                <aside class="checkout__sidebar sidebar">
+                    <div class="cart__table checkout__product--table">
+                        <h3 class="cart__table--title">Your Order</h3>
+                        <table class="cart__table--inner">
+                            <tbody class="cart__table--body">
+                                <!-- Order summary dynamically generated -->
+                                <% data.item.forEach(item=> { %>
+                                    <tr class="cart__table--body__items">
+                                        <td class="cart__table--body__list">
+                                            <div class="cart__product d-flex align-items-center">
+                                                <div class="cart__thumbnail border-radius-5">
+                                                    <a href="#"><img src="<%= item.productId.image[0] %>"
+                                                            alt="<%= item.productId.name %>"></a>
+                                                </div>
+                                                <div class="cart__content">
+                                                    <h4 class="cart__content--title"><a href="#">
+                                                            <%= item.productId.name %>
+                                                        </a></h4>
+                                                    <span class="cart__content--quantity">Qty: <%= item.quantity %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="cart__table--body__list">
+                                            <span class="cart__price">₹<%= item.price * item.quantity %></span>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                            </tbody>
+                            <tfoot class="cart__table--footer">
+                                <tr class="cart__table--footer__items">
+                                    <td class="cart__table--footer__list text-left">Subtotal</td>
+                                    <td class="cart__table--footer__list text-right">₹<%= data.total %>
+                                    </td>
+                                </tr>
+                                <tr class="cart__table--footer__items">
+                                    <td class="cart__table--footer__list text-left">Shipping</td>
+                                    <td class="cart__table--footer__list text-right">₹<%= shippingCost %>
+                                    </td>
+                                </tr>
+                                <tr class="cart__table--footer__items">
+                                    <td class="cart__table--footer__list text-left">Total</td>
+                                    <td class="cart__table--footer__list text-right">₹<%= data.total %>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+    <!-- End checkout page area -->
+
+    <script>
+        document.getElementById("orderform").addEventListener("submit", function (event) {
+            var addressSelected = document.querySelector('input[name="address"]:checked');
+            if (!addressSelected) {
+                event.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Address Required',
+                    text: 'Please select a shipping address before placing your order.',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        popup: 'swal2-custom-popup'
+                    }
+                });
+            }
+        });
+    </script>
+
+    <%- include('footer') %>

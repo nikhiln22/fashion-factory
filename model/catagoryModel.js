@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Declare the Schema of the Mongo model
-var catagorySchema = new mongoose.Schema({
+var categorySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -10,20 +10,24 @@ var catagorySchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  discount: {
+    type: Number,
+    required: true
+  },
   types: {
     type: Array,
     default: ['All']
   },
   status: {
     type: Boolean,
-    required:true,
+    required: true,
     default: true
   }
 });
 
 // creating a model
-const catagoryModel = new mongoose.model('catagory', catagorySchema);
+const categoryModel = new mongoose.model('categories', categorySchema);
 
 //Export the model
-module.exports = catagoryModel;
+module.exports = categoryModel;
 

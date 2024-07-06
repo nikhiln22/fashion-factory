@@ -92,7 +92,6 @@ const index = async (req, res) => {
 };
 
 
-
 // Rendering the signup page
 const signup = async (req, res) => {
   try {
@@ -252,7 +251,7 @@ const resendOtp = async (req, res) => {
 // Rendering the login page
 const login = async (req, res) => {
   try {
-    // console.log('eneterd login page----------->');
+    console.log('eneterd login page----------->');
     res.render('user/login',
       {
         expressFlash: {
@@ -271,14 +270,10 @@ const login = async (req, res) => {
 
 const loginPost = async (req, res) => {
   try {
-    console.log('+++++++++++++++++++entered login post');
+    console.log('entered login post');
     const email = req.body.email;
     const password = req.body.password;
-
-    console.log(`Email:-----> ${email} , password---------> ${password}`);
-
     const user = await userModel.findOne({ email: email });
-    console.log('user --------->  ', user);
 
     if (user && user.status && await bcrypt.compare(password, user.password)) {
       req.session.userId = user._id;
@@ -286,7 +281,6 @@ const loginPost = async (req, res) => {
       req.session.user = user;
       req.session.isAuth = true;
       req.flash('success', 'logged in successfully');
-      console.log('Redirecting to /');
       return res.redirect('/');
     } else {
       console.log('Invalid login attempt');
@@ -375,10 +369,10 @@ const newpassword = async (req, res) => {
 const newPasswordPost = async (req, res) => {
   try {
     console.log('entered the new password post method');
-    const password = req.body.Password;
+    const password = req.body.password;
     const cpassword = req.body.confirmPassword;
-    // console.log(password, cpassword);
     if (password == cpassword) {
+      console.log('entered to the if condition');
       const hashedPassword = await bcrypt.hash(password, 10);
       const email = req.session.user.email;
       await userModel.updateOne({ email: email }, { password: hashedPassword });

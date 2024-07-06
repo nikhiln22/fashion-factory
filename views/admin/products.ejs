@@ -1,17 +1,17 @@
 <%- include ('adminHeader') %>
 
-<style>
-    .table-bordered {
-  border: 1px solid #000000;
-}
+    <style>
+        .table-bordered {
+            border: 1px solid #000000;
+        }
 
-.table-bordered th,
-.table-bordered td {
-  border: 1px solid #000000;
-}
-</style>
-     <section class="content-main">
-         <div class="content-header">
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000000;
+        }
+    </style>
+    <section class="content-main">
+        <div class="content-header">
             <div>
                 <h2 class="content-title card-title">PRODUCT LIST</h2>
                 <p>List of Products:</p>
@@ -19,138 +19,155 @@
             <div>
                 <a href="/admin/addproduct" class="btn btn-dark d-flex mb-3">Add Product</a>
             </div>
-        </div>    
-                <div class="col-lg-12">
-                    <% if (productSuccess.length> 0) { %>
+        </div>
+        <div class="col-lg-12">
+            <% if (productSuccess.length> 0) { %>
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: '<%= productSuccess %>',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                </script>
+                <% } %>
+
+                    <% if (updateSuccess.length> 0) { %>
                         <script>
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: '<%= productSuccess %>',
+                                text: '<%= updateSuccess %>',
                                 timer: 3000,
                                 showConfirmButton: false
                             });
                         </script>
                         <% } %>
 
-                            <% if (updateSuccess.length> 0) { %>
-                                <script>
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success',
-                                        text: '<%= updateSuccess %>',
-                                        timer: 3000,
-                                        showConfirmButton: false
-                                    });
-                                </script>
-                                <% } %>
-                                
-                                    <div class="table-responsive">
-                                        <% if(product !="" ) { %>
-                                            <table class="table table-bordered mt-2 text-center">
-                                                <thead>
-                                                    <tr>
-                                                        <th>SR.NO.</th>
-                                                        <th>Name</th>
-                                                        <th>Description</th>
-                                                        <th>Category</th>
-                                                        <th>Price</th>
-                                                        <!-- <th>Discount(%)</th> -->
-                                                        <!-- <th>DiscountPrice</th> -->
-                                                        <th>Stock</th>
-                                                        <th>Image</th>
-                                                        <th>Status</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <% product.forEach((row,index)=> { %>
-                                                        <tr>
-                                                            <td>
-                                                                <centre>
-                                                                <%= index + 1 %>
-                                                            </centre>
-                                                            </td>
-                                                            <td>
-                                                                <centre>
-                                                                <%= row.name %>
-                                                            </centre>
-                                                            </td>
-                                                            <td>
-                                                           <centre>
-                                                                <marquee behavior="scroll" direction="left">
-                                                                <%= row.description%>
-                                                                </marquee>
-                                                            </centre>
-                                                            </td>
-                                                            <td>
-                                                            <centre>
-                                                                <%= row.category.name %>
-                                                            </centre>
-                                                            </td>
-                                                            <td>
-                                                                <centre>
-                                                                <%= row.price %>
-                                                            </centre>
-                                                            </td>
-                                                            <!-- <td>
-                                                                    <%= row.discount %>%
-                                                                </td> -->
-                                                            <!-- <td>
-                                                                    <%= row.discountPrice %>
-                                                                </td> -->
-                                                            <td>
-                                                                <centre>
-                                                                <%= row.totalstock %>
-                                                            </centre>
-                                                            </td>
-                                                            <td>
-                                                                <centre>
-                                                                <img src="/<%= row.image[0] %>"
+                            <div class="table-responsive">
+                                <% if(product !="" ) { %>
+                                    <table class="table table-bordered mt-2 text-center">
+                                        <thead>
+                                            <tr class="table-primary">
+                                                <th>SR.NO.</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Category</th>
+                                                <th>Price</th>
+                                                <th>Discount(%)</th>
+                                                <th>DiscountPrice</th>
+                                                <th>Stock</th>
+                                                <th>Image</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% product.forEach((row,index)=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <centre>
+                                                            <%= index + 1 %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <%= row.name %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <!-- <marquee behavior="scroll" direction="left"> -->
+                                                            <%= row.description%>
+                                                                <!-- </marquee> -->
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <%= row.category?.name||'noname' %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <%= row.price %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <%= row.discount %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <%= row.discountPrice %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <%= row.totalstock %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <img src="/<%= row.image[0] %>"
                                                                 style="max-width: 50px; max-height: 50px;" alt="image">
-                                                            </centre>
-                                                            </td>
-                                                            <td>
-                                                                <centre>
-                                                                <%= row.status ? 'Listed' : 'Unlisted' %>
-                                                            </centre>
-                                                            </td>
-                                                            <td>
-                                                                <centre>
-                                                                <a class="btn btn-danger btn-sm rounded"
-                                                                    onclick="confirmUnlist('<%= row._id %>')">
-                                                                    <%= row.status ? 'Unlist' : 'List' %>
-                                                                </a>
-                                                                <a href="/admin/updateProduct/<%= row._id %>"
-                                                                    class="btn btn-dark btn-sm rounded">update
-                                                                </a>
-                                                            </centre>
-                                                            </td>
-                                                        </tr>
-                                                        <% }) %>
-                                                </tbody>
-                                            </table>
-                                            <% } else { %>
-                                                <h1 class="text-center text-secondary mt-5">No Product found in the
-                                                    database
-                                                </h1>
-                                                <% } %>
-                                    </div>
-                </div>
-        <div class="pagination-area mt-30 mb-50">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-start">
-                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                    <li class="page-item"><a class="page-link" href="#">16</a></li>
-                    <li class="page-item"><a class="page-link" href="#"><i
-                                class="material-icons md-chevron_right"></i></a></li>
-                </ul>
-            </nav>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <%= row.status ? 'Listed' : 'Unlisted' %>
+                                                        </centre>
+                                                    </td>
+                                                    <td>
+                                                        <centre>
+                                                            <a class="btn btn-danger btn-sm rounded"
+                                                                onclick="confirmUnlist('<%= row._id %>')">
+                                                                <%= row.status ? 'Unlist' : 'List' %>
+                                                            </a>
+                                                            <a href="/admin/updateProduct/<%= row._id %>"
+                                                                class="btn btn-dark btn-sm rounded">update
+                                                            </a>
+                                                        </centre>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                        </tbody>
+                                    </table>
+                            </div>
         </div>
-    </section> content-main end//
+
+        <!---Pagination starts here-->
+        <nav aria-label="Product navigation" class="mt-4">
+            <ul class="pagination justify-content-centre">
+                <% if(hasPreviousPage) { %>
+                    <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                    <li class="page-item"><a class="page-link" href="?page=<%= previousPage %>">Previous</a></li>
+                    <% } %>
+
+                        <% for(let i=startPage; i <=endPage; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                            <% } %>
+
+                                <% if(hasNextPage) { %>
+                                    <li class="page-item"><a class="page-link" href="?page=<%= nextPage %>">Next</a>
+                                    </li>
+                                    <li class="page-item"><a class="page-link" href="?page=<%= lastPage %>">Last</a>
+                                    </li>
+                                    <% } %>
+            </ul>
+        </nav>
+        <!---Pagination ends here-->
+        <% } else { %>
+            <h1 class="text-center text-secondary mt-5">No Product found in the
+                database
+            </h1>
+            <% } %>
+    </section>
 
     <script>
         function confirmUnlist(itemId) {

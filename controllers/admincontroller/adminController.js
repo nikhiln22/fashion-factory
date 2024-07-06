@@ -34,8 +34,8 @@ const adloginpost = async (req, res) => {
     }
 }
 
-
-const admin_panel = async (req, res) => {
+// rendering the adminpanel page......
+const adminpanel = async (req, res) => {
     try {
         // console.log('reached admin panel ----------->>');
         res.render("admin/adminpanel")
@@ -44,17 +44,47 @@ const admin_panel = async (req, res) => {
     }
 }
 
-
+// listing the users from the admin side....
 const users = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 8;
+    const skip = (page - 1) * limit;
     try {
-        console.log('user listing page from admin side--------------->> ');
-        const user = await adminModel.find({ isAdmin: false });
-        res.render('admin/users', { users: user })
+        const user = await adminModel.find({ isAdmin: false }).sort({ _id: -1 }).limit(limit).skip(skip);
+        const totalUsers = await adminModel.countDocuments({});
+        console.log(totalUsers);
+        const totalpages = Math.ceil(totalUsers / limit);
+        const locals = {
+            users: user,
+            currentPage: page,
+            totalPages: totalpages,
+            hasNextPage: page < totalpages,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: totalpages,
+            activePage: 'users',
+            limit: limit
+        };
+        res.render('admin/users', { locals });
     } catch (error) {
-        console.log('error while loading the user page');
+        console.log('error while loading the user listing page');
         res.render('admin/servererror');
     }
 }
+
+
+// listing the users 
+// const users = async (req, res) => {
+//     try {
+//         console.log('user listing page from admin side--------------->> ');
+//         const user = await adminModel.find({ isAdmin: false });
+//         res.render('admin/users', { users: user })
+//     } catch (error) {
+//         console.log('error while loading the user page');
+//         res.render('admin/servererror');
+//     }
+// }
 
 
 // user listing (block & unblocking)
@@ -85,4 +115,4 @@ const adLogOut = async (req, res) => {
     }
 }
 
-module.exports = { adlogin, adloginpost, admin_panel, users, checkUserStatus, adLogOut };
+module.exports = { adlogin, adloginpost, adminpanel, users, checkUserStatus, adLogOut };

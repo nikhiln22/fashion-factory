@@ -4,16 +4,48 @@ const path = require('path');
 const fs = require('fs');
 
 
-// rendering the adminProduct page
+
+// rendering the product listing page from the admin side
+
 const product = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
     try {
         const productSuccess = req.flash('productSuccess');
-        const updateSuccess = req.flash('updateSuccess')
-        const products = await productModel.find().populate('category');
-        console.log('entering the all product informations dashboard in the adminside');
-        res.render('admin/products', { product: products, productSuccess, updateSuccess });
+        const updateSuccess = req.flash('updateSuccess');
+        const products = await productModel.find({}).populate({
+           path: 'category',
+            select:'name'
+    }).sort({ _id: -1 }).limit(limit).skip(skip);
+        console.log(products,'^^^^^^^^^^^^^^^^^^^');
+        const count = await productModel.countDocuments({});
+        console.log('count:', count);
+        const totalpages = Math.ceil(count / limit);
+        const pagesToShow = 5;
+        let startPage = page + pagesToShow - 1;
+        let endPage = Math.min(totalpages, startPage + pagesToShow - 1);
+        if (endPage - startPage < pagesToShow - 1) {
+            startPage = Math.max(1, endPage - pagesToShow + 1);
+        }
+        res.render('admin/products', {
+            product: products,
+            productSuccess,
+            updateSuccess,
+            currentPage: page,
+            startPage: startPage,
+            endPage: endPage,
+            totalPages: totalpages,
+            hasNextPage: page < totalpages,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: totalpages,
+            activePage: 'products',
+            limit
+        })
     } catch (error) {
-        console.log('error while loading the product page from the admin side');
+        console.log('error while loading the product listing page fron the admin side',error);
         res.render('admin/servererror');
     }
 }
@@ -36,17 +68,29 @@ const addProductPost = async (req, res) => {
     try {
         console.log('entered into product adding page in the adminside');
         const category = req.body.category;
+        console.log(category, '@@@@@@@@');
         const categories = await catagoryModel.findById(category);
+        console.log(categories, '############');
+        const categoryDiscount = categories.discount;
+        console.log(categoryDiscount, '$$$$$$$$$$$$$$$$');
+        const price = req.body.price;
+        console.log(price,'&&&&&&&&&&&&&&');
+        let discount = req.body.discount;
+        console.log(discount,'**********************');
 
+        if (categoryDiscount > discount) {
+            discount = categoryDiscount;
+        }
 
-        console.log(req.body);
-        console.log(categories);
+        const discountPrice = price - (price * (discount / 100));
 
         const product = new productModel({
             name: req.body.name,
             category: category,
             description: req.body.description,
-            price: req.body.price,
+            price: price,
+            discount: discount,
+            discountPrice: discountPrice,
             stock: [{
                 size: 'XS',
                 quantity: req.body.s1,
@@ -96,8 +140,7 @@ const unlist = async (req, res) => {
     }
 }
 
-// rendering the update product page from user side
-
+// rendering the product update page from user side
 const updateProduct = async (req, res) => {
     try {
         console.log('entered the product updating page from the admin side');
@@ -110,85 +153,97 @@ const updateProduct = async (req, res) => {
     }
 }
 
-// const updateProductPost = async (req, res) => {
-//     try {
-//         console.log('updating the selected product from admin side');
-//         const id = req.params.id;
-//         const product = await productModel.findOne({ _id: id });
-//         product.name = req.body.name;
-//         product.description = req.body.description;
-//         product.price = req.body.price;
-//         product.stock = [
-//             { size: 'XS', quantity: req.body.s1 },
-//             { size: 'S', quantity: req.body.s2 },
-//             { size: 'M', quantity: req.body.s3 },
-//             { size: 'L', quantity: req.body.s4 },
-//             { size: 'XL', quantity: req.body.s5 },
-//         ]
-//         product.totalstock = parseInt(req.body.s1) + parseInt(req.body.s2) + parseInt(req.body.s3) + parseInt(req.body.s4) + parseInt(req.body.s5);
-//         await product.save();
-//         req.flash('updateSuccess', 'product updated successfully');
-//         res.redirect('/admin/products');
-//     } catch (error) {
-//         console.log('error while updating the selected product', error);
-//         res.render('admin/servererror');
-//     }
-// }
-
-
-
+// updating the existing product from the admin side
 const updateProductPost = async (req, res) => {
     try {
-        console.log('Updating the selected product from admin side');
-        console.log(req.body);
+        console.log('updating the selected product from admin side');
         const id = req.params.id;
         const product = await productModel.findOne({ _id: id });
-
-        // Ensure required fields are present and valid
-        const { name, description, price, s1, s2, s3, s4, s5 } = req.body;
-
-        if (!name || !description || !price || [s1, s2, s3, s4, s5].some(size => size === undefined)) {
-            throw new Error("All fields are required.");
+        const category = product.category;
+        const categories = await catagoryModel.findById(category);
+        const categoryDiscount = categories.discount;
+        const price = req.body.price;
+        let discount = req.body.discount;
+        if (categoryDiscount > discount) {
+            discount = categoryDiscount;
         }
-
-        product.name = name;
-        product.description = description;
-        product.price = parseFloat(price);
+        const discountPrice = price - (price * (discount / 100));
+        product.name = req.body.name;
+        product.description = req.body.description;
+        product.price = price;
+        product.discount = discount;
+        product.discountPrice = discountPrice;
         product.stock = [
-            { size: 'XS', quantity: parseInt(s1) },
-            { size: 'S', quantity: parseInt(s2) },
-            { size: 'M', quantity: parseInt(s3) },
-            { size: 'L', quantity: parseInt(s4) },
-            { size: 'XL', quantity: parseInt(s5) },
-        ];
-
-
-        const totalStock = parseInt(s1) + parseInt(s2) + parseInt(s3) + parseInt(s4) + parseInt(s5);
-        if (isNaN(totalStock)) {
-            throw new Error("Total stock calculation failed.");
-        }
-        product.totalstock = totalStock;
-
-
+            { size: 'XS', quantity: req.body.s1 },
+            { size: 'S', quantity: req.body.s2 },
+            { size: 'M', quantity: req.body.s3 },
+            { size: 'L', quantity: req.body.s4 },
+            { size: 'XL', quantity: req.body.s5 },
+        ]
+        product.totalstock = parseInt(req.body.s1) + parseInt(req.body.s2) + parseInt(req.body.s3) + parseInt(req.body.s4) + parseInt(req.body.s5);
         await product.save();
-        req.flash('updateSuccess', 'Product updated successfully');
+        req.flash('updateSuccess', 'product updated successfully');
         res.redirect('/admin/products');
     } catch (error) {
-        console.log('Error while updating the selected product:', error);
-        res.render('admin/servererror', { error: error.message });
+        console.log('error while updating the selected product', error);
+        res.render('admin/servererror');
     }
-};
+}
+
+
+
+// const updateProductPost = async (req, res) => {
+//     try {
+//         console.log('Updating the selected product from admin side');
+//         console.log(req.body);
+//         const id = req.params.id;
+//         const product = await productModel.findOne({ _id: id });
+
+//         // Ensure required fields are present and valid
+//         const { name, description, price, s1, s2, s3, s4, s5 } = req.body;
+
+//         if (!name || !description || !price || [s1, s2, s3, s4, s5].some(size => size === undefined)) {
+//             throw new Error("All fields are required.");
+//         }
+
+//         product.name = name;
+//         product.description = description;
+//         product.price = parseFloat(price);
+//         product.stock = [
+//             { size: 'XS', quantity: parseInt(s1) },
+//             { size: 'S', quantity: parseInt(s2) },
+//             { size: 'M', quantity: parseInt(s3) },
+//             { size: 'L', quantity: parseInt(s4) },
+//             { size: 'XL', quantity: parseInt(s5) },
+//         ];
+
+
+//         const totalStock = parseInt(s1) + parseInt(s2) + parseInt(s3) + parseInt(s4) + parseInt(s5);
+//         if (isNaN(totalStock)) {
+//             throw new Error("Total stock calculation failed.");
+//         }
+//         product.totalstock = totalStock;
+
+
+//         await product.save();
+//         req.flash('updateSuccess', 'Product updated successfully');
+//         res.redirect('/admin/products');
+//     } catch (error) {
+//         console.log('Error while updating the selected product:', error);
+//         res.render('admin/servererror', { error: error.message });
+//     }
+// };
 
 // rendering the update image page
 const updateImage = async (req, res) => {
     try {
         console.log('entered into the image updating page from the admin side....');
         const id = req.params.id;
-        console.log(id,'###########8###########');
+        console.log(id, '###########8###########');
         const imageNotFound = req.flash('imageNotFound');
         const product = await productModel.findById(id);
-        console.log(product,'--------------------->');
-        console.log(product.image,'111111111111111111');
+        console.log(product, '--------------------->');
+        console.log(product.image, '111111111111111111');
         res.render('admin/updateimage', { product: product, imageNotFound });
     } catch (error) {
         console.log('error occured while editing the image from the admin side', error);

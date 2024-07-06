@@ -1,0 +1,158 @@
+<%- include('adminHeader') %>
+<style>
+    .table-bordered {
+        border: 1px solid #000000;
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #000000;
+    }
+</style>
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h1 class="content-title card-title">Order Details</h1>
+                </div>
+            </div>
+            <!-- <p>Debug - Amount: <%= orderDetails.amount %></p> -->
+                <div class="col-lg-12 mt-4">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mt-2 text-center"">
+                            <thead>
+                                <tr class="table-primary">
+                                    <th>Image</th>
+                                    <th>Product Name</th>
+                                    <th>Date</th>
+                                    <th>Quantity</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%orderDetails.items.forEach(function(item,i){%>
+                                    <% if(item.productId && item.productId.name){%>
+                                        <input type="hidden" name="" id="status" value=" <%=item.status%>">
+                                        <input type="hidden" name="" id="productId<%=i%>"
+                                            value="<%=item.productId._id%>">
+                                        <input type="hidden" name="" id="orderId<%=i%>"
+                                            value="<%=orderDetails._id%>">
+
+                                        <tr>
+                                            <td><img src="/<%=item.productId.image[0]%> "
+                                                style="max-width: 50px; max-height: 50px;"
+                                                    alt="Product Name"></td>
+                                            <td>
+                                                <%=item.productId.name%>
+                                            </td>
+                                            <td>
+                                                <%=orderDetails.createdAt.toLocaleDateString()%>
+                                            </td>
+                                            <td>
+                                                <%=item.quantity%>
+                                            </td>
+                                            <td>₹<%=item.productId.discountPrice%>
+                                            </td>
+                                            <td>
+                                                <%=item.status%>
+                                            </td>
+                                            <td>
+                                            
+                                                <button class="btn btn-success border changeStatusBtn"
+                                                    data-index="<%=i%>">Change Status</button>
+                                            </td>
+                                        </tr>
+                                        <%}%>
+                                            <% })%>
+                            </tbody>
+                        </table>
+                    </div> 
+                </div> 
+        </section> 
+
+           <div class="modal fade" id="statusChangeModal" tabindex="-1" aria-labelledby="statusChangeModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="statusChangeModalLabel">Change Order Status</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <select class="form-select" id="modalOrderStatus">
+                                <option value="placed">Placed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <!-- <option value="cancelled">Cancelled</option> -->
+                            </select>
+                                </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="saveStatus">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const status=document.getElementById('status').value
+            console.log("status:",status);
+            const selectElem=document.getElementById('modalOrderStatus')
+            const options=selectElem.options
+
+            for(var i=0;i< options.length;i++){
+                if(options[i].value === status){
+                    selectElem.selectedIndex =i;
+                    break;
+
+                }
+            }
+            console.log(document.getElementById('modalOrderStatus').value,'-------------------->' );
+
+            var statusChangeModal = new bootstrap.Modal(document.getElementById('statusChangeModal'), {
+                keyboard: false
+            });
+
+            document.querySelectorAll('.btn-success').forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    statusChangeModal.show();
+                });
+            });
+            document.querySelectorAll('.changeStatusBtn').forEach(item => {
+                item.addEventListener('click', function () {
+                
+                    const index = this.getAttribute('data-index');
+                    const productId = document.getElementById(`productId${index}`).value;
+                    const orderId = document.getElementById(`orderId${index}`).value;
+
+                    document.getElementById('saveStatus').addEventListener('click', function () {
+
+                        const selectedOrderStatus = document.getElementById('modalOrderStatus').value;
+                        console.log('selectedOrderStatus:', selectedOrderStatus);
+                        console.log('orderId:', orderId);
+                        console.log('productId:', productId);
+
+                        axios.post('/admin/updatestatus', { productId, orderId, selectedOrderStatus })
+                            .then(res => {
+                                console.log('Res:',res.data);
+                                if (res.data.success) {
+                                    window.location.href = '/admin/singleorder?orderId=' + orderId; 
+                                    statusChangeModal.hide();
+                                }
+                            }).catch(err => {
+                                console.log('error in axios');
+                                statusChangeModal.hide();
+                            });
+                    })
+                })
+            });
+        })
+
+    </script>
+
+      
+<%- include('adminfooter') %>

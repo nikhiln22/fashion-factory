@@ -11,6 +11,11 @@
             text-align: center;
             font-size: 18px;
         }
+
+        .full-width-btn {
+            width: 100%;
+            max-width: 100%;
+        }
     </style>
     <main class="main__content_wrapper">
         <!-- Start breadcrumb section -->
@@ -56,26 +61,25 @@
                                             <input class="account__login--input otp__input" name="otp" type="number"
                                                 maxlength="1" id="digit4">
                                         </div>
-                                        <button class="account__login--btn primary__btn mb-10" type="submit">Submit
+                                        <button class="account__login--btn primary__btn mb-10 full-width-btn"
+                                            type="submit">Submit
                                             OTP</button>
                                         <% if (expressFlash.otperror) { %>
                                             <p style="color: red;">
                                                 <%= expressFlash.otperror %>
                                             </p>
                                             <% } %>
-                                        <div id="timer" class="text-center text-danger"></div>
+                                                <div id="timer" class="text-center text-danger"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
-                <form action="/resendotp" method="post"
-                id="resend-form">
-                <button id="resend-btn" style="display:none;"
-                    class="account__login--btn primary__btn mb-10"
-                    type="submit">Resend OTP</button>
-            </form>
+                <form action="/resendotp" method="post" id="resend-form">
+                    <button id="resend-btn" style="display:none;"
+                        class="account__login--btn primary__btn mb-10 full-width-btn" type="submit">Resend OTP</button>
+                </form>
             </div>
         </div>
     </main>
