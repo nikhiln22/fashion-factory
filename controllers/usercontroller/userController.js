@@ -8,18 +8,17 @@ const flash = require('express-flash');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator');
-const { get } = require('http');
 const passport = require('passport');
-const { log } = require('console');
 require('dotenv').config();
 const axios = require('axios');
-
+const walletModel = require('../../model/WalletModel');
 
 
 const mail = process.env.EMAIL;
 const pass = process.env.PASS;
 
 
+// generating otp function
 const generateOtp = () => {
   try {
     const otp = otpGenerator.generate(4, {
@@ -27,7 +26,6 @@ const generateOtp = () => {
       lowerCaseAlphabets: false,
       specialChars: false
     });
-    // console.log('OTP: ', otp);
     return otp;
   } catch (error) {
     console.log(err);
@@ -35,6 +33,7 @@ const generateOtp = () => {
   }
 }
 
+// sending mail for the users throught the nodemailer
 const sendMail = async (email, otp, username) => {
   try {
     // create reusable transporter object using the default smtp transport
@@ -65,9 +64,7 @@ const sendMail = async (email, otp, username) => {
     <p>Stay stylish,<br/>The Fashion Factory Team</p>`
     };
 
-
     await transporter.sendMail(message);
-    // console.log('email sent successfully');
   } catch (error) {
     console.log(error);
   }
@@ -98,7 +95,7 @@ const signup = async (req, res) => {
     res.render('user/signUp', {
       emailError: req.flash('emailError'),
       passwordError: req.flash('passwordError'),
-      mobileError: req.flash('mobileError'),
+      referralError: req.flash('referralError'),
       success: req.flash('success')
     });
   } catch (error) {
@@ -107,37 +104,61 @@ const signup = async (req, res) => {
   }
 };
 
+// function to generate unique refferal code
+const generateuniqueRefferalCode = async () => {
+  let code;
+  let isUnique = false;
+  while (!isUnique) {
+    code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const existingUser = await userModel.findOne({ referralCode: code });
+    if (!existingUser) {
+      isUnique = true;
+    }
+  }
+  return code;
+};
 
+
+// user providing the details for signup
 const signUpPost = async (req, res) => {
   try {
-    console.log('entered to the signUp post function--------------->');
-    const { username, email, phone: phone, password, confirmPassword: Cpassword } = req.body;
-
-    console.log('---------------->', req.body);
-
+    console.log('entered to the signUp post function');
+    const { username, email, phone: phone, password, confirmPassword: Cpassword, referralCode } = req.body;
     const user = await userModel.findOne({ email: email });
-    console.log(user, '#@#@#@#@#@#@#@#@##@@@#@#@');
-
     if (!user) {
       if (password !== Cpassword) {
         req.flash('passwordError', 'password does not match, Please try again');
         return res.redirect('/signUp');
       }
 
+      let referredBy;
+      if (referralCode) {
+        const referrer = await userModel.findOne({ referralCode: referralCode });
+        if (referrer) {
+          referredBy = referrer._id;
+        } else {
+          req.flash('referralError', 'Invalid referral code');
+          return res.redirect('/signUp');
+        }
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
+      const newReferalCode = await generateuniqueRefferalCode();
+
       const newuser = {
         username,
         email,
         phone,
-        password: hashedPassword
+        password: hashedPassword,
+        referralCode: newReferalCode,
+        referredBy 
       };
 
       req.session.user = newuser;
-      // console.log(req.session.user,'===============================$');
       req.session.signup = true;
 
       const otp = generateOtp();
-      console.log(otp, ':::::;;;;;;;::::::;;;;;;;');
+      console.log('otp:', otp);
 
       const currTime = Date.now();
       const expTime = currTime + 60 * 1000;
@@ -160,7 +181,7 @@ const signUpPost = async (req, res) => {
 // rendering the otp page....
 const otp = async (req, res) => {
   try {
-    console.log('entered the otp function====================>');
+    console.log('entered the otp function');
     const otp = await otpModel.findOne({ email: req.session.user.email });
     console.log(otp);
     res.render('user/otp', {
@@ -179,46 +200,61 @@ const otp = async (req, res) => {
 // veryfing the otp
 const verifyOtp = async (req, res) => {
   try {
-    console.log('entered the otp veryfing function===============>');
+    console.log('entered the otp veryfing function');
+
     const enteredOtp = req.body.otp;
     const converetedOtp = parseInt(enteredOtp.join(''));
-
-    console.log("enter otp -------->>>> ", enteredOtp);
-
-    console.log(req.session.user);
-
-    // const user = req.session.user.name;
-    // console.log(user,')(*&^%#$%#^45636');
-
+    
     const email = req.session.user.email;
-    console.log(email, '@#$%@$@%@%@$%@%@');
-
     const userdb = await otpModel.findOne({ email: email });
-    console.log(userdb, '^^%%^%^%^^^^^^');
 
     const otp = userdb.otp;
     const expiry = userdb.expiry;
 
-    console.log('entering to the most danger conditional statements, please pray for me.............');
     if (converetedOtp == otp && expiry.getTime() >= Date.now()) {
       email.isVerified = true;
       if (req.session.forgot) {
         res.redirect('/newpassword');
       }
+
       if (req.session.signup) {
-        console.log('entered here.........');
-        await userModel.create(req.session.user);
-        const userdata = await userModel.findOne({ email: email });
-        console.log('entered this side.....');
-        req.session.userId = userdata._id;
+        const newUser = await userModel.create(req.session.user);
+
+        if (newUser.referredBy ) {
+          const referrer = await userModel.findById(newUser.referredBy );
+          
+          // referral reward for the refferrer
+          await walletModel.findOneAndUpdate(
+            { userId: referrer._id },
+            {
+              $inc: { balance: 100 },
+              $push: {
+                transaction: { amount: 100, transactionsMethod: "referral" }
+              }
+            },
+            { upsert: true }
+          );
+          // referral award for new user
+          await walletModel.findOneAndUpdate(
+            { userId: newUser._id },
+            {
+              $inc: { balance: 50 },
+              $push: {
+                transaction: { amount: 50, transactionsMethod: "referral" }
+              }
+            },
+            { upsert: true }
+          );
+        }
+        req.session.userId = newUser._id;
         req.session.isAuth = true;
         req.session.signup = false;
         req.flash('success', 'Logged in successfully');
         res.redirect('/');
+      } else {
+        req.flash('otperror', 'invalid otp!..please enter correct otp');
+        res.redirect('/otp');
       }
-    } else {
-      req.flash('otperror', 'invalid otp!..please enter correct otp');
-      res.redirect('/otp');
     }
   } catch (error) {
     console.log('error occured while veryfing the otp', error);
@@ -233,7 +269,7 @@ const resendOtp = async (req, res) => {
     console.log('***********entered the veryfying resended otp****************');
     const email = req.session.user.email;
     const otp = generateOtp();
-    console.log(otp, '@@#@@###@##@#@#@#@$@');
+    console.log('otp:',otp);
     const currTime = Date.now();
     const expiry = currTime + 60 * 1000;
     await otpModel.updateOne({ email: email }, { otp: otp, expiry: new Date(expiry) });
@@ -244,8 +280,6 @@ const resendOtp = async (req, res) => {
     res.render('user/error');
   }
 }
-
-
 
 
 // Rendering the login page
@@ -365,14 +399,12 @@ const newpassword = async (req, res) => {
 }
 
 // new password post
-
 const newPasswordPost = async (req, res) => {
   try {
     console.log('entered the new password post method');
     const password = req.body.password;
     const cpassword = req.body.confirmPassword;
     if (password == cpassword) {
-      console.log('entered to the if condition');
       const hashedPassword = await bcrypt.hash(password, 10);
       const email = req.session.user.email;
       await userModel.updateOne({ email: email }, { password: hashedPassword });
@@ -391,7 +423,6 @@ const newPasswordPost = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    // console.log(req.cookies.googleToken,'###################');
     if (req.cookies.googleToken) {
       await axios.post(`https://accounts.google.com/o/oauth2/revoke?token=${req.cookies.googleToken}`);
     }

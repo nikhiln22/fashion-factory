@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #948686;
+            background-color: #796da5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,7 +16,7 @@
         }
 
         .login-container {
-            background-color: #fff;
+            background-color: #ffffff;
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -64,64 +63,124 @@
         .error-message {
             color: red;
             font-size: 12px;
-            display: none;
+            margin-top: 5px;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .error-message.fade-out {
+            opacity: 0;
+        }
+
+        button{
+            background-color:#343a40;
+            cursor:pointer;
+            border-radius: 4px;
+            border: none;
+        }
+
+        button:hover{
+            background-color: #23272b;
         }
     </style>
 </head>
+
 
 <body>
     <div class="login-container">
         <h2>Admin Login</h2>
         <form id="adminLoginForm" action='/admin/adminloginPost' method='post'>
             <div class="form-group">
-                <label for="Email">Email address</label>
-                <input type="email" id="email" name="email" onblur="validateEmail()" required>
-                <span id="usernameError"></span>
+                <% if(emailError && emailError.length>0){ %>
+                    <div class="error-message" id="emailErrorMessage">
+                        <%=emailError%>
+                    </div>
+                    <% } %>
+                        <label for="Email">Email address</label>
+                        <input type="email" id="email" name="email" required>
+                        <span id="usernameError"></span>
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" onblur="validatePassword()" required>
-                <span id="passwordError"></span>
+                <% if(passwordError && passwordError.length>0){ %>
+                    <div class="error-message" id="passwordErrorMessage">
+                        <%= passwordError %>
+                    </div>
+                    <% } %>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                        <span id="passwordError"></span>
             </div>
             <button type="submit">Login</button>
-            <% if(passwordError){ %>
-                <div class="alter text-danger text-start">
-                    <%= passwordError %>
-                </div>
-                <% } %>
         </form>
     </div>
 
+
     <script>
         function validateEmail() {
-            var emailError = document.getElementById('emailerror');
+            var emailError = document.getElementById('emailErrorMessage');
             var email = document.getElementById('email').value.trim();
             if (!email.match(/^[A-Za-z\._\-[0-9]+@[A-Za-z]+\.[a-z]{2,}$/)) {
-                emailError.innerHTML = 'Email is invalid';
+                showError(emailError, 'Email is invalid');
                 return false;
             } else {
-                emailError.innerHTML = '';
+                hideError(emailError);
                 return true;
             }
-
         }
+
         function validatePassword() {
-            var passwordError = document.getElementById('passwordError');
+            var passwordError = document.getElementById('passwordErrorMessage');
             var password = document.getElementById('password').value.trim();
 
             if (!password.match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()-_+=<>?])[A-Za-z\d\S]{8,}$/)) {
-                passwordError.innerHTML = 'Password must meet the following criteria:<br>' +
+                showError(passwordError, 'Password must meet the following criteria:<br>' +
                     '- At least 8 characters in length<br>' +
                     '- At least one letter (uppercase or lowercase)<br>' +
                     '- At least one digit<br>' +
-                    '- At least one symbol';
+                    '- At least one symbol');
                 return false;
             } else {
-                passwordError.innerHTML = '';
+                hideError(passwordError);
                 return true;
             }
-        } 
+        }
+
+        function showError(element, message) {
+            element.innerHTML = message;
+            element.style.display = 'block';
+            element.classList.remove('fade-out');
+            setTimeout(() => {
+                element.classList.add('fade-out');
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 500); // Wait for fade out animation to complete
+            }, 5000);
+        }
+
+        function hideError(element) {
+            element.classList.add('fade-out');
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 500);
+        }
+
+        document.getElementById('adminLoginForm').addEventListener('submit', function (event) {
+            if (!validateEmail() || !validatePassword()) {
+                event.preventDefault();
+            }
+        });
+
+        // Initialize error message timers
+        window.onload = function () {
+            const emailError = document.getElementById('emailErrorMessage');
+            const passwordError = document.getElementById('passwordErrorMessage');
+
+            if (emailError) {
+                setTimeout(() => hideError(emailError), 5000);
+            }
+            if (passwordError) {
+                setTimeout(() => hideError(passwordError), 5000);
+            }
+        };
     </script>
 </body>
-
 </html>

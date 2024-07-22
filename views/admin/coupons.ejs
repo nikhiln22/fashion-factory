@@ -1,0 +1,158 @@
+<%- include('adminHeader') %>
+
+<style>
+    .table-bordered {
+        border: 1px solid #000000;
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #000000;
+    }
+</style>
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">COUPON LIST</h2>
+                <p>List of Coupons:</p>
+            </div>
+            <% if(couponExists){%>
+                <div style="color: red; font-size: 16px; font-weight: bold;">
+                    <%= couponExists%>
+                </div>
+                <%}%>
+            <div>
+                <a href="/admin/addcoupon" class="btn btn-dark d-flex mb-3">Add Coupon</a>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <% if(coupons !="" ) { %>
+                    <table class="table table-bordered mt-2 text-center">
+                        <thead>
+                            <tr class="table-primary">
+                                <th>Coupon Code</th>
+                                <th>Type</th>
+                                <th>Min.Price</th>
+                                <th>Discount(%)</th>
+                                <th>Max.Redeemable</th>
+                                <th>Expiry</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% coupons.forEach(function(data){ %>
+                                <tr>
+                                    <td>
+                                        <centre>
+                                            <%= data.couponCode %>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <%= data.type %>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <%= data.minimumPrice %>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <%= data.discount %>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <%= data.maxRedeem%>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <%= data.expiry.toLocaleString('en-US', { month: 'short' ,
+                                            day: 'numeric' , year: 'numeric' , hour: 'numeric' ,
+                                            minute: 'numeric' , hour12: true })%>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <%= data.status ? 'Listed' : 'Unlisted' %>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <a class="btn btn-danger btn-sm rounded"
+                                                onclick="confirmUnlist('<%= data._id %>')">
+                                                <%= data.status ? 'Unlist' : 'List' %>
+                                            </a>
+                                            <a href="/admin/updatecoupon/<%= data._id %>"
+                                                class="btn btn-dark btn-sm rounded">update
+                                            </a>
+                                        </centre>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+
+        <!---Pagination starts here-->
+        <nav aria-label="Product navigation" class="mt-4">
+            <ul class="pagination justify-content-centre">
+                <% if(hasPreviousPage) { %>
+                    <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                    <li class="page-item"><a class="page-link" href="?page=<%= previousPage %>">Previous</a></li>
+                    <% } %>
+
+                        <% for(let i=startPage; i <=endPage; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                            <% } %>
+
+                                <% if(hasNextPage) { %>
+                                    <li class="page-item"><a class="page-link" href="?page=<%= nextPage %>">Next</a>
+                                    </li>
+                                    <li class="page-item"><a class="page-link" href="?page=<%= lastPage %>">Last</a>
+                                    </li>
+                                    <% } %>
+            </ul>
+        </nav>
+        <!---Pagination ends here-->
+        <% } else { %>
+            <h1 class="text-center text-secondary mt-5">No Coupons found in the
+                database
+            </h1>
+            <% } %>
+    </section>
+
+
+    <script>
+        function confirmUnlist(itemId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Are you sure you want to proceed?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Confirm",
+                cancelButtonText: "Cancel",
+                dangerMode: true,
+            })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/admin/unlistcoupon/" + itemId;
+                    } else {
+                        console.log("User canceled");
+                    }
+                });
+        }
+    </script>
+
+    <%- include('adminfooter') %>

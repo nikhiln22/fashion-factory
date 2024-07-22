@@ -57,9 +57,9 @@
                                     <%= passwordError %>
                                 </p>
                                 <% } %>
-                                    <% if (mobileError.length> 0) { %>
+                                    <% if (referralError.length> 0) { %>
                                         <p>
-                                            <%= mobileError %>
+                                            <%= referralError %>
                                         </p>
                                         <% } %>
                                             <% if (success.length> 0) { %>
@@ -108,6 +108,9 @@
                                                 onclick="togglePasswordVisibility('confirmPassword')">&#128065;</span>
                                         </div>
                                         <span id="ConfirmPassworderror"></span>
+                                        <input class="account__login--input" name="referralCode" id="referralCode"
+                                            placeholder="Referral Code (Optional)" type="text" onblur="validateReferralCode()">
+                                        <span id="referralCodeError"></span>
                                         <button class="accountror__login--btn primary__btn mb-10" type="submit">Submit &
                                             Register</button>
                                         <p class="account__login--signup__text">Already an existing user?<a
@@ -167,7 +170,7 @@
                 }
 
             }
-            
+
             function validatePassword() {
                 var passwordError = document.getElementById('passworderror');
                 var password = document.getElementById('password').value;
@@ -184,7 +187,7 @@
                     return true;
                 }
             }
-            
+
             function validateConfirmPassword() {
                 var confirmPasswordError = document.getElementById('ConfirmPassworderror');
                 var password = document.getElementById('password').value;
@@ -197,7 +200,19 @@
                     confirmPasswordError.innerHTML = '';
                     return true;
                 }
-            } 
+            }
+
+            function validateReferralCode() {
+                var referralCodeError = document.getElementById('referralCodeError');
+                var referralCode = document.getElementById('referralCode').value.trim();
+                if (referralCode !== '' && !referralCode.match(/^[A-Z0-9]{6,8}$/)) {
+                    referralCodeError.innerHTML = 'Invalid referral code. It should be 6-8 alphanumeric characters.';
+                    return false;
+                } else {
+                    referralCodeError.innerHTML = '';
+                    return true;
+                }
+            }
         </script>
 
         <script>
@@ -206,10 +221,10 @@
                 var eyeIcon = passwordInput.nextElementSibling;
                 if (passwordInput.type === "password") {
                     passwordInput.type = "text";
-                    eyeIcon.innerHTML = "&#128064;"; 
+                    eyeIcon.innerHTML = "&#128064;";
                 } else {
                     passwordInput.type = "password";
-                    eyeIcon.innerHTML = "&#128065;"; 
+                    eyeIcon.innerHTML = "&#128065;";
                 }
             }
         </script>

@@ -1,0 +1,293 @@
+<%- include('navbar') %>
+
+    <style>
+        .swal2-popup {
+            font-size: 1.2em !important;
+            width: 400px !important;
+        }
+
+        .swal2-title {
+            font-size: 1.5em !important;
+        }
+
+        .swal2-content {
+            font-size: 1.2em !important;
+        }
+
+        .swal2-confirm,
+        .swal2-cancel {
+            font-size: 1.1em !important;
+            padding: 10px 24px !important;
+        }
+
+        .wishlist-section {
+            padding: 40px 0;
+        }
+
+        .wishlist-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .wishlist-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .wishlist-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .wishlist-table th,
+        .wishlist-table td {
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #000000;
+            vertical-align: middle;
+        }
+
+        .wishlist-table th {
+            background-color: #ffffff;
+            font-weight: bold;
+        }
+
+        .product-image {
+            max-width: 80px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .product-name {
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .add-to-cart-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .empty-wishlist {
+            text-align: center;
+        }
+
+        .wishlist-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .continue-shopping-btn,
+        .view-all-btn {
+            background-color: #008CBA;
+            color: white;
+            margin-top: 20px;
+        }
+    </style>
+
+    <main class="main__content_wrapper">
+
+        <!-- Start breadcrumb section -->
+        <section class="breadcrumb__section breadcrumb__bg">
+            <div class="container">
+                <div class="row row-cols-1">
+                    <div class="col">
+                        <div class="breadcrumb__content text-center">
+                            <h1 class="breadcrumb__content--title text-white mb-25">Wishlist</h1>
+                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                                <li class="breadcrumb__content--menu__items"><a class="text-white"
+                                        href="index.html">Home</a></li>
+                                <li class="breadcrumb__content--menu__items"><span class="text-white">Wishlist</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End breadcrumb section -->
+
+        <!-- cart section start -->
+        <section class="wishlist-section">
+            <div class="container">
+                <h2 class="wishlist-title">Wishlist</h2>
+                <div class="wishlist-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Add to Cart</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (wishlistItems && wishlistItems.length> 0) { %>
+                                <% wishlistItems.forEach((item, index)=> { %>
+                                    <tr>
+                                        <td>
+                                            <img src="<%= item.image[0] %>" alt="<%= item.name %>"
+                                                class="product-image">
+                                        </td>
+                                        <td>
+                                            <span class="product-name">
+                                                <%= item.name %>
+                                            </span>
+                                        </td>
+                                        <td>₹<%= item.price.toFixed(2) %>
+                                        </td>
+                                        <td>
+                                            <a href="/shopsingle/<%= item._id %>" class="btn add-to-cart-btn">Add To
+                                                Cart</a>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn remove-btn"
+                                                onclick="removeFromWishlist('<%= item._id %>')">X</button>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="7" class="text-center">Your wishlist is empty. Save items
+                                                    that you like in your wishlist.Review them anytime and easily move
+                                                    them to the cart</td>
+                                            </tr>
+                                            <% } %>
+                        </tbody>
+                    </table>
+                        <a href="/shop" class="btn continue-shopping-btn">Continue Shopping</a>        
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function removeFromWishlist(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!',
+                customClass: {
+                    popup: 'swal2-popup',
+                    title: 'swal2-title',
+                    content: 'swal2-content',
+                    confirmButton: 'swal2-confirm',
+                    cancelButton: 'swal2-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/removewishlist', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId: productId }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    'Removed!',
+                                    'The item has been removed from your wishlist.',
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    'Failed to remove item from wishlist. Please try again.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error!',
+                                'An error occurred. Please try again.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+
+        function removeFromWishlist(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!',
+                customClass: {
+                    popup: 'swal2-popup',
+                    title: 'swal2-title',
+                    content: 'swal2-content',
+                    confirmButton: 'swal2-confirm',
+                    cancelButton: 'swal2-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/removewishlist', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId: productId }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    'Removed!',
+                                    'The item has been removed from your wishlist.',
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    'Failed to remove item from wishlist. Please try again.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error!',
+                                'An error occurred. Please try again.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+    </script>
+
+    <%- include('footer') %>

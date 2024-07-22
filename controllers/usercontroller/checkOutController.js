@@ -6,9 +6,11 @@ const cartModel = require('../../model/cartModel');
 const catModel = require('../../model/catagoryModel');
 const orderModel = require('../../model/orderModel');
 
+
 // rendering the checkout page
 const checkout = async (req, res) => {
   try {
+    console.log('entered the checkout page');
     const userId = req.session.userId;
     req.session.checkoutSave = true;
     const categories = await catModel.find();
@@ -20,27 +22,33 @@ const checkout = async (req, res) => {
       select: 'name image'
     });
 
+    const outOfStockItems = [];
+
+    let shippingCost = 0;
+
     for (const cartItem of data.item || []) {
       const pro = cartItem.productId;
       const product = await productModel.findOne({ _id: pro._id });
       const size = product.stock.findIndex(s => s.size == cartItem.size);
       if (product.stock[size].quantity < cartItem.quantity) {
-        console.log('Selected quantity exceeds available stock for productId:', product._id);
-        return res.redirect('/cart');
+        outOfStockItems.push(`${product.name} (Size: ${cartItem.size})`);
       }
     }
 
-    let shippingCost = 0;
-    if (data.item.length == 0) {
-      return res.redirect('/cart');
+    if (outOfStockItems.length > 0) {
+      return res.json({ success: false, outOfStockItems });
     }
-    const itemCount = req.session.cartCount;
 
-    res.render('user/checkout', { data: data, categories, address, itemCount, shippingCost })
+    if (data.item.length == 0) {
+      return res.json({ success: false, message: 'Cart is empty' });
+    }
 
+    // If everything is in stock, you can proceed with the checkout
+    return res.render('user/checkout', { categories, address, data, shippingCost });
+   
   } catch (error) {
     console.log(error);
-    res.render("user/serverError");
+    return res.json({ success: false, message: 'An error occurred' });
   }
 };
 
@@ -52,50 +60,41 @@ const placeOrder = async (req, res) => {
     const userId = req.session.userId;
     const { address, paymentMethod } = req.body;
 
-    console.log('address:', address);
-    console.log('PaymentMethod:', paymentMethod);
+    // Check if address is provided
+    if (address === undefined) {
+      return res.status(400).json({ error: 'No address selected' });
+    }
 
     const cart = await cartModel.findOne({ userId: userId }).populate({
       path: 'item.productId',
       select: 'discountPrice'
     });
 
-    if (cart.item.length === 0) {
+    if (!cart || cart.item.length === 0) {
       return res.redirect('/cart');
     }
     
-    console.log('Cart:', cart);
-
     const useraddress = await addModel.findOne({ userId: userId });
 
-    console.log('Address:', useraddress);
+    if (!useraddress || !useraddress.address || !useraddress.address[address]) {
+      return res.status(400).json({ error: 'Invalid address selected' });
+    }
 
     const selectedaddress = useraddress.address[address];
-
-    console.log('Selectedaddress:', selectedaddress);
 
     let totalAmount = 0;
 
     const orderItems = cart.item.map(cartItem => {
-      totalAmount += cartItem.quantity * cartItem.productId.discountPrice;
-      console.log(totalAmount, cartItem.quantity, cartItem.productId.price,'----------------');
+      const product = cartItem.productId;
+      totalAmount += cartItem.quantity * product.discountPrice;
+
       return {
-        productId: cartItem.productId,
+        productId: product._id,
         quantity: cartItem.quantity,
         size: cartItem.size,
         price: cartItem.price
       }
     });
-
-    for (const item of orderItems) {
-      const product = await productModel.findById(item.productId);
-      const sizeIndex = product.stock.findIndex(s => s.size === item.size);
-      if (sizeIndex !== -1) {
-        product.stock[sizeIndex].quantity -= item.quantity;
-        product.totalstock -= item.quantity;
-        await product.save();
-      }
-    }
 
     let order = new orderModel({
       userId: userId,
@@ -104,11 +103,11 @@ const placeOrder = async (req, res) => {
       payment: paymentMethod,
       address: selectedaddress,
       status: "pending"
-    })
+    });
 
     cart.item = [];
     cart.total = 0;
-    const savedOrder = await order.save()
+    const savedOrder = await order.save();
     await cart.save();
 
     req.session.orderId = savedOrder.orderId;
@@ -116,9 +115,10 @@ const placeOrder = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    res.status(500).send('Internal servor error');
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
+
 
 
 const orderConfirmation = async (req, res) => {

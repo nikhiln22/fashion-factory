@@ -1,0 +1,193 @@
+<%- include ('adminHeader') %>
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h1 class="content-title card-title">Edit Offer</h1>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <p id="editOffer" style="color: red;"></p>
+                <form id="editOfferForm">
+                    <!-- Hidden input for Offer ID -->
+                    <input type="hidden" id="editOfferId" value="<%=offerData._id%>" name="offerId">
+
+                    <!-- Offer Name -->
+                    <div class="mb-4">
+                        <label for="editOfferName" class="form-label">Offer Name</label>
+                        <input type="text" class="form-control" id="editOfferName" name="offerName" value="<%=offerData.offerName%>" required>
+                    </div>
+
+                    <!-- Discount Rate -->
+                    <div class="mb-4">
+                        <label for="editDiscountRate" class="form-label">Discount Rate (%)</label>
+                        <input type="number" class="form-control" id="editDiscountRate" name="discount" value="<%=offerData.discount%>" min="0" max="100" required>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="mb-4">
+                        <label for="editStartDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="editStartDate" name="startDate" value="<%= offerData.startDate.toISOString().split('T')[0] %>" required>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="mb-4">
+                        <label for="editEndDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="editEndDate" name="endDate" value="<%= offerData.endDate.toISOString().split('T')[0] %>" required>
+                    </div>
+
+                    <!-- Offer Type -->
+                    <div class="mb-4">
+                        <label for="editOfferType" class="form-label">Offer Type</label>
+                        <input type="text" class="form-control" id="offerType" name="category" value="<%=offerData.offerType%>" readonly>
+                    </div>
+
+                    <!-- Select product/category Button -->
+                    <div class="mb-4">
+                        <% if(offerData.offerType === "category") { %>
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                                Select Item
+                            </button>
+                        <% } else { %>
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#productModal">
+                                Select Product
+                            </button>
+                        <% } %>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="updatebtn" class="btn btn-dark">Update Offer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Product Modal -->
+<% if(offerData.offerType === "product") { %>
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Select Products</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalProductList">
+                    <% Details.forEach(item => { %>
+                        <div class="d-flex align-items-center mb-2">
+                            <input class="form-check-input me-2 product-checkbox" type="checkbox" value="<%= item._id %>" id="product-<%=item._id %>" 
+                                <% if (offerData.productId && offerData.productId.includes(item._id.toString())) { %>checked<% } %>>
+                            <img src="/multerimages/<%=item.image[0] %>" alt="<%=item.productName %>" style="width: 50px; height: 50px;">
+                            <label class="form-check-label" for="product-<%=item._id %>">
+                                <%=item.productName %> - $<%=item.price %>
+                            </label>
+                        </div>
+                    <% }) %>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmSelection">Confirm Selection</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">Select Categories</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalCategoryList">
+                <% Details.forEach(category => { %>
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" value="<%=category._id%>" id="category-<%=category._id%>" 
+                            <% if (offerData.categoryId && offerData.categoryId.includes(category._id.toString())) { %>checked<% } %>>
+                        <label class="form-check-label" for="category-<%=category._id%>">
+                            <%=category.name%>
+                        </label>
+                    </div>
+                <% }) %>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectCategoryBtn">Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const confirmbtn = document.getElementById('confirmSelection');
+        if (confirmbtn) {
+            confirmbtn.addEventListener('click', function () {
+                const checkedCheckboxes = document.querySelectorAll('#modalProductList .product-checkbox:checked');
+                let selectedProductIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
+                console.log('selectedProductIds:',selectedProductIds);
+                let productModal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+                productModal.hide();
+                document.querySelector('.modal-backdrop')?.remove();
+
+                const offerId = document.getElementById('editOfferId').value;
+                console.log("offerId:", offerId);
+
+                axios.post('/admin/prodidsave', { offerId, selectedProductIds })
+                    .then(res => {
+                        console.log('within the productID selecting');
+                        console.log('success');
+                    }).catch(err => {
+                        console.log('error ', err);
+                    });
+            });
+        }
+
+        const select = document.getElementById("selectCategoryBtn");
+        select.addEventListener('click', function () {
+            const checkedCheckboxes = document.querySelectorAll('#modalCategoryList .category-checkbox:checked');
+            let selectedCategoryIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
+            console.log('selectedCategoryIds', selectedCategoryIds);
+
+            let categoryModal = bootstrap.Modal.getInstance(document.getElementById('categoryModal'));
+            categoryModal.hide();
+            document.querySelector('.modal-backdrop')?.remove();
+            const offerId = document.getElementById('editOfferId').value;
+            axios.post('/admin/catidsave', { offerId, selectedCategoryIds })
+                .then(res => {
+                    console.log('success category');
+                }).catch(err => {
+                    console.log('error ', err);
+                });
+        });
+
+        document.getElementById('updatebtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const offerName = document.getElementById('editOfferName').value;
+            const discount = document.getElementById("editDiscountRate").value;
+            const startDate = document.getElementById('editStartDate').value;
+            const endDate = document.getElementById("editEndDate").value;
+            const offerId = document.getElementById('editOfferId').value;
+            axios.patch('/admin/editoffer', { offerName, discount, startDate, endDate, offerId })
+                .then(res => {
+                    if (!res.data.success) {
+                        document.getElementById('editOffer').innerHTML = res.data.message;
+                    } else {
+                        document.getElementById('editOffer').innerHTML = "";
+                        window.location.href = '/admin/offers';
+                    }
+                }).catch(err => {
+                    console.log('error', err);
+                });
+        });
+    });
+</script>
+
+<%- include('adminfooter') %>

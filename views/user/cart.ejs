@@ -1,212 +1,424 @@
-<%- include('navbar') -%>
+<%- include('navbar') %>
 
-<style>
-    .swal2-popup {
-      font-size: 1.2em !important;
-      width: 400px !important;
-    }
-    .swal2-title {
-      font-size: 1.5em !important;
-    }
-    .swal2-content {
-      font-size: 1.2em !important;
-    }
-    .swal2-confirm, .swal2-cancel {
-      font-size: 1.1em !important;
-      padding: 10px 24px !important;
-    }
-  </style>
+    <style>
+        .swal2-popup {
+            font-size: 1.2em !important;
+            width: 400px !important;
+        }
 
-<main class="main__content_wrapper">
-    <!-- Start breadcrumb section -->
-    <section class="breadcrumb__section breadcrumb__bg">
-        <div class="container">
-            <div class="row row-cols-1">
-                <div class="col">
-                    <div class="breadcrumb__content text-center">
-                        <h1 class="breadcrumb__content--title text-white mb-25">Shopping Cart</h1>
-                        <ul class="breadcrumb__content--menu d-flex justify-content-center">
-                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="index.html">Home</a></li>
-                            <li class="breadcrumb__content--menu__items"><span class="text-white">Shopping Cart</span></li>
-                        </ul>
+        .swal2-title {
+            font-size: 1.5em !important;
+        }
+
+        .swal2-content {
+            font-size: 1.2em !important;
+        }
+
+        .swal2-confirm,
+        .swal2-cancel {
+            font-size: 1.1em !important;
+            padding: 10px 24px !important;
+        }
+
+        .cart__table table th,
+        .cart__table table td {
+            width: 12.5%;
+        }
+
+        .cart__table table td:first-child {
+            width: 10%;
+        }
+
+        .cart__table table td:nth-child(2) {
+            width: 20%;
+        }
+
+        .product-name {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .quantity__box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity__box input {
+            width: 50px;
+            text-align: center;
+        }
+
+        .quantity__box button {
+            padding: 0 10px;
+        }
+
+        .fixed-width-button {
+            width: 100%;
+            text-align: center;
+        }
+
+        .cart__table table th,
+        .cart__table table td {
+            vertical-align: middle !important;
+            text-align: center !important;
+        }
+
+        .cart__table .product-name {
+            margin: 0 auto;
+        }
+
+        .cart__table img {
+            margin: 0 auto;
+            display: block;
+        }
+
+        .table-bordered {
+            border: 1px solid #000000;
+        }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000000;
+        }
+
+        .cart-summary {
+            min-width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            text-align: center;
+            text-decoration: none;
+        }
+    </style>
+
+    <main class="main__content_wrapper">
+        <!-- Start breadcrumb section -->
+        <section class="breadcrumb__section breadcrumb__bg">
+            <div class="container">
+                <div class="row row-cols-1">
+                    <div class="col">
+                        <div class="breadcrumb__content text-center">
+                            <h1 class="breadcrumb__content--title text-white mb-25">Shopping Cart</h1>
+                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                                <li class="breadcrumb__content--menu__items"><a class="text-white"
+                                        href="index.html">Home</a></li>
+                                <li class="breadcrumb__content--menu__items"><span class="text-white">Shopping
+                                        Cart</span></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-    <!-- End breadcrumb section -->
+        </section>
+        <!-- End breadcrumb section -->
 
-    <!-- cart section start -->
-    <section class="cart__section section--padding">
-        <div class="container">
-            <div class="cart__section--inner">
-                <form action="#" method="post">
-                    <h2 class="cart__title mb-4">Shopping Cart</h2>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="cart__table">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Product</th>
-                                            <th>Size</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
-                                            <th>Total</th>
-                                            <th>Remove</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% if (cart && cart.item && cart.item.length > 0) { %>
-                                            <% cart.item.forEach((item, index) => { %>
-                                                <tr>
-                                                    <td>
-                                                        <img src="<%= item.productId.image[0] %>" alt="<%= item.productId.name %>" class="img-fluid" style="max-width: 80px;">
-                                                    </td>
-                                                    <td>
-                                                        <h5><%= item.productId.name %></h5>
-                                                        <% if (item.outOfStock) { %>
-                                                            <span class="text-danger">Out of Stock</span>
-                                                        <% } %>
-                                                    </td>
-                                                    <td><%= item.size %></td>
-                                                    <td>₹<%= item.price.toFixed(2) %></td>
-                                                    <td>
-                                                        <div class="quantity__box">
-                                                            <button type="button" onclick="updateQuantity('<%= cart._id %>', '<%= item.productId._id %>', '<%= item.size %>', '<%= item.price %>', '<%= index %>', -1)" class="btn btn-outline-secondary btn-sm">&minus;</button>
-                                                            <input type="number" class="form-control form-control-sm d-inline-block w-50" value="<%= item.quantity %>" id="sst<%= index %>" readonly>
-                                                            <button type="button" onclick="updateQuantity('<%= cart._id %>', '<%= item.productId._id %>', '<%= item.size %>', '<%= item.price %>', '<%= index %>', 1)" class="btn btn-outline-secondary btn-sm">&plus;</button>
-                                                        </div>
-                                                    </td>
-                                                    <td><span id="total<%= index %>">₹ <%= (item.price * item.quantity).toFixed(2) %></span></td>
-                                                    <td>
-                                                        <a onclick="confirm('/delete/<%= item._id %>/<%= item.size %>')" class="delete-item">
-                                                            <button type="button" class="btn btn-danger btn-sm">X</button>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            <% }) %>
-                                        <% } else { %>
+        <!-- cart section start -->
+        <section class="cart__section section--padding">
+            <div class="container">
+                <div class="cart__section--inner">
+                    <form action="#" method="post">
+                        <h2 class="cart__title mb-4">Shopping Cart</h2>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="cart__table">
+                                    <table class="table table-bordered">
+                                        <thead>
                                             <tr>
-                                                <td colspan="7" class="text-center">Your cart is empty.</td>
+                                                <th>Image</th>
+                                                <th>Product</th>
+                                                <th>Size</th>
+                                                <th>Price</th>
+                                                <th>Quantity</th>
+                                                <th>Total</th>
+                                                <th>Remove</th>
                                             </tr>
-                                        <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-4">
-                                <a href="/shop" class="continue__shipping--btn primary__btn border-radius-5 style="padding: 10px 20px;">Continue Shopping</a>
-                                <div class="border p-3" style="min-width: 200px;">
-                                    <h4 class="text-center">Cart Totals</h4>
-                                    <div class="d-flex justify-content-between mt-3">
-                                        <span>Total:</span>
-                                        <strong id="total">₹ <%= cart.total.toFixed(2) %></strong>
-                                    </div>
-                                    <div class="mt-4">
-                                        <a href="/checkout" class="continue__shipping--btn primary__btn border-radius-5 fixed-width-button">Proceed to Checkout</a>
+                                        </thead>
+                                        <tbody>
+                                            <% if (cart && cart.item && cart.item.length> 0) { %>
+                                                <% cart.item.forEach((item, index)=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <img src="<%= item.productId.image[0] %>"
+                                                                alt="<%= item.productId.name %>" class="img-fluid"
+                                                                style="max-width: 80px;">
+                                                        </td>
+                                                        <td>
+                                                            <h5 class="product-name">
+                                                                <%= item.productId.name %>
+                                                            </h5>
+                                                            <% if (item.outOfStock) { %>
+                                                                <span class="text-danger">Out of Stock</span>
+                                                                <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <%= item.size %>
+                                                        </td>
+                                                        <td>₹<%= item.price.toFixed(2) %>
+                                                        </td>
+                                                        <td>
+                                                            <div class="quantity__box">
+                                                                <button type="button"
+                                                                    onclick="updateQuantity('<%= cart._id %>', '<%= item.productId._id %>', '<%= item.size %>', '<%= item.price %>', '<%= index %>', -1)"
+                                                                    class="btn btn-outline-secondary btn-sm">&minus;</button>
+                                                                <input type="number"
+                                                                    class="form-control form-control-sm"
+                                                                    value="<%= item.quantity %>" id="sst<%= index %>"
+                                                                    readonly>
+                                                                <button type="button"
+                                                                    onclick="updateQuantity('<%= cart._id %>', '<%= item.productId._id %>', '<%= item.size %>', '<%= item.price %>', '<%= index %>', 1)"
+                                                                    class="btn btn-outline-secondary btn-sm">&plus;</button>
+                                                            </div>
+                                                        </td>
+                                                        <td><span id="total<%= index %>">₹<%= (item.price *
+                                                                    item.quantity).toFixed(2) %></span></td>
+                                                        <td>
+                                                            <a onclick="confirmDelete('<%= item._id %>','<%= item.size %>')"
+                                                                class="delete-item">
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-sm">X</button>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                                        <% } else { %>
+                                                            <tr>
+                                                                <td colspan="7" class="text-center">Your cart is empty.
+                                                                </td>
+                                                            </tr>
+                                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-4">
+                                    <a href="/shop"
+                                        class="continue__shipping--btn primary__btn border-radius-5">Continue
+                                        Shopping</a>
+                                    <div class="cart-summary">
+                                        <h4 class="text-center">Cart Totals</h4>
+                                        <div class="cart-total">
+                                            <span>Total:</span>
+                                            <strong id="cartTotal">₹<%= cart.total.toFixed(2) %></strong>
+                                        </div>
+                                        <a href="#"
+                                            class="continue__shipping--btn primary__btn border-radius-5 checkout-btn"
+                                            onclick="placeOrder();return false;">
+                                            Proceed to Checkout
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
-    </section>
-    <!-- cart section end -->
-</main>
+        </section>
+        <!-- cart section end -->
+    </main>
 
-<script>
-    function confirm(itemId) {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "Are you sure you want to proceed?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Confirm",
-            cancelButtonText: "Cancel",
-            dangerMode: true,
-            customClass: {
-                popup: 'swal2-popup',
-                title: 'swal2-title',
-                content: 'swal2-content',
-                confirmButton: 'swal2-confirm',
-                cancelButton: 'swal2-cancel'
-            }
-        })
-        .then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = itemId;
-            } else {
-                console.log("User canceled");
-            }
-        });
-    }
-
-    async function updateQuantity(cartId, productId, size, price, index, count) {
-        try {
-            let quantityInput = document.getElementById(`sst${index}`);
-            let currentQuantity = parseInt(quantityInput.value);
-            const response = await fetch(`/updateCartQuantity/${productId}/${size}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    cartId: cartId,
-                    action: count,
-                    newQuantity: count + currentQuantity,
-                })
-            });
-            const data = await response.json();
-            if (data.success) {
-                quantityInput.value = data.newQuantity;
-                document.getElementById(`total${index}`).innerText = `₹ ${price * data.newQuantity}`;
-                document.getElementById('total').innerText = `₹ ${data.total}`;
-            } else {
-                console.error('Failed to update quantity:', data.error);
-                quantityInput.value = currentQuantity;
-                if (data.error === 'Quantity exceeds stock limits') {
-                    Swal.fire({
-                        text: 'Quantity exceeds stock limits',
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                        customClass: {
-                            popup: 'swal2-popup',
-                            title: 'swal2-title',
-                            content: 'swal2-content',
-                            confirmButton: 'swal2-confirm'
-                        },
-                        showCancelButton: false,
-                        showCloseButton: true,
-                        showLoaderOnConfirm: false,
-                        timer: 3000
-                    });
-                } else {
-                    Swal.fire({
-                        text: 'Quantity Cannot be zero',
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                        customClass: {
-                            popup: 'swal2-popup',
-                            title: 'swal2-title',
-                            content: 'swal2-content',
-                            confirmButton: 'swal2-confirm'
-                        },
-                        showCancelButton: false,
-                        showCloseButton: true,
-                        showLoaderOnConfirm: false,
-                        timer: 3000
-                    });
+    <script>
+        function confirm(itemId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Are you sure you want to proceed?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Confirm",
+                cancelButtonText: "Cancel",
+                dangerMode: true,
+                customClass: {
+                    popup: 'swal2-popup',
+                    title: 'swal2-title',
+                    content: 'swal2-content',
+                    confirmButton: 'swal2-confirm',
+                    cancelButton: 'swal2-cancel'
                 }
-            }
-        } catch (error) {
-            console.error('Error parsing cart JSON:', error);
+            })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = itemId;
+                    } else {
+                        console.log("User canceled");
+                    }
+                });
         }
-    }
-</script>
 
-<%- include('footer') %>
+        async function updateQuantity(cartId, productId, size, price, index, count) {
+            try {
+                let quantityInput = document.getElementById(`sst${index}`);
+                let currentQuantity = parseInt(quantityInput.value);
+                const response = await fetch(`/updateCartQuantity/${productId}/${size}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cartId: cartId,
+                        action: count,
+                        newQuantity: count + currentQuantity,
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    console.log(data,'pppppp',data.total);
+                    quantityInput.value = data.newQuantity;
+                    document.getElementById(`total${index}`).innerText = `₹ ${(price * data.newQuantity).toFixed(2)}`;
+                    document.getElementById('cartTotal').innerText = `₹ ${(data.total).toFixed(2)}`;
+                } else {
+                    console.error('Failed to update quantity:', data.error);
+                    quantityInput.value = currentQuantity;
+                    if (data.error === 'Quantity exceeds stock limits') {
+                        Swal.fire({
+                            text: 'Quantity exceeds stock limits',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'swal2-popup',
+                                title: 'swal2-title',
+                                content: 'swal2-content',
+                                confirmButton: 'swal2-confirm'
+                            },
+                            showCancelButton: false,
+                            showCloseButton: true,
+                            showLoaderOnConfirm: false,
+                            timer: 3000
+                        });
+                    } else if (data.error === 'Quantity limit reached') {
+                        Swal.fire({
+                            text: 'You can only add up to 5 items of this product to your cart',
+                            icon: 'warning',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'swal2-popup',
+                                title: 'swal2-title',
+                                content: 'swal2-content',
+                                confirmButton: 'swal2-confirm'
+                            },
+                            showCancelButton: false,
+                            showCloseButton: true,
+                            showLoaderOnConfirm: false,
+                            timer: 3000
+                        });
+                    } else {
+                        Swal.fire({
+                            text: 'Quantity Cannot be zero',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'swal2-popup',
+                                title: 'swal2-title',
+                                content: 'swal2-content',
+                                confirmButton: 'swal2-confirm'
+                            },
+                            showCancelButton: false,
+                            showCloseButton: true,
+                            showLoaderOnConfirm: false,
+                            timer: 3000
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing cart JSON:', error);
+            }
+        }
+        function confirmDelete(itemId, size) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you really want to remove this item from your cart?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, remove it!",
+                cancelButtonText: "Cancel",
+                customClass: {
+                    popup: 'swal2-popup',
+                    title: 'swal2-title',
+                    content: 'swal2-content',
+                    confirmButton: 'swal2-confirm',
+                    cancelButton: 'swal2-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/delete/${itemId}/${size}`;
+                }
+            });
+        }
+
+        async function placeOrder() {
+            try {
+                const response = await fetch('/checkout', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Check if the response is HTML
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('text/html')) {
+                    // If the response is HTML, redirect to the checkout page
+                    window.location.href = '/checkout';
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('data:', data);
+
+                if (!data.success) {
+                    console.log(data.success,'----------');
+                    if (data.outOfStockItems) {
+                        let outOfStockMessage = 'The following items are out of stock:\n\n';
+                        data.outOfStockItems.forEach(item => {
+                            outOfStockMessage += `- ${item}\n`;
+                        });
+                        outOfStockMessage += '\nPlease remove these items from your cart before placing the order.';
+
+                        Swal.fire({
+                            title: 'Out of Stock',
+                            text: outOfStockMessage,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    } else if (data.message === 'Cart is empty') {
+                        Swal.fire({
+                            title: 'Empty Cart',
+                            text: 'Your cart is empty. Please add items before checking out.',
+                            icon: 'warning',
+                            confirmButtonText: 'OK'
+                        });
+                    } 
+                } 
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred while processing your order. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    </script>
+
+    <%- include('footer') %>

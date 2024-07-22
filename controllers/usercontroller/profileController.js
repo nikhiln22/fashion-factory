@@ -4,9 +4,11 @@ const productModel = require('../../model/productModel');
 const cartModel = require('../../model/cartModel');
 const catModel = require('../../model/catagoryModel');
 const orderModel = require('../../model/orderModel');
+const walletModel = require('../../model/WalletModel');
 const flash = require('express-flash');
 const bcrypt = require('bcryptjs');
-const { default: mongoose } = require('mongoose');
+const moment = require('moment');
+// const { default: mongoose } = require('mongoose');
 
 
 // rendering the user profile page
@@ -137,9 +139,11 @@ const showAddress = async (req, res) => {
         const addressExist = req.flash('addressExist');
         const error = req.flash('error');
         const userId = req.session.userId;
+        const categories = await catModel.find();
+        req.session.checkoutSave = false;
         const address = await addModel.findOne({ userId: userId });
-        console.log(address);
-        res.render('user/address', { userAddress: address, updateSuccess, addressExist, error });
+        const itemCount = req.session.cartCount;
+        res.render('user/address', { userAddress: address, categories, updateSuccess, addressExist, error });
     } catch (error) {
         console.error('error while rendering the address page');
         res.render('user/error');
@@ -153,6 +157,7 @@ const editAddress = async (req, res) => {
         console.log('entering into the editing the inserted address');
         const userId = req.session.userId;
         const id = req.params.id;
+        const categories = await catModel.find()
         const address = await addModel.aggregate([
             {
                 $match: { userId: new mongoose.Types.ObjectId(userId) }
@@ -165,7 +170,7 @@ const editAddress = async (req, res) => {
             }
         ]);
         console.log(address);
-        res.render('user/editaddress', { address: address[0] })
+        res.render('user/editaddress', { address: address[0], categories })
     } catch (error) {
         console.error('error while updating the inserted address', error);
         res.render('user/error');
@@ -181,54 +186,21 @@ const editAddressPost = async (req, res) => {
         const addressId = req.params.id;
         const userId = req.session.userId;
 
-        // getting the current address
-        const currentAddress = await addModel.findOne(
-            { 'userId': userId, 'address._id': addressId },
-            { 'address.$': 1 }
-        );
-
-        console.log(currentAddress, '????????????????????????');
-
-        // checking any changes have made to the current address
-        const currentAddressData = currentAddress.address[0];
-
-        console.log(currentAddressData);
-
-        const isChanged =
-            currentAddressData.saveAs !== saveas ||
-            currentAddressData.name !== name ||
-            currentAddressData.email !== email ||
-            currentAddressData.houseName !== housename ||
-            currentAddressData.street !== street ||
-            currentAddressData.pincode !== pincode ||
-            currentAddressData.city !== city ||
-            currentAddressData.state !== state ||
-            currentAddressData.country !== country ||
-            currentAddressData.mobile !== parseInt(mobile);
-
-        if (!isChanged) {
-            req.flash('error', 'No changes were made to the address');
-            return res.redirect('/address');
-        }
-
-        console.log(isChanged);
-
-        // Checking if the new address already exists
         const isAddressExists = await addModel.findOne({
             'userId': userId,
             'address': {
                 $elemMatch: {
-                    '_id': { $ne: new mongoose.Types.ObjectId(addressId) },
+                    '_id': { $ne: addressId },
                     'saveAs': saveas,
-                    'name': name,
                     'email': email,
+                    'name': name,
+                    'mobile': mobile,
                     'houseName': housename,
                     'street': street,
                     'pincode': pincode,
                     'city': city,
                     'state': state,
-                    'country': country,
-                    'mobile': parseInt(mobile)
+                    'country': country
                 }
             }
         });
@@ -256,7 +228,6 @@ const editAddressPost = async (req, res) => {
                 }
             }
         );
-        console.log(updatedAddress, '+++++++++++++++++++++++++');
 
         if (updatedAddress.modifiedCount > 0) {
             req.flash('updateSuccess', 'Address updated successfully');
@@ -294,8 +265,8 @@ const delAddress = async (req, res) => {
 const addAddress = async (req, res) => {
     try {
         console.log('rendering the user address adding page');
-        // const userId = req.session.userId;
-        res.render('user/addaddress');
+        const categories = await catModel.find();
+        res.render('user/addaddress', { categories });
     } catch (error) {
         console.error('error while rendering the address adding page', error);
         res.render('user/error');
@@ -308,33 +279,63 @@ const addAddressPost = async (req, res) => {
         console.log('adding new address for the user');
         const { saveas, name, email, housename, street, pincode, city, state, country, mobile } = req.body;
         const userId = req.session.userId;
-        let addDoc = await addModel.findOne({ userId: userId });
-        console.log(addDoc);
-
-        if (!addDoc) {
-            addDoc = new addModel({
-                userId: userId,
-                address: []
+        const existingUser = await addModel.findOne({ userId: userId });
+        if (existingUser) {
+            const existingAddress = await addModel.find({
+                'userId': userId,
+                'address.name': name,
+                'address.email': email,
+                'address.houseName': housename,
+                'address.street': street,
+                'address.pincode': pincode,
+                'address.city': city,
+                'address.state': state,
+                'address.country': country,
+                'address.mobile': mobile
+            })
+            if (existingAddress) {
+                if (req.session.checkoutSave) {
+                    return res.redirect('/checkout');
+                }
+                return res.redirect('/address');
+            }
+            existingUser.address.push({
+                name: name,
+                mobile: mobile,
+                email: email,
+                houseName: housename,
+                street: street,
+                city: city,
+                state: state,
+                country: country,
+                pincode: pincode,
+                saveAs: saveas
             });
+            await existingUser.save();
+            if (req.session.checkoutSave) {
+                return res.redirect('/checkout');
+            }
+            return res.redirect('/address');
         }
-
-        const newAddress = {
-            name,
-            email,
-            mobile: Number(mobile),
-            houseName: housename,
-            street,
-            city,
-            state,
-            country,
-            pincode,
-            saveAs: saveas
-        };
-        addDoc.address.push(newAddress);
-
-        console.log('Updated address array:', addDoc.address);
-        await addDoc.save();
-        return res.redirect('/address');
+        const newAddress = await addModel.create({
+            userId: userId,
+            address: {
+                name: name,
+                mobile: mobile,
+                emaail: email,
+                houseName: housename,
+                street: street,
+                city: city,
+                state: state,
+                country: country,
+                pincode: pincode,
+                saveAs: saveas
+            }
+        });
+        if (req.session.checkoutSave) {
+            return res.redirect('/checkout')
+        }
+        res.redirect('/address');
     } catch (error) {
         console.error('error while creating new address', error);
         res.render('user/error');
@@ -371,7 +372,7 @@ const order = async (req, res) => {
     }
 }
 
-
+// renderirng the order summary page 
 const singleorder = async (req, res) => {
     try {
         const orderId = req.query.orderId.trim();
@@ -398,7 +399,7 @@ const singleorder = async (req, res) => {
     }
 };
 
-
+// cancelling the ordered product
 const cancelProduct = async (req, res) => {
     try {
         console.log('entered');
@@ -414,11 +415,11 @@ const cancelProduct = async (req, res) => {
         }
 
         console.log('orderdetails:', orderdetails);
-        
+
         const itemIndex = orderdetails.items.findIndex(item => item.productId.toString() === productId);
         console.log('itemIndex:', itemIndex);
         if (itemIndex === -1) {
-        console.log('itemIndex:iffffffffff', itemIndex);
+            console.log('itemIndex:iffffffffff', itemIndex);
             return res.status(404).json({ success: false, message: 'Product not found in order' });
         }
 
@@ -440,8 +441,8 @@ const cancelProduct = async (req, res) => {
         }
 
         console.log('product:', product);
-        const sizeIndex=product.stock.findIndex((stock)=>stock.size==item.size)
-        console.log(sizeIndex,'----------');
+        const sizeIndex = product.stock.findIndex((stock) => stock.size == item.size)
+        console.log(sizeIndex, '----------');
         product.stock[sizeIndex].quantity += item.quantity;
         console.log('product before saving:', product);
 
@@ -458,5 +459,84 @@ const cancelProduct = async (req, res) => {
     }
 };
 
+// rendering the wallet page for the user
+const wallet = async (req, res) => {
+    try {
+        console.log('entering to the wallet displaying page from the user side');
+        const userId = req.session.userId;
+        const userdata = await userModel.findOne({ _id: userId });
+        const cartCount = await cartModel.countDocuments({ userId: userId });
+        const wishlistCount = userdata.wishlist.length;
+        const walletDetails = await walletModel.findOne({ userId: userId });
+        if (walletDetails) {
+            const formattedTransactions = walletDetails.transaction.map(transaction => {
+                const formattedDate = moment(transaction.date).format('DD-MM-YYYY');
+                return {
+                    ...transaction.toObject(),
+                    formattedDate,
+                }
+            }).sort((a, b) => (a._id > b._id ? -1 : 1));
+            const formattedWallet = {
+                ...walletDetails.toObject(),
+                transaction: formattedTransactions
+            }
+            res.render('user/wallet', { walletDetails: formattedWallet, cartCount, wishlistCount, userdata })
+        } else {
+            res.render('user/wallet', { walletDetails: 0, cartCount, wishlistCount, userdata });
+        }
+    } catch (error) {
+        console.log('error while rendering the wallet page for the user', error);
+        res.render('user/error');
+    }
+}
 
-module.exports = { userProfile, updateProfile, updateProfilePost, resetpassword, resetPasswordPost, showAddress, addAddress, addAddressPost, editAddress, editAddressPost, delAddress, order, singleorder, cancelProduct }
+const addWallet = async (req, res) => {
+    try {
+        const { amount } = req.body;
+        const userId = req.session.userId;
+        const walletdetail = await walletModel.findOne({ userId: userId });
+        if (!walletdetail) {
+            const newWallet = new walletModel({
+                userId: userId,
+                balance: amount,
+                transaction: [{
+                    amount: amount,
+                    transactionsMethod: "Credit"
+                }]
+            })
+            await newWallet.save();
+        } else {
+            await walletModel.updateOne({ userId: userId }, {
+                $inc: { balance: amount }, $push: {
+                    transaction: { amount: amount, transactionsMethod: "Credit" }
+                }
+            })
+        }
+        res.status(200).json({ success: true })
+    } catch (error) {
+        res.status(302).json({ success: false })
+        console.log('Error in adding money to the wallet', error)
+    }
+}
+
+
+
+
+module.exports = {
+    userProfile,
+    updateProfile,
+    updateProfilePost,
+    resetpassword,
+    resetPasswordPost,
+    showAddress,
+    addAddress,
+    addAddressPost,
+    editAddress,
+    editAddressPost,
+    delAddress,
+    order,
+    singleorder,
+    cancelProduct,
+    wallet,
+    addWallet
+}

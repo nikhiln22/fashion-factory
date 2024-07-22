@@ -109,8 +109,11 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label for="state" class="form-label">State</label>
-                                            <select id="state" name="state" class="form-select form-select-lg custom-input" 
-                                            value="<%= address.address.state %>"required>
+                                            <select id="state" name="state" class="form-select form-select-lg custom-input" required>
+                                                <option value="" disabled>Select a state</option>
+                                                <option value="Kerala" <%= address.address.state === 'Kerala' ? 'selected' : '' %>>Kerala</option>
+                                                <option value="Karnataka" <%= address.address.state === 'Karnataka' ? 'selected' : '' %>>Karnataka</option>
+                                                <option value="TamilNadu" <%= address.address.state === 'TamilNadu' ? 'selected' : '' %>>Tamil Nadu</option>
                                             </select>
                                             <span id="stateError" class="text-danger"></span>
                                         </div>

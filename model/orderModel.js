@@ -33,6 +33,9 @@ const orderSchema = new mongoose.Schema({
             type: String,
             default: "pending",
             required: true
+        },
+        returnReason:{
+            type:String,    
         }
     }],
     address: {
@@ -43,9 +46,22 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    payment: {
+    deliveryDate:{
+        type:Date
+    },
+    shippingDate:{
+        type:Date
+    },
+    paymentMethod: {
         type: String,
         required: true
+    },
+    paymentStatus:{
+        type:String,
+        required:true
+    },
+    couponDiscount:{
+        type:Number
     }
 }, { timestamps: true });
 

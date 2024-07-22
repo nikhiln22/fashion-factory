@@ -1,5 +1,6 @@
 <%- include('navbar') -%>
 
+
     <main class="main__content_wrapper">
         <!-- Start slider section -->
         <section class="hero__slider--section">
@@ -15,9 +16,9 @@
                                                 <p class="slider__content--desc desc1 mb-15"><img class="slider__text--shape__icon" src="/public/userasset/img/icon/text-shape-icon.png" alt="text-shape-icon"> New Collection</p> 
                                                 <h2 class="slider__content--maintitle h1">The Great Fashion <br>
                                                     Collection 2022</h2>
-                                                <p class="slider__content--desc desc2 d-sm-2-none mb-40">Up To 40% Off Final Sale Items. <br>
+                                                <!-- <p class="slider__content--desc desc2 d-sm-2-none mb-40">Up To 40% Off Final Sale Items. <br> -->
                                                     Caught in the Moment!</p>    
-                                                <a class="slider__btn primary__btn" href="shop.html">Show Collection
+                                                <a class="slider__btn primary__btn" href="/shop">Show Collection
                                                     <svg class="primary__btn--arrow__icon" xmlns="http://www.w3.org/2000/svg" width="20.2" height="12.2" viewBox="0 0 6.2 6.2">
                                                     <path d="M7.1,4l-.546.546L8.716,6.713H4v.775H8.716L6.554,9.654,7.1,10.2,9.233,8.067,10.2,7.1Z" transform="translate(-4 -4)" fill="currentColor"></path>
                                                     </svg>
@@ -173,7 +174,6 @@
                     <div id="featured" class="tab_pane active show">
                         <div class="product__section--inner">
                             <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 mb--n30">
-
                                 <% products.forEach(product => { %>
                                     <div class="col mb-30">   
                                         <div class="product__items ">
@@ -269,6 +269,7 @@
         </section>
         <!-- End product section -->
 
+        
         <!-- Start banner section -->
         <section class="banner__section section--padding pt-0">
             <div class="container-fluid">
@@ -315,6 +316,7 @@
 
   <!-- Customscript js -->
   <script src="/public/userasset/js/script.js"></script>
+  
   
 </body>
 </html>

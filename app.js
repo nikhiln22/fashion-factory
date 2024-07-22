@@ -12,8 +12,6 @@ const multer = require('multer');
 const passport = require('passport') ;
 const cookieParser = require('cookie-parser');
 
-
-
 const PORT = process.env.PORT || 5000;
 
 // Connect to the database
@@ -23,13 +21,6 @@ dbConnect().catch(err => {
 });
 
 const app = express();
-
-// const time = new Date()
-
-// console.log(time,'time');
-// const formatTime = time.toLocaleDateString('en-GB')
-// console.log(formatTime,'formateed time');
-
 
 // Middleware setup
 app.use(session({
@@ -89,7 +80,6 @@ app.set('views', path.join(__dirname, 'views'));
 // User routes & admin routes
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
-
 
 
 // Error handling middleware

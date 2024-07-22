@@ -53,4 +53,17 @@ const signed = async (req, res, next) => {
     }
 }
 
-module.exports = { ifLogged, logged, forgot, signed };
+const checkoutValid = async (req, res, next) => {
+    try {
+        if (req.session.checkout) {
+            next();
+        } else {
+            res.redirect('/login');
+        }
+    } catch (error) {
+        console.log(error);
+        res.render('user/error');
+    }
+}
+
+module.exports = { ifLogged, logged, forgot, signed, checkoutValid };

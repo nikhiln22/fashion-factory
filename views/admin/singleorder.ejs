@@ -15,7 +15,6 @@
                     <h1 class="content-title card-title">Order Details</h1>
                 </div>
             </div>
-            <!-- <p>Debug - Amount: <%= orderDetails.amount %></p> -->
                 <div class="col-lg-12 mt-4">
                     <div class="table-responsive">
                         <table class="table table-bordered mt-2 text-center"">
@@ -84,7 +83,7 @@
                                 <option value="placed">Placed</option>
                                 <option value="shipped">Shipped</option>
                                 <option value="delivered">Delivered</option>
-                                <!-- <option value="cancelled">Cancelled</option> -->
+                                <option value="cancelled">Cancelled</option>
                             </select>
                                 </div>
                         <div class="modal-footer">
@@ -99,7 +98,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const status=document.getElementById('status').value
-            console.log("status:",status);
             const selectElem=document.getElementById('modalOrderStatus')
             const options=selectElem.options
 
@@ -110,8 +108,7 @@
 
                 }
             }
-            console.log(document.getElementById('modalOrderStatus').value,'-------------------->' );
-
+            
             var statusChangeModal = new bootstrap.Modal(document.getElementById('statusChangeModal'), {
                 keyboard: false
             });
@@ -132,13 +129,9 @@
                     document.getElementById('saveStatus').addEventListener('click', function () {
 
                         const selectedOrderStatus = document.getElementById('modalOrderStatus').value;
-                        console.log('selectedOrderStatus:', selectedOrderStatus);
-                        console.log('orderId:', orderId);
-                        console.log('productId:', productId);
 
                         axios.post('/admin/updatestatus', { productId, orderId, selectedOrderStatus })
                             .then(res => {
-                                console.log('Res:',res.data);
                                 if (res.data.success) {
                                     window.location.href = '/admin/singleorder?orderId=' + orderId; 
                                     statusChangeModal.hide();

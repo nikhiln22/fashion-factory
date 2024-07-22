@@ -55,8 +55,8 @@
                                                 <th>Description</th>
                                                 <th>Category</th>
                                                 <th>Price</th>
-                                                <th>Discount(%)</th>
-                                                <th>DiscountPrice</th>
+                                                <!-- <th>Discount(%)</th> -->
+                                                <!-- <th>DiscountPrice</th> -->
                                                 <th>Stock</th>
                                                 <th>Image</th>
                                                 <th>Status</th>
@@ -78,14 +78,14 @@
                                                     </td>
                                                     <td>
                                                         <centre>
-                                                            <!-- <marquee behavior="scroll" direction="left"> -->
+                                                            <marquee behavior="scroll" direction="left">
                                                             <%= row.description%>
-                                                                <!-- </marquee> -->
+                                                                </marquee>
                                                         </centre>
                                                     </td>
                                                     <td>
                                                         <centre>
-                                                            <%= row.category?.name||'noname' %>
+                                                            <%= row.category?.name%>
                                                         </centre>
                                                     </td>
                                                     <td>
@@ -93,16 +93,16 @@
                                                             <%= row.price %>
                                                         </centre>
                                                     </td>
-                                                    <td>
+                                                    <!-- <td>
                                                         <centre>
                                                             <%= row.discount %>
                                                         </centre>
-                                                    </td>
-                                                    <td>
+                                                    </td> -->
+                                                    <!-- <td>
                                                         <centre>
                                                             <%= row.discountPrice %>
                                                         </centre>
-                                                    </td>
+                                                    </td> -->
                                                     <td>
                                                         <centre>
                                                             <%= row.totalstock %>
@@ -192,6 +192,5 @@
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
     <%- include ('adminfooter') %>

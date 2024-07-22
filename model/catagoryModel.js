@@ -10,14 +10,14 @@ var categorySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  discount: {
-    type: Number,
-    required: true
-  },
-  types: {
-    type: Array,
-    default: ['All']
-  },
+  // discount: {
+  //   type: Number,
+  //   required: true
+  // },
+  // types: {
+  //   type: Array,
+  //   default: ['All']
+  // },
   status: {
     type: Boolean,
     required: true,

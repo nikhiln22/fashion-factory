@@ -15,12 +15,11 @@ const product = async (req, res) => {
         const productSuccess = req.flash('productSuccess');
         const updateSuccess = req.flash('updateSuccess');
         const products = await productModel.find({}).populate({
-           path: 'category',
-            select:'name'
-    }).sort({ _id: -1 }).limit(limit).skip(skip);
-        console.log(products,'^^^^^^^^^^^^^^^^^^^');
+            path: 'category',
+            select: 'name'
+        }).sort({ _id: -1 }).limit(limit).skip(skip);
+
         const count = await productModel.countDocuments({});
-        console.log('count:', count);
         const totalpages = Math.ceil(count / limit);
         const pagesToShow = 5;
         let startPage = page + pagesToShow - 1;
@@ -45,7 +44,7 @@ const product = async (req, res) => {
             limit
         })
     } catch (error) {
-        console.log('error while loading the product listing page fron the admin side',error);
+        console.log('error while loading the product listing page fron the admin side', error);
         res.render('admin/servererror');
     }
 }
@@ -68,29 +67,13 @@ const addProductPost = async (req, res) => {
     try {
         console.log('entered into product adding page in the adminside');
         const category = req.body.category;
-        console.log(category, '@@@@@@@@');
-        const categories = await catagoryModel.findById(category);
-        console.log(categories, '############');
-        const categoryDiscount = categories.discount;
-        console.log(categoryDiscount, '$$$$$$$$$$$$$$$$');
+
         const price = req.body.price;
-        console.log(price,'&&&&&&&&&&&&&&');
-        let discount = req.body.discount;
-        console.log(discount,'**********************');
-
-        if (categoryDiscount > discount) {
-            discount = categoryDiscount;
-        }
-
-        const discountPrice = price - (price * (discount / 100));
-
         const product = new productModel({
             name: req.body.name,
             category: category,
             description: req.body.description,
             price: price,
-            discount: discount,
-            discountPrice: discountPrice,
             stock: [{
                 size: 'XS',
                 quantity: req.body.s1,
@@ -160,19 +143,10 @@ const updateProductPost = async (req, res) => {
         const id = req.params.id;
         const product = await productModel.findOne({ _id: id });
         const category = product.category;
-        const categories = await catagoryModel.findById(category);
-        const categoryDiscount = categories.discount;
         const price = req.body.price;
-        let discount = req.body.discount;
-        if (categoryDiscount > discount) {
-            discount = categoryDiscount;
-        }
-        const discountPrice = price - (price * (discount / 100));
         product.name = req.body.name;
         product.description = req.body.description;
         product.price = price;
-        product.discount = discount;
-        product.discountPrice = discountPrice;
         product.stock = [
             { size: 'XS', quantity: req.body.s1 },
             { size: 'S', quantity: req.body.s2 },
@@ -190,50 +164,6 @@ const updateProductPost = async (req, res) => {
     }
 }
 
-
-
-// const updateProductPost = async (req, res) => {
-//     try {
-//         console.log('Updating the selected product from admin side');
-//         console.log(req.body);
-//         const id = req.params.id;
-//         const product = await productModel.findOne({ _id: id });
-
-//         // Ensure required fields are present and valid
-//         const { name, description, price, s1, s2, s3, s4, s5 } = req.body;
-
-//         if (!name || !description || !price || [s1, s2, s3, s4, s5].some(size => size === undefined)) {
-//             throw new Error("All fields are required.");
-//         }
-
-//         product.name = name;
-//         product.description = description;
-//         product.price = parseFloat(price);
-//         product.stock = [
-//             { size: 'XS', quantity: parseInt(s1) },
-//             { size: 'S', quantity: parseInt(s2) },
-//             { size: 'M', quantity: parseInt(s3) },
-//             { size: 'L', quantity: parseInt(s4) },
-//             { size: 'XL', quantity: parseInt(s5) },
-//         ];
-
-
-//         const totalStock = parseInt(s1) + parseInt(s2) + parseInt(s3) + parseInt(s4) + parseInt(s5);
-//         if (isNaN(totalStock)) {
-//             throw new Error("Total stock calculation failed.");
-//         }
-//         product.totalstock = totalStock;
-
-
-//         await product.save();
-//         req.flash('updateSuccess', 'Product updated successfully');
-//         res.redirect('/admin/products');
-//     } catch (error) {
-//         console.log('Error while updating the selected product:', error);
-//         res.render('admin/servererror', { error: error.message });
-//     }
-// };
-
 // rendering the update image page
 const updateImage = async (req, res) => {
     try {
@@ -242,7 +172,7 @@ const updateImage = async (req, res) => {
         console.log(id, '###########8###########');
         const imageNotFound = req.flash('imageNotFound');
         const product = await productModel.findById(id);
-        console.log(product, '--------------------->');
+        console.log('product:',product);
         console.log(product.image, '111111111111111111');
         res.render('admin/updateimage', { product: product, imageNotFound });
     } catch (error) {

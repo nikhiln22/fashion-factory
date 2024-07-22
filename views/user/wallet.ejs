@@ -1,0 +1,249 @@
+<%- include('navbar') -%>
+    <main class="main__content_wrapper">
+        <!-- Start breadcrumb section -->
+        <section class="breadcrumb__section breadcrumb__bg">
+            <div class="container">
+                <div class="row row-cols-1">
+                    <div class="col">
+                        <div class="breadcrumb__content text-center">
+                            <h1 class="breadcrumb__content--title text-white mb-25">My Account</h1>
+                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="index.html">Home</a></li>
+                                <li class="breadcrumb__content--menu__items"><span class="text-white">My Account</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End breadcrumb section -->
+        
+        <!-- my account section start -->
+        <section class="my__account--section section--padding">
+            <div class="container">
+                <div class="my__account--section__inner border-radius-10 d-flex">
+                    <div class="account__left--sidebar">
+                        <ul class="account__menu">
+                            <li class="account__menu--list"><a href="/profile">My Profile</a></li>
+                            <li class="account__menu--list"><a href="/orders">Orders</a></li>
+                            <li class="account__menu--list"><a href="/address">Addresses</a></li>
+                            <li class="account__menu--list"><a href="/resetpassword">change password</a></li>
+                            <li class="account__menu--list"><a href="/wishlist">Wishlist</a></li>
+                            <li class="account__menu--list active"><a href="/wallet">Wallet</a></li>
+                            <li class="account__menu--list"><a href="/logout">Log Out</a></li>
+                        </ul>
+                    </div>
+        
+                          <!-- Integrated wallet content -->
+                <div class="col-md-8 col-lg-9">
+                    <div class="tab-content">
+                        <div class="page-wrapper" id="walletdiv">
+                            <div class="page-content">
+                                <div class="dashboard">
+                                    <div class="container-fluid">
+                                        <div class="row mt-5">
+                                            <div class="col-md-8 col-lg-11">
+                                                <div class="tab-content">
+                                                    <div class="p-5 shadow rounded bg-white">
+                                                        <h2 class="mb-5 text-center" style="color:#000000;">Wallet Details</h2>
+                                                        <div class="row">
+                                                            <div class="col-md-6 mb-3">
+                                                                <div class="card">
+                                                                    <div class="card-body" style="width:320px">
+                                                                        <h5 class="card-title"><i class="fa fa-wallet" style="color: #000000;"></i> Wallet Balance</h5>
+                                                                        <%if(walletDetails){%>
+                                                                            <p class="mt-4"><strong>Current Balance:</strong> <span id="walletBalance">₹<%=walletDetails.balance%></span></p>
+                                                                        <%}else{%>
+                                                                            <p class="mt-4"><strong>Current Balance:</strong> <span id="walletBalance">₹0</span></p>
+                                                                        <%}%>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 mb-3">
+                                                                <div class="card">
+                                                                    <div class="card-body">
+                                                                        <h5 class="card-title"><i class="fa fa-history" style="color: #000000;"></i> Transaction History</h5>
+                                                                        <p>View your recent transactions and manage your wallet.</p>
+                                                                        <div class="text-center mt-4">
+                                                                            <a href="#transactions" id="transactionbtn" class="btn btn-primary px-4" style="width: 150px;">View Transactions</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-center mt-4">
+                                                            <button id="addFund" class="btn btn-primary px-4" style="width: 150px;">Add Funds</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transaction history section -->
+                        <div class="page-wrapper" id="transaction" style="background-color: rgb(241, 243, 246); display:none">
+                            <div class="page-content">
+                                <div class="dashboard">
+                                    <div class="container-fluid">
+                                        <div class="row mt-5">
+                                            <div class="col-md-8 col-lg-11">
+                                                <div class="tab-content">
+                                                    <div class="p-5 shadow rounded bg-white">
+                                                        <h2 class="mb-5 text-center" style="color:#000000;">Transaction History</h2>
+                                                        <div class="table-responsive">
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Date</th>
+                                                                        <th>Transaction Method</th>
+                                                                        <th>Amount</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <% if (walletDetails && walletDetails.transaction) { %>
+                                                                        <% walletDetails.transaction.forEach(item => { %>
+                                                                            <tr>
+                                                                                <td><%= item.formattedDate %></td>
+                                                                                <td><%= item.transactionsMethod %></td>
+                                                                                <td>₹<%= item.amount %></td>
+                                                                            </tr>
+                                                                        <% }) %>
+                                                                    <% } else { %>
+                                                                        <tr>
+                                                                            <td colspan="3">No transactions found</td>
+                                                                        </tr>
+                                                                    <% } %>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                    
+            </div>
+        </section>
+        <!-- my account section end -->
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('transactionbtn').addEventListener('click', function (e) {
+        e.preventDefault()
+        document.getElementById('walletdiv').style.display = 'none'
+        document.getElementById('transaction').style.display = 'block'
+    })
+
+    const addFund = document.getElementById('addFund')
+    addFund.addEventListener('click', function () {
+        Swal.fire({
+            title: 'Add Funds',
+            input: 'number',
+            inputLabel: 'Amount',
+            inputPlaceholder: 'Enter the amount you want to add',
+            inputAttributes: {
+                min: 1,
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Add',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const amount = result.value
+                console.log(amount);
+                fetch('/addfund', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ amount })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const { orderId } = data
+                        console.log('data:',data);
+                        var options = {
+                            key: data.key_id,
+                            amount: amount * 100,
+                            currency: "INR",
+                            name: "Fashion Factory",
+                            description: "Test Transaction",
+                            order_id: orderId,
+                            handler: function (response) {
+                                fetch("/verifyfund", {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        response,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_signature: response.razorpay_signature
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        fetch('/addWallet', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({ amount })
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            if (data.success) {
+                                                Swal.fire('Added!', `Funds added: ₹${result.value}`, 'success')
+                                                .then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        window.location.href = "/wallet"
+                                                    }
+                                                })
+                                            } else {
+                                                Swal.fire('Something wrong');
+                                            }
+                                        })
+                                    } else {
+                                        alert('Payment verification failed');
+                                    }
+                                }).catch(error => {
+                                    console.error('Verification request failed', error);
+                                    alert('Payment verification failed');
+                                })
+                            },
+                            prefill: {
+                            },
+                            theme: {
+                                color: "#3399cc"
+                            }
+                        };
+                        var razorpayObject = new Razorpay(options)
+                        razorpayObject.on('payment.failed', function (res) {
+                            alert('payment failed')
+                        })
+                        razorpayObject.open()
+                    }
+                }).catch(err => {
+                    console.log('error', err);
+                })
+            }
+        });
+    });
+});
+
+</script>
+        <%- include('footer') -%> 
+        

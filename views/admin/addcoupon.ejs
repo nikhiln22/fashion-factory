@@ -1,0 +1,170 @@
+<%- include ('adminHeader') %>
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h1 class="content-title card-title"> Add Coupons </h1>
+
+            </div>
+
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <form id="addcouponForm" method="post" action="/admin/addcoupon" onsubmit="return validateForm()">
+                        <div class="mb-4">
+                            <label for="couponCode" class="form-label">Coupon Code</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="couponCode"
+                                name="couponCode" required />
+                            <div id="couponCodeError" class="text-danger"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="couponType" class="form-label">Coupon Type</label>
+                            <select class="form-select" id="couponType" name="couponType" onchange="updateFormFields()"
+                                required>
+                                <option value="percentageDiscount">Percentage Discount</option>
+                                <option value="flatDiscount">Flat Discount</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="minimumPrice" class="form-label">Minimum Price</label>
+                            <input type="number" class="form-control" id="minimumPrice" name="minimumPrice" required>
+                            <span id="minimumPriceError" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="discount" class="form-label" id="discountLabel">Discount</label>
+                            <input type="number" class="form-control" id="discount" name="discount"
+                                oninput="updateMaxRedeem()" required>
+                            <span id="discountError" class="text-danger"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label for="maxRedeem" class="form-label">Max Redeemable Amount</label>
+                            <input type="number" class="form-control" id="maxRedeem" name="maxRedeem" required>
+                            <span id="maxRedeemError" class="text-danger"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label for="expiry" class="form-label">Expiry</label>
+                            <input type="date" class="form-control" id="expiry" name="expiry" required>
+                            <span id="expiryError" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-dark">Add Coupon</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <script>
+        function validateForm() {
+            console.log('hlooooo');
+            var couponCode = document.getElementById('couponCode').value;
+            var minimumPrice = document.getElementById('minimumPrice').value;
+            var discount = document.getElementById('discount').value;
+            var maxRedeem = document.getElementById('maxRedeem').value;
+            var expiry = document.getElementById('expiry').value;
+
+            var couponCodeError = document.getElementById('couponCodeError');
+            var minimumPriceError = document.getElementById('minimumPriceError');
+            var discountError = document.getElementById('discountError');
+            var maxRedeemError = document.getElementById('maxRedeemError');
+            var expiryError = document.getElementById('expiryError');
+
+            couponCodeError.innerHTML = '';
+            minimumPriceError.innerHTML = '';
+            discountError.innerHTML = '';
+            maxRedeemError.innerHTML = '';
+            expiryError.innerHTML = '';
+
+            if (!/^[a-zA-Z0-9]+$/.test(couponCode)) {
+                couponCodeError.innerHTML = 'Coupon code must be alphanumeric without spaces.';
+                return false;
+            }
+
+            if (isNaN(discount) || parseFloat(discount) <= 0) {
+                discountError.innerHTML = 'Discount must be a positive number less than or equal to 100.';
+                return false;
+            }
+
+            if (isNaN(minimumPrice) || parseFloat(minimumPrice) <= 0) {
+                minimumPriceError.innerHTML = 'Minimum price must be a positive number.';
+                return false;
+            }
+
+            if (isNaN(maxRedeem) || parseFloat(maxRedeem) <= 0) {
+                maxRedeemError.innerHTML = 'Max redeemable amount must be a positive number.';
+                return false;
+            }
+            if (!validateDateFormat(expiry)) {
+                expiryError.innerHTML = 'Please enter the date in DD-MM-YYYY format.';
+                return false;
+            }
+
+            return true;
+        }
+
+        function updateFormFields() {
+            var couponType = document.getElementById("couponType").value;
+            var discountLabel = document.getElementById("discountLabel");
+            var discountInput = document.getElementById("discount");
+            var maxRedeemInput = document.getElementById("maxRedeem");
+            var minimumPriceInput = document.getElementById("minimumPrice");
+
+            if (couponType === "flatDiscount") {
+                discountLabel.textContent = "Fixed Discount Amount";
+                discountInput.min = 1;
+                discountInput.max = "";
+                maxRedeemInput.value = discountInput.value;
+                maxRedeemInput.readOnly = true;
+            } else {
+                discountLabel.textContent = "Discount";
+                discountInput.min = 1;
+                discountInput.max = 100;
+                maxRedeemInput.value = "";
+                maxRedeemInput.readOnly = false;
+            }
+
+            updateMaxRedeem();
+        }
+
+
+        function updateMaxRedeem() {
+            console.log('updateMaxRedeem function called');
+            var couponType = document.getElementById("couponType").value;
+            var maxRedeemInput = document.getElementById("maxRedeem");
+            var discountInput = document.getElementById("discount");
+            var minimumPriceInput = document.getElementById("minimumPrice");
+
+            console.log('Coupon Type:', couponType);
+            console.log('Current Discount:', discountInput.value);
+            console.log('Current Minimum Price:', minimumPriceInput.value);
+
+            if (couponType === "flatDiscount") {
+                console.log('Flat Discount selected');
+                var discountAmount = parseFloat(discountInput.value);
+                var minimumPrice = parseFloat(minimumPriceInput.value);
+
+                console.log('Discount Amount:', discountAmount);
+                console.log('Minimum Price:', minimumPrice);
+
+                if (discountAmount >= minimumPrice) {
+                    console.log('Adjusting discount amount');
+                    discountInput.value = minimumPrice - 1;
+                }
+                maxRedeemInput.value = parseFloat(discountInput.value);
+                maxRedeemInput.readOnly = true;
+            } else if (couponType === "percentageDiscount") {
+                console.log('Percentage Discount selected');
+                discountInput.min = 1;
+                discountInput.max = 100;
+                maxRedeemInput.value = "";
+                maxRedeemInput.readOnly = false;
+            }
+
+            console.log('Final Max Redeem Value:', maxRedeemInput.value);
+        }
+        document.addEventListener('DOMContentLoaded', updateFormFields);
+    </script>
+
+    <%-include('adminfooter')%>

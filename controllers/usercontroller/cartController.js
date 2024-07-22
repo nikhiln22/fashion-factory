@@ -106,17 +106,12 @@ const addCart = async (req, res) => {
             });
         }
 
-        // Check if the cart already has 5 unique products
-        if (cart.item.length >= 5 && !cart.item.some(item => item.productId.toString() === pid && item.size === selectedSize)) {
-            return res.json({ success: false, message: 'You can only add up to 5 different products to your cart.' });
-        }
-
         const productExist = cart.item.findIndex(
             (item) => item.productId.toString() === pid && item.size === selectedSize
         );
 
         if (productExist !== -1) {
-            // Check if adding one more would exceed the stock
+            // Checking if adding one more product would exceed the existing stock limit
             if (cart.item[productExist].quantity + 1 > selectedStock.quantity) {
                 return res.json({ success: false, message: 'Cannot add more of this item. Stock limit reached.' });
             }
@@ -149,6 +144,7 @@ const addCart = async (req, res) => {
     }
 }
 
+// updating the quantity of the product from the cart
 const updateCart = async (req, res) => {
     try {
         console.log('entering to the updateCart function');
@@ -190,14 +186,17 @@ const updateCart = async (req, res) => {
         } else if (action == '-1') {
             updatedQuantity = currentQuantity - 1;
         } else {
-            return res.staus(400).json({ success: false, error: "Invalid action" });
+            return res.status(400).json({ success: false, error: "Invalid action" });
         }
 
         if (updatedQuantity > stockLimit2 && action == "1") {
             return res.status(400).json({ success: false, error: "Quantity exceeds stock limits" });
         } else if (updatedQuantity == 0) {
             return res.status(400).json({ success: false, error: "Quantity cannot be Zero" });
+        } else if (updatedQuantity > 5) {
+            return res.status(400).json({ success: false, error: "Quantity limit reached" });
         }
+
         cart.item[itemIndex].quantity = updatedQuantity;
 
         const newProductTotal = price * updatedQuantity;
@@ -218,15 +217,14 @@ const updateCart = async (req, res) => {
     }
 }
 
+// deleting the product from the cart
 const deleteCart = async (req, res) => {
     try {
         console.log('entering into function that removing the products from the cart');
         const userId = req.session.userId;
         const pid = req.params.id;
         const size = req.params.size;
-
         const output = await cartModel.updateOne({ userId: userId }, { $pull: { item: { _id: pid, size: size } } });
-        console.log(output);
         const updatedCart = await cartModel.findOne({ userId: userId });
         const add = updatedCart.item.reduce((acc, item) => acc + item.total, 0);
         updatedCart.total = add;

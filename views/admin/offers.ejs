@@ -1,0 +1,369 @@
+<%- include('adminHeader') %>
+
+    <style>
+        .table-bordered {
+            border: 1px solid #000000;
+        }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000000;
+        }
+    </style>
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">OFFERS</h2>
+                <p>List of offers:</p>
+            </div>
+            <div>
+                <button id="addOffer" class="btn btn-dark d-flex mb-3">Add New Offer</button>
+            </div>
+        </div>
+        <div class="col-lg-12">
+
+            <div id="offerList" class="table-responsive">
+                <% if(offers !="" ) { %>
+                    <table class="table table-bordered mt-2 text-center">
+                        <thead>
+                            <tr class="table-primary">
+                                <th>ID</th>
+                                <th>Offer Name</th>
+                                <th>Discount(%)</th>
+                                <th>Valid From</th>
+                                <th>Valid To</th>
+                                <th>Offer Type</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for(let i=0;i<offers.length;i++) { %>
+                                <tr>
+                                    <td>
+                                        <centre>
+                                            <%= i + 1 %>
+                                        </centre>
+                                    </td>
+
+                                    <td>
+                                        <centre>
+                                            <%= offers[i].offerName %>
+                                        </centre>
+                                    </td>
+                                    <td>
+                                        <centre>
+                                            <%= offers[i].discount%>
+                                        </centre>
+                                    </td>
+                                    <% var dateStr=offers[i].startDate %>
+                                        <% var dateObj=new Date(dateStr ) %>
+                                            <% var formattedDate=dateObj.getDate()+' '+
+                                                dateObj.toLocaleString('default',{month:'long'}) + ' ' +
+                                                dateObj.getFullYear();%>
+                                                <td>
+                                                    <centre>
+                                                        <%=formattedDate %>
+                                                    </centre>
+                                                </td>
+                                                <% var dateStr=offers[i].endDate %>
+                                                    <% var dateObj=new Date(dateStr ) %>
+                                                        <% var formattedDate=dateObj.getDate()+''+
+                                                            dateObj.toLocaleString('default',{month:'long'}) + '' +
+                                                            dateObj.getFullYear();%>
+                                                            <td>
+                                                                <centre>
+                                                                    <%= formattedDate %>
+                                                                </centre>
+                                                            </td>
+                                                            <td>
+                                                                <centre>
+                                                                    <%= offers[i].offerType %>
+                                                                </centre>
+                                                            </td>
+                                                            <td>
+                                                                <centre>
+                                                                    <a href="/admin/editOffer?id=<%=offers[i]._id%>"><button
+                                                                            class="btn btn-dark btn-sm rounded">Edit</button></a>
+                                                                    <button class="btn btn-danger btn-sm rounded delete"
+                                                                        value="<%=offers[i]._id%>">Delete</button>
+                                                                </centre>
+                                                            </td>
+                                </tr>
+                                <% } %>
+                        </tbody>
+                    </table>
+                    <% }else { %>
+                        <h1 class="text-center text-secondary mt-5">No offers found in the
+                            database
+                        </h1>
+                        <% } %>
+            </div>
+        </div>
+
+
+        <!-- Add Offer Form (Initially Hidden) -->
+        <div id="addOfferForm" style="display: none;">
+            <h2>Add New Offer</h2>
+            <p id="errorAddoffer" style="color: red;"></p>
+            <form id="offerForm">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="offerName" class="form-label">Offer Name</label>
+                        <input type="text" class="form-control" id="offerName" name="offerName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="discountRate" class="form-label">Discount Rate (%)</label>
+                        <input type="number" class="form-control" id="discountRate" name="discountRate" min="0"
+                            max="100" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" name="endDate" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="offerType" class="form-label">Offer Type</label>
+                        <select class="form-select" id="offerType" name="offerType" required>
+                            <option value="">Choose</option>
+                            <option value="category">Category</option>
+                            <option value="product">Product</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="selectedProductNames">Selected Items:</label>
+                        <select class="form-select" id="selectedProductNames" multiple>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <button type="submit" id="saveBtn" class="btn btn-primary" style="cursor:pointer;">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+
+
+    <!-- Product Selection Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Select Products</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalProductList">
+                    <!-- Products will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="selectProductBtn">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Selection Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalLabel">Select Categories</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalCategoryList">
+                    <!-- Categories will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="selectCategoryBtn">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Add Offer button click handle
+        document.getElementById('addOffer').addEventListener('click', function () {
+            document.getElementById('offerList').style.display = 'none';
+            document.getElementById('addOfferForm').style.display = 'block';
+        });
+    </script>
+
+    <script>
+
+        // Save button click handler
+        document.getElementById('offerForm').addEventListener('submit', function (e) {
+            console.log('Save Button Clicked');
+            e.preventDefault();
+            const offerName = document.getElementById('offerName').value;
+            const discountRate = document.getElementById('discountRate').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const offerType = document.getElementById('offerType').value;
+            const selectedElem = document.getElementById('selectedProductNames');
+            const selectedValues = Array.from(selectedElem.options).map(option => option.value);
+
+            console.log('offerName:', offerName);
+            console.log('discountRate:', discountRate);
+            console.log('startDate:', startDate);
+            console.log('endDate:', endDate);
+            console.log('offerType:', offerType);
+            console.log('selectedElem:', selectedElem);
+            console.log('selectedValues:', selectedValues);
+
+            axios.post('/admin/addoffer', { offerName, discountRate, startDate, endDate, offerType, selectedValues })
+
+                .then(res => {
+                    console.log('inside the addoffer sending form');
+                    if (res.data.success) {
+                        window.location.href = "/admin/offers";
+                    } else {
+                        document.getElementById('errorAddoffer').innerHTML = res.data.message;
+                        setTimeout(() => {
+                            document.getElementById('errorAddoffer').innerHTML = "";
+                        }, 2000);
+                    }
+                }).catch(err => {
+                    console.log('error', err);
+                });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Offer type change handler
+            document.getElementById('offerType').addEventListener('change', function () {
+                const offerType = this.value;
+                if (offerType) {
+                    axios.post('/admin/offertype', { offerType })
+                        .then(res => {
+                            if (res.data.productDetails) {
+                                // Handle product selection
+                                const products = res.data.productDetails;
+                                const modalProductList = document.getElementById('modalProductList');
+                                modalProductList.innerHTML = '';
+                                products.forEach(product => {
+                                    const imageUrl = `/${product.image[0]}`;
+                                    const productItem = document.createElement('div');
+                                    productItem.className = 'product-item d-flex align-items-center justify-content-between p-2';
+                                    productItem.innerHTML = `
+                                    <div class="form-check">
+                                        <input class="form-check-input product-checkbox" type="checkbox" name="productSelect" id="product-${product._id}" value="${product._id}">
+                                        <label class="form-check-label" for="product-${product._id}">
+                                            ${product.name} - Price: ${product.price}
+                                        </label>
+                                    </div>
+                                    <img src="${imageUrl}" alt="${product.name}" style="width: 50px; height: 50px;">
+                                `;
+                                    modalProductList.appendChild(productItem);
+                                });
+                                new bootstrap.Modal(document.getElementById('productModal')).show();
+                            } else {
+                                // Handle category selection
+                                const categories = res.data.categoryDetails;
+                                const modalCategoryList = document.getElementById('modalCategoryList');
+                                modalCategoryList.innerHTML = '';
+                                categories.forEach(category => {
+                                    const categoryElement = document.createElement('div');
+                                    categoryElement.className = 'form-check';
+                                    categoryElement.innerHTML = `
+                                    <input class="form-check-input category-checkbox" type="checkbox" id="category-${category._id}" name="category" value="${category._id}">
+                                    <label class="form-check-label" for="category-${category._id}">${category.name}</label>
+                                `;
+                                    modalCategoryList.appendChild(categoryElement);
+                                });
+                                new bootstrap.Modal(document.getElementById('categoryModal')).show();
+                            }
+                        }).catch(err => {
+                            console.error('Error:', err);
+                        });
+                }
+            });
+
+            // Product and Category selection handlers
+            document.addEventListener('change', function (e) {
+                if (e.target.matches('.product-checkbox') || e.target.matches('.category-checkbox')) {
+                    const selectedItems = e.target.matches('.product-checkbox')
+                        ? document.querySelectorAll('input[name="productSelect"]:checked')
+                        : document.querySelectorAll('input[name="category"]:checked');
+                    const selectedItemsSelect = document.getElementById('selectedProductNames');
+
+                    if (selectedItemsSelect) {
+                        selectedItemsSelect.innerHTML = '';
+                        selectedItems.forEach(input => {
+                            const itemName = input.nextElementSibling.textContent.split('-')[0].trim();
+                            const itemId = input.value;
+                            const option = document.createElement('option');
+                            option.value = itemId;
+                            option.text = itemName;
+                            option.selected = true;
+                            selectedItemsSelect.appendChild(option);
+                        });
+                    }
+                }
+            });
+
+            // Delete button click handler
+            const deleteButtons = document.querySelectorAll('.delete');
+            deleteButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.value;
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "You won't be able to revert this!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, delete it!"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            axios.post('/admin/deleteoffer', { id })
+                                .then(res => {
+                                    if (res.data.success) {
+                                        Swal.fire({
+                                            title: "Deleted!",
+                                            text: "Your offer has been deleted.",
+                                            icon: "success"
+                                        }).then(() => {
+                                            window.location.href = "/admin/offers";
+                                        });
+                                    }
+                                }).catch(err => {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: "There was an error deleting the offer.",
+                                        icon: "error"
+                                    });
+                                });
+                        }
+                    });
+                });
+            });
+
+            // Modal close handlers
+            document.getElementById('selectProductBtn').addEventListener('click', function () {
+                bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+            });
+
+            document.getElementById('selectCategoryBtn').addEventListener('click', function () {
+                bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+            });
+        });
+    </script>
+
+    <%- include ('adminfooter') %>

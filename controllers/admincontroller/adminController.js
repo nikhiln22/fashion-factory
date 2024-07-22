@@ -8,7 +8,9 @@ const flash = require('express-flash');
 // rendering admin login page....
 const adlogin = async (req, res) => {
     try {
-        res.render('admin/adminlogin', { passwordError: ' ' });
+        let passwordError = req.flash('passwordError');
+        let emailError = req.flash('emailError');
+        res.render('admin/adminlogin', { passwordError, emailError });
     } catch (error) {
         console.log(error);
     }
@@ -17,19 +19,27 @@ const adlogin = async (req, res) => {
 // adminloginpost
 const adloginpost = async (req, res) => {
     try {
-        console.log(req.body);
+        console.log('enteing to the admin login page')
         const password = req.body.password;
         const email = req.body.email;
-        const user = await adminModel.findOne({ email: email });
-        if (user.isAdmin == true && await bcrypt.compare(password, user.password)) {
-
-            req.session.isAdAuth = true;
-            // console.log('if ------->>');
-            res.redirect('/admin/adminpanel');
-            // console.log('if ------->>');
+        const admin = await adminModel.findOne({ email: email });
+        if (!admin) {
+            req.flash('emailError', 'Invalid email address');
+            return res.redirect('/admin');
         }
+        if (admin.isAdmin !== true) {
+            req.flash('emailError', 'This email is not registered as an admin');
+            return res.redirect('/admin');
+        }
+        if (!(await bcrypt.compare(password, admin.password))) {
+            req.flash('passwordError', 'Incorrect password');
+            return res.redirect('/admin');
+        }
+
+        req.session.isAdAuth = true;
+        return res.redirect('/admin/adminpanel');
     } catch (error) {
-        console.log(error);
+        console.log('error while logging in the admin', error);
         res.render('admin/servererror');
     }
 }
@@ -37,10 +47,10 @@ const adloginpost = async (req, res) => {
 // rendering the adminpanel page......
 const adminpanel = async (req, res) => {
     try {
-        // console.log('reached admin panel ----------->>');
+        console.log('rendering the adminpanel from the admin side');
         res.render("admin/adminpanel")
     } catch (error) {
-        console.log('error admin panel ----------->   ', error);
+        console.log('error while rendering the admin panel', error);
     }
 }
 
@@ -68,27 +78,12 @@ const users = async (req, res) => {
         };
         res.render('admin/users', { locals });
     } catch (error) {
-        console.log('error while loading the user listing page');
+        console.log('error while loading the user listing page', error);
         res.render('admin/servererror');
     }
 }
 
-
-// listing the users 
-// const users = async (req, res) => {
-//     try {
-//         console.log('user listing page from admin side--------------->> ');
-//         const user = await adminModel.find({ isAdmin: false });
-//         res.render('admin/users', { users: user })
-//     } catch (error) {
-//         console.log('error while loading the user page');
-//         res.render('admin/servererror');
-//     }
-// }
-
-
 // user listing (block & unblocking)
-
 const checkUserStatus = async (req, res) => {
     try {
         console.log('reaching user blocking area.........');
@@ -99,7 +94,7 @@ const checkUserStatus = async (req, res) => {
         await adminModel.updateOne({ _id: id }, { $set: { status: newValue } });
         res.redirect('/admin/users');
     } catch (error) {
-        console.log('error happend while listing');
+        console.log('error happend while listing', error);
         res.render('admin/servererror');
     }
 }

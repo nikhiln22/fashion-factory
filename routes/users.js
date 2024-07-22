@@ -5,11 +5,10 @@ const productController = require('../controllers/usercontroller/productControll
 const profileController = require('../controllers/usercontroller/profileController');
 const cartController = require('../controllers/usercontroller/cartController');
 const checkOutController = require('../controllers/usercontroller/checkOutController');
-const { ifLogged, logged, signed, forgot } = require('../middlewares/userAuth');
+const paymentController = require('../controllers/usercontroller/paymentController');
+const { ifLogged, logged, signed, forgot, checkoutValid } = require('../middlewares/userAuth');
 require('../googleAuth');
 const passport = require('passport');
-
-
 
 
 userRoute.get('/', userController.index);
@@ -26,7 +25,7 @@ userRoute.get('/auth/failure', userController.authFailure);
 userRoute.get('/otp', signed, userController.otp);
 userRoute.post('/verifyotp', userController.verifyOtp);
 userRoute.post('/resendotp', userController.resendOtp);
-userRoute.get('/forgot', userController.forgotPassword);
+userRoute.get('/forgot', userController.forgotPassword); checkoutValid
 userRoute.post('/forgot', userController.forgotPasswordPost);
 userRoute.get('/newpassword', forgot, userController.newpassword);
 userRoute.post('/newpassword', forgot, userController.newPasswordPost);
@@ -46,19 +45,35 @@ userRoute.post('/addaddress', logged, profileController.addAddressPost);
 userRoute.get('/orders', logged, profileController.order);
 userRoute.get('/singleorder', logged, profileController.singleorder);
 userRoute.post('/cancelproduct', logged, profileController.cancelProduct);
+userRoute.get('/wallet', logged, profileController.wallet);
+userRoute.post('/addwallet', logged, profileController.addWallet);
+
+userRoute.post('/addfund', logged, paymentController.addFund);
+userRoute.post('/verifyfund', logged, paymentController.fundVerification);
 
 
-userRoute.get('/shop', productController.shoplist);
-userRoute.get('/shopsingle/:id', productController.shopSingle);
+userRoute.get('/shop', productController.shop);
+userRoute.get('/shopsingle', productController.shopSingle);
+userRoute.get('/highlow', productController.highLow);
+userRoute.get('/lowhigh', productController.lowHigh);
+userRoute.get('/atoz', productController.aToZ);
+userRoute.get('/ztoa', productController.zToa);
+userRoute.get('/catsort', productController.catfilter);
+userRoute.post('/search', productController.search);
+
+userRoute.get('/wishlist', logged, productController.wishlist);
+userRoute.post('/wishlist', logged, productController.addWishlist);
+userRoute.post('/removewishlist', logged, productController.removeFromWishlist);
+
 
 userRoute.get('/cart', logged, cartController.showCart);
 userRoute.post('/addcart/:id', logged, cartController.addCart);
 userRoute.post('/updatecartquantity/:productId/:size', logged, cartController.updateCart);
 userRoute.get('/delete/:id/:size', logged, cartController.deleteCart);
 
-userRoute.get('/checkout', logged, checkOutController.checkout);
-userRoute.post('/placeorder', logged, checkOutController.placeOrder);
-userRoute.get('/orderconfirmation', logged, checkOutController.orderConfirmation);
+userRoute.get('/checkout', logged, checkoutValid, checkOutController.checkout);
+userRoute.post('/placeorder', logged, checkoutValid, checkOutController.placeOrder);
+userRoute.get('/orderconfirmation', logged, checkoutValid, checkOutController.orderConfirmation);
 
 
 userRoute.get('/logout', userController.logout);

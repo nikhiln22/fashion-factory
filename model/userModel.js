@@ -29,6 +29,18 @@ var userSchema = new mongoose.Schema({
     required: true,
     default: true
   },
+  wishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'productDetails'
+  }],
+  referralCode: {
+    type: String,
+    required:true
+  },
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userDetails',
+  },
   // googleToken:{
   //   type:String
   // }
