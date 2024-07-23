@@ -74,23 +74,25 @@ const addCart = async (req, res) => {
         const selectedSize = req.body.size;
         const pid = req.params.id;
         const product = await productModel.findOne({ _id: pid });
+        console.log('product:', product);
         const userId = req.session.userId;
         const price = product.discountPrice;
+        console.log('price:', price);
         const stock = await productModel.findOne({
             _id: pid,
             "stock.size": selectedSize
         });
-        
+
         if (!stock) {
             return res.json({ success: false, message: 'Selected size not found for this product.' });
         }
-        
+
         const selectedStock = stock.stock.find((item) => item.size == selectedSize);
-        
+
         if (!selectedStock || selectedStock.quantity === 0) {
             return res.json({ success: false, message: 'Selected size is out of stock. Please choose another size.' });
         }
-        
+
         let cart;
         if (userId) {
             cart = await cartModel.findOne({ userId });
@@ -134,6 +136,7 @@ const addCart = async (req, res) => {
         }
 
         cart.total = cart.item.reduce((acc, item) => acc + item.total, 0);
+        console.log('cart:', cart);
         await cart.save();
 
         return res.json({ success: true });

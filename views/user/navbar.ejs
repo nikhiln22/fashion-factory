@@ -193,7 +193,7 @@
                                                     stroke-linejoin="round" stroke-width="32"></path>
                                             </svg>
                                             <span class="header__account--btn__text"> Wish List</span>
-                                            <span class="items__count wishlist">02</span>
+                                            <span class="items__count wishlist"><%= locals.session.wishlistCount || 0 %></span>
                                         </a>
                                     </li>
                                     <li class="header__account--items">
@@ -298,7 +298,7 @@
                                                     fill="none" stroke="currentColor" stroke-linecap="round"
                                                     stroke-linejoin="round" stroke-width="32"></path>
                                             </svg>
-                                            <span class="items__count  wishlist style2">02</span>
+                                            <span class="items__count  wishlist style2" data-wishlist-count><%= locals.session.wishlistCount || 0 %></span>
                                         </a>
                                     </li>
                                     <li class="header__account--items header__account2--items">
@@ -321,7 +321,7 @@
                                                     </g>
                                                 </g>
                                             </svg>
-                                            <span class="items__count style2">02</span>
+                                            <span class="items__count style2" data-cart-count>0</span>
                                         </a>
                                     </li>
                                     <% } %>

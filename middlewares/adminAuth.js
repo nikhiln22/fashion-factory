@@ -9,6 +9,6 @@ const adAuth = async (req, res, next) => {
         console.log('oops...page didnt found');
         res.render('admin/servererror');
     }
-}
+} 
 
 module.exports = {adAuth};

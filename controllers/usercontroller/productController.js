@@ -9,7 +9,7 @@ const userModel = require('../../model/userModel');
 // rendering the user side shoplisting page...
 const shop = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 8;
     const skip = (page - 1) * limit;
     const selectedCategory = req.query.category || null;
     try {
@@ -97,7 +97,7 @@ const shopSingle = async (req, res) => {
         const productId = req.query.productId;
         let userId = req.session.userId;
         const productData = await productModel.findOne({ _id: productId });
-        const categoryData = await productModel.find({ category: productData.category, _id: { $ne: productId } });
+        let categoryData = await productModel.find({ category: productData.category, _id: { $ne: productId } });
 
         const userData = userId ? await userModel.findOne({ _id: userId }) : null;
         const cartCount = userId ? (await cartModel.find({ userId: userId })).length : 0;
@@ -129,6 +129,32 @@ const shopSingle = async (req, res) => {
             appliedOffer = offerData.find(offer => offerData.offerType === 'category' && offer.categoryId.includes(productData.category.toString()));
             discountedPrice = Math.round(categoryDiscountedPrice);
         }
+
+        categoryData = categoryData.map(item => {
+            let itemDiscountedPrice = item.price;
+            let itemAppliedOffer = null;
+
+            offerData.forEach(offer => {
+                if (offer.offerType === 'product' && offer.productId.includes(item._id.toString())) {
+                    itemDiscountedPrice = item.price - (item.price * offer.discount / 100);
+                }
+                if (offer.offerType === 'category' && offer.categoryId.includes(item.category.toString())) {
+                    itemDiscountedPrice = item.price - (item.price * offer.discount / 100);
+                }
+            });
+
+            if (itemDiscountedPrice < item.price) {
+                itemAppliedOffer = offerData.find(offer => (offer.offerType === 'product' && offer.productId.includes(item._id.toString())) || (offer.offerType === 'category' && offer.categoryId.includes(item.category.toString())));
+            }
+
+            return {
+                ...item.toObject(),
+                originalPrice: item.price,
+                discountedPrice: itemAppliedOffer ? Math.round(itemDiscountedPrice) : null,
+                appliedOffer: itemAppliedOffer ? { offerName: itemAppliedOffer.offerName, discount: itemAppliedOffer.discount } : null
+            };
+        });
+
         res.render('user/shopsingle', {
             product: { ...productData.toObject(), originalPrice: productData.price, discountedPrice, appliedOffer: appliedOffer ? { offerName: appliedOffer.offerName, discount: appliedOffer.discount } : null },
             userData: userData,
@@ -148,7 +174,7 @@ const shopSingle = async (req, res) => {
 // products sorting from price high to low
 const highLow = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 8;
     const skip = (page - 1) * limit;
     const categoryId = req.query.categoryId;
     try {
@@ -233,7 +259,7 @@ const highLow = async (req, res) => {
 // products sorting form price low to high
 const lowHigh = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 8;
     const skip = (page - 1) * limit;
     const categoryId = req.query.categoryId;
     try {
@@ -318,7 +344,7 @@ const lowHigh = async (req, res) => {
 // sorting the products from the a To Z
 const aToZ = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 8;
     const skip = (page - 1) * limit;
     const selectedCategory = req.query.category;
     try {
@@ -392,7 +418,7 @@ const aToZ = async (req, res) => {
 // sorting the products from the z to a
 const zToa = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 8;
     const skip = (page - 1) * limit;
     try {
         console.log('rendering the page where the product name sorts from a to Z');
@@ -453,7 +479,7 @@ const zToa = async (req, res) => {
 // filtering the products based on the category
 const catfilter = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 8;
     const skip = (page - 1) * limit;
     try {
         console.log('filtering the products based on the category');
@@ -543,16 +569,21 @@ const search = async (req, res) => {
         const userId = req.session.userId;
         console.log('words:', words);
         const products = await productModel.find({ name: { $regex: words, $options: 'i' } });
+        console.log('products found:', products);
         let productData = [];
         if (productData.length === 0) {
             const categories = await catagoryModel.findOne({ name: { $regex: words, $options: 'i' } });
+            console.log('categories:', categories);
             if (categories) {
                 productData = await productModel.find({ category: categories._id });
+                console.log('productData:', productData);
             }
         } else {
             productData = products
         }
+        console.log('Product Data:', productData);
         const cartCount = userId ? await cartModel.countDocuments({ userId: userId }) : 0;
+        console.log('cartCount:', cartCount);
         res.json({ productData, cartCount });
     } catch (error) {
         console.log('error while searching an product', error);
@@ -567,11 +598,17 @@ const addWishlist = async (req, res) => {
     try {
         console.log('moving a product to wishlist');
         const { productId } = req.body;
-        console.log('productId:', productId);
         const userId = req.session.userId;
-        const userdata = await userModel.findOne({ _id: userId });
+        const user = await userModel.findOne({ _id: userId });
+
+        if (user.wishlist.includes(productId)) {
+            return res.status(200).json({ success: false, message: 'Product already in the wishlist' })
+        }
+
         const wishlist = await userModel.updateOne({ _id: userId }, { $push: { wishlist: productId } });
-        const wishlistCount = userdata.wishlist.length;
+        const updatedUser = await userModel.findOne({ _id: userId });
+        const wishlistCount = updatedUser.wishlist.length;
+        res.locals.session.wishlistCount = wishlistCount ? wishlistCount : 0
         res.status(200).json({ success: true, wishlistCount });
     } catch (error) {
         console.log('error while adding the selected product to the wishlist', error);
@@ -598,6 +635,9 @@ const removeFromWishlist = async (req, res) => {
         const { productId } = req.body;
         const userId = req.session.userId;
         await userModel.findByIdAndUpdate(userId, { $pull: { wishlist: productId } });
+        const updatedUser = await userModel.findOne({ _id: userId });
+        const wishlistCount = updatedUser.wishlist.length;
+        res.locals.session.wishlistCount = wishlistCount ? wishlistCount : 0
         res.status(200).json({ success: true });
     } catch (error) {
         console.log('error while removing product from wishlist', error);

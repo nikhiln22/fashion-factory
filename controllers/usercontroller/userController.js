@@ -74,6 +74,7 @@ const sendMail = async (email, otp, username) => {
 // Rendering the home page
 const index = async (req, res) => {
   try {
+    console.log('rendering the user home page');
     const id = req.session.userId;
     const categories = await categoryModel.find({ status: true });
     const products = await productModel.find().limit(5)
@@ -424,6 +425,7 @@ const newPasswordPost = async (req, res) => {
 const logout = async (req, res) => {
   try {
     if (req.cookies.googleToken) {
+      console.log('hello google auth');
       await axios.post(`https://accounts.google.com/o/oauth2/revoke?token=${req.cookies.googleToken}`);
     }
     console.log("hi")
@@ -438,7 +440,7 @@ const logout = async (req, res) => {
       res.redirect('/login');
     });
   } catch (err) {
-    console.log(err)
+    console.log('Error while logging out',err.message);
     res.render('user/error')
   }
 }

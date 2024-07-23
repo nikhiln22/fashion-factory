@@ -143,9 +143,11 @@
                                 <% wishlistItems.forEach((item, index)=> { %>
                                     <tr>
                                         <td>
+                                            <a href="/shopSingle?productId=<%= item._id %>">
                                             <img src="<%= item.image[0] %>" alt="<%= item.name %>"
                                                 class="product-image">
-                                        </td>
+                                            </a>
+                                            </td>
                                         <td>
                                             <span class="product-name">
                                                 <%= item.name %>
@@ -154,7 +156,7 @@
                                         <td>₹<%= item.price.toFixed(2) %>
                                         </td>
                                         <td>
-                                            <a href="/shopsingle/<%= item._id %>" class="btn add-to-cart-btn">Add To
+                                            <a href="/shopsingle?productId=<%= item._id %>" class="btn add-to-cart-btn">Move To
                                                 Cart</a>
                                         </td>
                                         <td>

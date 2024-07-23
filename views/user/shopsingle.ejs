@@ -126,8 +126,7 @@
                                 <% if (product.appliedOffer) { %>
                                     <span style="color: black; font-weight: bold;" class="current__price">₹<%= product.discountedPrice %></span>
                                     <span class="price__divided"></span>
-                                    <span class="old__price" style="text-decoration: line-through;">₹<%= product.price
-                                            %></span><br>
+                                    <span class="old__price" style="text-decoration: line-through;">₹<%= product.price %></span><br>
                                     <span class="product__discount--percent" style="color: brown;">
                                         (<%= product.appliedOffer.discount %>% )OFF
                                     </span>
@@ -269,7 +268,7 @@
                                         </a>
                                         <% if (item.appliedOffer) { %>
                                             <div class="product__badge">
-                                                <span class="product__badge--items sale"><%= item.offerText %></span>
+                                                <span class="product__badge--items sale"><%= item.appliedOffer.discount %>% off</span>
                                             </div>
                                         <% } %>
                                     </div>
@@ -280,15 +279,16 @@
                                             </a></h3>
                                         <div class="product__items--price">
                                             <% if (item.appliedOffer) { %>
-                                                <span style="color: black; font-weight: bold;" class="current__price">₹<%= item.discountedPrice %></span>
-                                                <span class="price__divided"></span>
-                                                <span class="old__price">₹<%= product.originalPrice%></span>
-                                                <div class="product__discount">
-                                                    <span style="color: brown;" class="product__discount--percent">(<%= item.appliedOffer.discount %>%)</span>
-                                                </div>
+                                            <span style="color: black; font-weight: bold;" class="current__price">₹<%= item.discountedPrice %></span>
+                                            <span class="price__divided"></span>
+                                            <span class="old__price" style="text-decoration: line-through;">₹<%= item.price %></span><br>
+                                            <span class="product__discount--percent" style="color: brown;">
+                                                (<%= item.appliedOffer.discount %>) % OFF
+                                            </span>
                                             <% } else { %>
                                                 <span class="current__price">₹<%= item.price %></span>
-                                            <% } %>
+                                                <% } %>
+
                                         </div>
                                         <ul class="rating product__rating d-flex">
                                             <li class="rating__list">
@@ -372,13 +372,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <% }); %>
+                            <% }) %>
                     </div>
                 </div>
         </section>
         <!-- End product section -->
-
-
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {

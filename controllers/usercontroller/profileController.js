@@ -419,7 +419,7 @@ const cancelProduct = async (req, res) => {
         const itemIndex = orderdetails.items.findIndex(item => item.productId.toString() === productId);
         console.log('itemIndex:', itemIndex);
         if (itemIndex === -1) {
-            console.log('itemIndex:iffffffffff', itemIndex);
+            console.log('itemIndex:', itemIndex);
             return res.status(404).json({ success: false, message: 'Product not found in order' });
         }
 
@@ -442,7 +442,7 @@ const cancelProduct = async (req, res) => {
 
         console.log('product:', product);
         const sizeIndex = product.stock.findIndex((stock) => stock.size == item.size)
-        console.log(sizeIndex, '----------');
+        console.log('sizeIndex:',sizeIndex);
         product.stock[sizeIndex].quantity += item.quantity;
         console.log('product before saving:', product);
 
