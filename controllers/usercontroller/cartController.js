@@ -1,6 +1,7 @@
 const productModel = require('../../model/productModel');
 const catModel = require('../../model/catagoryModel');
 const cartModel = require('../../model/cartModel');
+const offerModel = require('../../model/offerModel');
 const mongoose = require('mongoose');
 const flash = require('express-flash');
 
@@ -10,56 +11,155 @@ const showCart = async (req, res) => {
     try {
         console.log('entering the cart displaying page');
         const id = req.session.userId;
-        const sessionId = req.session.id;
         const categories = await catModel.find();
-        let cart;
-        if (id) {
-            cart = await cartModel.findOne({ userId: id }).populate({
-                path: "item.productId",
-                select: "name stock image",
-            });
-        } else {
-            cart = await cartModel.findOne({ sessionId }).populate({
-                path: "item.productId",
-                select: "name stock image",
-            });
-        }
+
+        // fetching the user's cart
+        let cart = await cartModel.findOne({ userId: id }).populate({
+            path: "item.productId",
+            select: "name stock image category price",
+            populate: {
+                path: "category"
+            }
+        });
+
+        // const originalPrice = cart?.item.map((items) => {
+        //     return items.productId.price;
+        // })
+
+        // console.log('originalPrice:', originalPrice);
 
         if (!cart || !cart.item) {
             cart = new cartModel({
-                sessionId: req.session.id,
+                userId: id,
                 item: [],
                 total: 0
             });
         }
 
-        const insufficientStock = [];
-        for (const cartItem of cart.item) {
+        // fetching active offers
+        const offerData = await offerModel.find({
+            startDate: { $lte: new Date() },
+            endDate: { $gte: new Date() }
+        });
+
+        console.log('offerData:', offerData);
+
+
+        let totalActualAmount = 0;
+        let totalDiscountedAmount = 0;
+
+        // process each cart items with offers
+        const cartItemsWithOffers = cart.item.map(cartItem => {
+            const product = cartItem.productId;
+            const originalPrice = cartItem.productId.price;
+
+            console.log('originalPrice:', originalPrice);
+
+            // let productDiscountedPrice = cartItem.price;
+            // let categoryDiscountedPrice = cartItem.price;
+            let productDiscountedPrice = cartItem.productId.price;
+            let categoryDiscountedPrice = cartItem.productId.price;
+
+            let offerApplied = false;
+            let appliedOffer = null
+
+
+            offerData.forEach(offer => {
+                if (offer.offerType === 'product' && offer.productId.includes(product._id.toString())) {
+
+                    // productDiscountedPrice = cartItem.price - (cartItem.price * offer.discount / 100);
+                    productDiscountedPrice = originalPrice - (originalPrice * offer.discount / 100);
+
+
+                    console.log('productDiscountedPrice:', productDiscountedPrice);
+                    offerApplied = true;
+                }
+                if (offer.offerType === 'category' && offer.categoryId.includes(product.category._id.toString())) {
+                    // categoryDiscountedPrice = cartItem.price - (cartItem.price * offer.discount / 100);
+                    categoryDiscountedPrice = originalPrice - (originalPrice * offer.discount / 100);
+
+                    console.log('categoryDiscountedPrice:', categoryDiscountedPrice);
+                    offerApplied = true;
+                }
+            });
+
+            // let discountedPrice = cartItem.price;
+            let discountedPrice = originalPrice;
+
+            if (offerApplied) {
+                if (productDiscountedPrice <= categoryDiscountedPrice) {
+                    console.log('applied offer from the product side');
+                    appliedOffer = offerData.find(offer => offer.offerType === 'product' && offer.productId.includes(product._id.toString()));
+                    console.log('appliedOffer:', appliedOffer);
+                    discountedPrice = Math.round(productDiscountedPrice);
+                    console.log('discount price from the product side');
+                    console.log('discountedPrice:', discountedPrice);
+                } else {
+                    console.log('applied offer from the category side');
+                    appliedOffer = offerData.find(offer => offer.offerType === 'category' && offer.categoryId.includes(product.category._id.toString()));
+                    console.log('appliedOffer:', appliedOffer);
+                    discountedPrice = Math.round(categoryDiscountedPrice);
+                    console.log('discount price from the category side');
+                    console.log('discountedPrice:', discountedPrice);
+                }
+            }
+
+            // totalActualAmount += cartItem.price * cartItem.quantity;
+            totalActualAmount += originalPrice * cartItem.quantity;
+
+            console.log('totalActualAmount:', totalActualAmount);
+            totalDiscountedAmount += discountedPrice * cartItem.quantity;
+            console.log('totalDiscountedAmount:', totalDiscountedAmount);
+
+            return {
+                ...cartItem.toObject(),
+                productDetails: product,
+                discountedPrice,
+                appliedOffer: appliedOffer ? {
+                    offerName: appliedOffer.offerName,
+                    discount: appliedOffer.discount,
+                    offerId: appliedOffer._id
+                } : null,
+                offerText: appliedOffer ? `${appliedOffer.discount}% off` : ''
+            };
+        });
+
+        let totalSavings = totalActualAmount - totalDiscountedAmount;
+
+        console.log('Cart Items with Offers:', cartItemsWithOffers);
+        console.log('Total Actual Amount:', totalActualAmount);
+        console.log('Total Discounted Amount:', totalDiscountedAmount);
+        console.log('Total Savings:', totalSavings);
+
+        // check for insufficient stock
+        const insufficientStock = cartItemsWithOffers.filter(cartItem => {
             const product = cartItem.productId;
             const size = product.stock.findIndex((s) => s.size == cartItem.size);
-            if (product.stock[size].quantity < cartItem.quantity) {
-                insufficientStock.push({
-                    item: cartItem,
-                    availableQuantity: size !== -1 ? product.stock[size].quantity : 0,
-                });
-            }
-        }
-        const result = await cartModel.aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(id) } },
-            { $unwind: '$item' },
-            { $group: { _id: null, itemCount: { $sum: 1 } } },
-        ])
-        if (result.length > 0) {
-            const itemCount = result[0].itemCount;
-            req.session.cartCount = itemCount;
-        }
-        if (result.length === 0) {
-            req.session.cartCount = 0;
-        }
+            return size != -1 && product.stock[size].quantity < cartItem.quantity;
+        }).map(cartItem => ({
+            item: cartItem,
+            availableQuantity: cartItem.productId.stock.find(s => s.size == cartItem.size)?.quantity || 0,
+        }));
+
+        console.log('cart:', cart);
+
+        const itemCount = cart.item.length;
+        req.session.cartCount = itemCount;
         req.session.checkout = true;
         const nostock = req.flash('nostock')
-        const itemCount = req.session.cartCount;
-        res.render("user/cart", { cart, insufficientStock, categories, nostock, itemCount });
+        res.render("user/cart", {
+            cart: {
+                ...cart.toObject(),
+                item: cartItemsWithOffers
+            },
+            insufficientStock,
+            categories,
+            nostock,
+            itemCount,
+            totalActualAmount,
+            totalDiscountedAmount,
+            totalSavings
+        });
     } catch (error) {
         console.log(error);
         res.render("user/serverError");
@@ -73,11 +173,60 @@ const addCart = async (req, res) => {
     try {
         const selectedSize = req.body.size;
         const pid = req.params.id;
+        const userId = req.session.userId;
+
         const product = await productModel.findOne({ _id: pid });
         console.log('product:', product);
-        const userId = req.session.userId;
-        const price = product.discountPrice;
-        console.log('price:', price);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found.' });
+        }
+
+        // fetching the active offers
+        const activeOffers = await offerModel.find({
+            startDate: { $lte: new Date() },
+            endDate: { $gte: new Date() }
+        });
+
+        console.log('activeOffers:', activeOffers);
+
+        let discountedPrice = product.price;
+        console.log('discountedPrice:', discountedPrice);
+        let appliedOffer = null;
+
+        // checking for the product specific orders
+        activeOffers.forEach(offer => {
+            if (offer.offerType === 'product' && offer.productId.includes(pid)) {
+                console.log('potential discount calculating if any product offer exists');
+                const potentialDiscountPrice = product.price - (product.price * offer.discount / 100);
+                console.log('potentialDiscountPrice:', potentialDiscountPrice);
+                if (potentialDiscountPrice < discountedPrice) {
+                    discountedPrice = potentialDiscountPrice;
+                    console.log('discountedPrice:', discountedPrice);
+                    appliedOffer = offer;
+                }
+            }
+        });
+
+        // if no product-specific offer, check for category offers
+        if (!appliedOffer) {
+            activeOffers.forEach(offer => {
+                if (offer.offerType === 'category' && offer.categoryId.includes(product.category.toString())) {
+                    console.log('potential discount calculating if any category offer exists');
+                    const potentialDiscountPrice = product.price - (product.price * offer.discount / 100);
+                    console.log('potentialDiscountPrice:', potentialDiscountPrice);
+                    if (potentialDiscountPrice < discountedPrice) {
+                        discountedPrice = potentialDiscountPrice;
+                        console.log('discountedPrice:', discountedPrice);
+                        appliedOffer = offer;
+                    }
+                }
+            });
+        }
+
+        discountedPrice = Math.round(discountedPrice);
+        console.log('discountedPrice:', discountedPrice);
+
         const stock = await productModel.findOne({
             _id: pid,
             "stock.size": selectedSize
@@ -93,13 +242,8 @@ const addCart = async (req, res) => {
             return res.json({ success: false, message: 'Selected size is out of stock. Please choose another size.' });
         }
 
-        let cart;
-        if (userId) {
-            cart = await cartModel.findOne({ userId });
-        }
-        if (!cart) {
-            cart = await cartModel.findOne({ sessionId: req.session.id });
-        }
+        let cart = await cartModel.findOne({ userId }) || await cartModel.findOne({ sessionId: req.session.id });
+
         if (!cart) {
             cart = new cartModel({
                 sessionId: req.session.id,
@@ -118,15 +262,18 @@ const addCart = async (req, res) => {
                 return res.json({ success: false, message: 'Cannot add more of this item. Stock limit reached.' });
             }
             cart.item[productExist].quantity += 1;
-            cart.item[productExist].total = cart.item[productExist].quantity * price;
+            cart.item[productExist].price = discountedPrice;
+            cart.item[productExist].total = cart.item[productExist].quantity * discountedPrice;
+            cart.item[productExist].offer_id = appliedOffer ? appliedOffer._id : null;
         } else {
             const newItem = {
                 productId: pid,
                 quantity: 1,
                 size: selectedSize,
-                price: price,
+                price: discountedPrice,
                 stock: selectedStock.quantity,
-                total: price
+                total: discountedPrice,
+                offer_id: appliedOffer ? appliedOffer._id : null
             };
             cart.item.push(newItem);
         }
@@ -136,10 +283,13 @@ const addCart = async (req, res) => {
         }
 
         cart.total = cart.item.reduce((acc, item) => acc + item.total, 0);
-        console.log('cart:', cart);
         await cart.save();
 
-        return res.json({ success: true });
+        const cartCount = await cartModel.countDocuments({ userId });
+        console.log('cartCount:', cartCount);
+        res.locals.session.cartCount = cartCount ? cartCount : 0
+        console.log('res.locals.session.cartCount:', res.locals.session.cartCount);
+        return res.json({ success: true, cartCount });
 
     } catch (error) {
         console.log('error while adding product to the cart', error);
@@ -154,17 +304,36 @@ const updateCart = async (req, res) => {
 
         const { productId, size } = req.params;
         const { action, cartId } = req.body;
-        const cart = await cartModel.findOne({ _id: cartId });
 
+        const id = req.session.userId;
+
+        console.log('action:', action);
+        console.log('productId:', productId);
+        console.log('size:', size);
+        console.log('cartId:', cartId);
+
+        // let cartDetails = await cartModel.findOne({ userId: id }).populate({
+        //     path: "item.productId",
+        //     select: "name stock image category price",
+        //     populate: {
+        //         path: "category"
+        //     }
+        // });
+
+
+        const cart = await cartModel.findOne({ _id: cartId }).populate({
+            path: "item.productId",
+            select: "name stock image category price",
+            populate: {
+                path: "category"
+            }
+        });
+
+       
         if (!cart) {
             return res.status(404).json({ success: false, error: "Cart not found" });
         }
-
-        console.log('cart:', cart);
-        console.log('productId:', productId);
-        console.log('size:', size);
-
-        const itemIndex = cart.item.findIndex((item) => item.productId.toString() == productId && item.size == size);
+        const itemIndex = cart.item.findIndex((item) => item.productId._id.toString() === productId && item.size === size);
 
         console.log('itemIndex:', itemIndex);
 
@@ -173,13 +342,20 @@ const updateCart = async (req, res) => {
         }
 
         const currentQuantity = cart.item[itemIndex].quantity;
-
         console.log('currentQuantity:', currentQuantity);
 
+        const offerPrice = cart.item[itemIndex].price;
+        console.log('offerPrice:',offerPrice);
+       
+
         const stockLimit = cart.item[itemIndex].stock;
-        const price = cart.item[itemIndex].price;
         const opid = cart.item[itemIndex].productId;
         const product = await productModel.findOne({ _id: opid });
+
+        const price = product.price;
+
+        console.log('price:', price);
+
         const selectedinfo = product.stock.findIndex((stock) => stock.size == size);
         const stockLimit2 = product.stock[selectedinfo].quantity;
         let updatedQuantity;
@@ -192,6 +368,8 @@ const updateCart = async (req, res) => {
             return res.status(400).json({ success: false, error: "Invalid action" });
         }
 
+
+
         if (updatedQuantity > stockLimit2 && action == "1") {
             return res.status(400).json({ success: false, error: "Quantity exceeds stock limits" });
         } else if (updatedQuantity == 0) {
@@ -202,21 +380,59 @@ const updateCart = async (req, res) => {
 
         cart.item[itemIndex].quantity = updatedQuantity;
 
-        const newProductTotal = price * updatedQuantity;
+        const totalMrp = cart.item.reduce((acc, curr) => {
+            console.log('curr.quantity:', curr.quantity);
+            console.log('curr.productId.price:', curr.productId.price);
+            console.log('acc:', acc);
+            return acc + (curr.quantity * curr.productId.price)
+        }, 0);
+
+        console.log('totalMrp:', totalMrp);
+
+        const newProductTotal = ((offerPrice < price) ? offerPrice : price) * updatedQuantity;
+
+        console.log('newProductTotal:', newProductTotal);
+
+        // const newProductTotal = (price -(price * offer/100) )* updatedQuantity;
+
         cart.item[itemIndex].total = newProductTotal;
-        await cart.save();
+
+        const savings = totalMrp - (offerPrice * updatedQuantity);
+
+        console.log('savings:', savings);
+
+        // calculating new total and cart count
         const total = cart.item.reduce((acc, item) => acc + item.total, 0);
+        console.log('total:', total);
+        
+        const newCartCount = cart.item.reduce((acc, item) => acc + item.quantity, 0);
+        console.log('newCartCount:', newCartCount);
+
         cart.total = total;
         await cart.save();
+
+
+        // updating session with new cart count
+        req.session.cartCount = newCartCount;
+        await req.session.save();
+
+        // update res.locals in immediate use in this request
+        res.locals.session = res.locals.session || {};
+        res.locals.session.cartCount = newCartCount;
+        // console.log(res.locals.session.cartCount, newCartCount, '>>>>>>>>>>>>>>>>>>>>>>');
+        // console.log(updatedQuantity, newProductTotal, total, '$$$$$$$$$$$$$$');
+
         res.json({
             success: true,
             newQuantity: updatedQuantity,
             newProductTotal,
-            total: total,
+            total: totalMrp,
+            cartCount: newCartCount,
+            savings
         })
     } catch (error) {
         console.error("Error updating cart quantity:", error);
-        res.redirect('/error');
+        res.status(500).json({ success: false, error: "An error occurred while updating the cart" });
     }
 }
 

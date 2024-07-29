@@ -211,8 +211,8 @@
                                     </td>
                                 </tr>
                                 <tr class="cart__table--footer__items">
-                                    <td class="cart__table--footer__list text-left">Shipping</td>
-                                    <td class="cart__table--footer__list text-right">₹<%= shippingCost %>
+                                    <td class="cart__table--footer__list text-left">Delivary Charges</td>
+                                    <td class="cart__table--footer__list text-right">₹<%= DeliveryCharge %>
                                     </td>
                                 </tr>
                                 <tr class="cart__table--footer__items">
@@ -246,7 +246,7 @@
                 event.preventDefault();
                 const selectedAddressId = this.getAttribute('data-address-id');
                 if (selectedAddressId) {
-                    window.location.href = `/editaddress/${selectedAddressId}`;
+                    window.location.href = `/editaddress/${selectedAddressId}?redirect=checkout`;
                 }
             });
 

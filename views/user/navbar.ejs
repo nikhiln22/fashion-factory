@@ -34,44 +34,51 @@
 
 <body>
 
-    <!-- <style>
-        .header__search--form {
+    <style>
+        .header__account--items {
             display: flex;
-            max-width: 500px;
-            margin: 0 auto;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 15px;
         }
 
-        .header__search--box {
+        .header__account--btn {
             display: flex;
-            flex-grow: 1;
-            border: 1px solid #ccc;
-            border-radius: 25px;
-            overflow: hidden;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
         }
 
-        .header__search--input {
-            flex-grow: 1;
-            border: none;
-            padding: 10px 15px;
-            font-size: 16px;
+        .icon-wrapper {
+            position: relative;
+            display: inline-block;
         }
 
-        .header__search--input:focus {
-            outline: none;
+        .icon-wrapper svg {
+            width: 24px;
+            height: 24px;
         }
 
-        .header__search--button {
-            background: blue;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
+        .items__count {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            background-color: red;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            min-width: 18px;
+            text-align: center;
         }
 
-        .header__search--button__svg {
-            width: 20px;
-            height: 20px;
+        .header__account--btn__text {
+            margin-top: 5px;
+            font-size:12px;
+            text-align: center;
         }
-    </style> -->
+    </style>
 
     <!-- Start preloader -->
     <div id="preloader">
@@ -169,66 +176,75 @@
                                 <% }else {%>
                                     <li class="header__account--items">
                                         <a class="header__account--btn" href="/profile">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="26.51" height="23.443"
-                                                viewBox="0 0 512 512">
-                                                <path
-                                                    d="M344 144c-3.92 52.87-44 96-88 96s-84.15-43.12-88-96c-4-55 35-96 88-96s92 42 88 96z"
-                                                    fill="none" stroke="currentColor" stroke-linecap="round"
-                                                    stroke-linejoin="round" stroke-width="32" />
-                                                <path
-                                                    d="M256 304c-87 0-175.3 48-191.64 138.6C62.39 453.52 68.57 464 80 464h352c11.44 0 17.62-10.48 15.65-21.4C431.3 352 343 304 256 304z"
-                                                    fill="none" stroke="currentColor" stroke-miterlimit="10"
-                                                    stroke-width="32" />
-                                            </svg>
+                                            <div class="icon-wrapper">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="26.51" height="23.443"
+                                                    viewBox="0 0 512 512">
+                                                    <path
+                                                        d="M344 144c-3.92 52.87-44 96-88 96s-84.15-43.12-88-96c-4-55 35-96 88-96s92 42 88 96z"
+                                                        fill="none" stroke="currentColor" stroke-linecap="round"
+                                                        stroke-linejoin="round" stroke-width="32" />
+                                                    <path
+                                                        d="M256 304c-87 0-175.3 48-191.64 138.6C62.39 453.52 68.57 464 80 464h352c11.44 0 17.62-10.48 15.65-21.4C431.3 352 343 304 256 304z"
+                                                        fill="none" stroke="currentColor" stroke-miterlimit="10"
+                                                        stroke-width="32" />
+                                                </svg>
+                                            </div>
                                             <span class="header__account--btn__text">Profile</span>
                                         </a>
                                     </li>
+
                                     <li class="header__account--items d-none d-lg-block">
                                         <a class="header__account--btn" href="/wishlist">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="28.51" height="23.443"
-                                                viewBox="0 0 512 512">
-                                                <path
-                                                    d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z"
-                                                    fill="none" stroke="currentColor" stroke-linecap="round"
-                                                    stroke-linejoin="round" stroke-width="32"></path>
-                                            </svg>
+                                            <div class="icon-wrapper">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="28.51" height="23.443"
+                                                    viewBox="0 0 512 512">
+                                                    <path
+                                                        d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z"
+                                                        fill="none" stroke="currentColor" stroke-linecap="round"
+                                                        stroke-linejoin="round" stroke-width="32"></path>
+                                                </svg>
+                                                <span class="items__count wishlist">
+                                                    <%= locals.session.wishlistCount || 0 %>
+                                                </span>
+                                            </div>
                                             <span class="header__account--btn__text"> Wish List</span>
-                                            <span class="items__count wishlist"><%= locals.session.wishlistCount || 0 %></span>
-                                        </a>
-                                    </li>
-                                    <li class="header__account--items">
-                                        <a class="header__account--btn minicart__open--btn" href="/cart" data-offcanvas>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="26.51" height="23.443"
-                                                viewBox="0 0 14.706 13.534">
-                                                <g transform="translate(0 0)">
-                                                    <g>
-                                                        <path data-name="Path 16787"
-                                                            d="M4.738,472.271h7.814a.434.434,0,0,0,.414-.328l1.723-6.316a.466.466,0,0,0-.071-.4.424.424,0,0,0-.344-.179H3.745L3.437,463.6a.435.435,0,0,0-.421-.353H.431a.451.451,0,0,0,0,.9h2.24c.054.257,1.474,6.946,1.555,7.33a1.36,1.36,0,0,0-.779,1.242,1.326,1.326,0,0,0,1.293,1.354h7.812a.452.452,0,0,0,0-.9H4.74a.451.451,0,0,1,0-.9Zm8.966-6.317-1.477,5.414H5.085l-1.149-5.414Z"
-                                                            transform="translate(0 -463.248)" fill="currentColor" />
-                                                        <path data-name="Path 16788"
-                                                            d="M5.5,478.8a1.294,1.294,0,1,0,1.293-1.353A1.325,1.325,0,0,0,5.5,478.8Zm1.293-.451a.452.452,0,1,1-.431.451A.442.442,0,0,1,6.793,478.352Z"
-                                                            transform="translate(-1.191 -466.622)"
-                                                            fill="currentColor" />
-                                                        <path data-name="Path 16789"
-                                                            d="M13.273,478.8a1.294,1.294,0,1,0,1.293-1.353A1.325,1.325,0,0,0,13.273,478.8Zm1.293-.451a.452.452,0,1,1-.431.451A.442.442,0,0,1,14.566,478.352Z"
-                                                            transform="translate(-2.875 -466.622)"
-                                                            fill="currentColor" />
-                                                    </g>
-                                                </g>
-                                            </svg>
-                                            <span class="header__account--btn__text"> My cart</span>
-                                            <span class="items__count">02</span>
                                         </a>
                                     </li>
 
-                                    <li>
-                                        <form action="/logout" method="GET" style="display: inline;">
-                                            <button type="submit">Logout</button>
-                                        </form>
+
+                                    <li class="header__account--items">
+                                        <a class="header__account--btn minicart__open--btn" href="/cart" data-offcanvas>
+                                            <div class="icon-wrapper">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="26.51" height="23.443"
+                                                    viewBox="0 0 14.706 13.534">
+                                                    <g transform="translate(0 0)">
+                                                        <g>
+                                                            <path data-name="Path 16787"
+                                                                d="M4.738,472.271h7.814a.434.434,0,0,0,.414-.328l1.723-6.316a.466.466,0,0,0-.071-.4.424.424,0,0,0-.344-.179H3.745L3.437,463.6a.435.435,0,0,0-.421-.353H.431a.451.451,0,0,0,0,.9h2.24c.054.257,1.474,6.946,1.555,7.33a1.36,1.36,0,0,0-.779,1.242,1.326,1.326,0,0,0,1.293,1.354h7.812a.452.452,0,0,0,0-.9H4.74a.451.451,0,0,1,0-.9Zm8.966-6.317-1.477,5.414H5.085l-1.149-5.414Z"
+                                                                transform="translate(0 -463.248)" fill="currentColor" />
+                                                            <path data-name="Path 16788"
+                                                                d="M5.5,478.8a1.294,1.294,0,1,0,1.293-1.353A1.325,1.325,0,0,0,5.5,478.8Zm1.293-.451a.452.452,0,1,1-.431.451A.442.442,0,0,1,6.793,478.352Z"
+                                                                transform="translate(-1.191 -466.622)"
+                                                                fill="currentColor" />
+                                                            <path data-name="Path 16789"
+                                                                d="M13.273,478.8a1.294,1.294,0,1,0,1.293-1.353A1.325,1.325,0,0,0,13.273,478.8Zm1.293-.451a.452.452,0,1,1-.431.451A.442.442,0,0,1,14.566,478.352Z"
+                                                                transform="translate(-2.875 -466.622)"
+                                                                fill="currentColor" />
+                                                        </g>
+                                                    </g>
+                                                </svg>
+                                                <span class="items__count">
+                                                    <%= locals.session.cartCount || 0 %>
+                                                </span>
+                                            </div>
+                                            <span class="header__account--btn__text"> My cart</span>
+                                        </a>
                                     </li>
                                     <% } %>
                         </ul>
                     </div>
+
+
                     <div class="header__menu d-none header__sticky--block d-lg-block">
                         <nav class="header__menu--navigation">
                             <ul class="d-flex">
@@ -298,7 +314,9 @@
                                                     fill="none" stroke="currentColor" stroke-linecap="round"
                                                     stroke-linejoin="round" stroke-width="32"></path>
                                             </svg>
-                                            <span class="items__count  wishlist style2" data-wishlist-count><%= locals.session.wishlistCount || 0 %></span>
+                                            <span class="items__count wishlist" data-wishlist-count>
+                                                <%= locals.session.wishlistCount || 0 %>
+                                            </span>
                                         </a>
                                     </li>
                                     <li class="header__account--items header__account2--items">
@@ -321,7 +339,9 @@
                                                     </g>
                                                 </g>
                                             </svg>
-                                            <span class="items__count style2" data-cart-count>0</span>
+                                            <span class="items__count" data-cart-count>
+                                                <%= locals.session.cartCount || 0 %>
+                                            </span>
                                         </a>
                                     </li>
                                     <% } %>
@@ -386,5 +406,3 @@
 
     </header>
     <!-- End header area -->
-
-    

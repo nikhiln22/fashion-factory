@@ -5,6 +5,7 @@ const productModel = require('../../model/productModel');
 const cartModel = require('../../model/cartModel');
 const catModel = require('../../model/catagoryModel');
 const orderModel = require('../../model/orderModel');
+const couponModel = require('../../model/couponModel');
 
 
 // rendering the checkout page
@@ -22,9 +23,9 @@ const checkout = async (req, res) => {
       select: 'name image'
     });
 
-    const outOfStockItems = [];
+    console.log('data:',data);
 
-    let shippingCost = 0;
+    const outOfStockItems = [];
 
     for (const cartItem of data.item || []) {
       const pro = cartItem.productId;
@@ -43,9 +44,34 @@ const checkout = async (req, res) => {
       return res.json({ success: false, message: 'Cart is empty' });
     }
 
+    let totalAmount = data?.total;
+    console.log('totalAmount:',totalAmount);
+
+    // applying delivary charges if total is less than 500
+    let DeliveryCharge = 0;
+    if (totalAmount < 500) {
+      DeliveryCharge = 40;
+      totalAmount += DeliveryCharge;
+    }
+
+    const couponData = req.session.coupon;
+    console.log('couponData:',couponData);
+    const currentDate = new Date();
+    const couponDetails = await couponModel.find({ minimumPrice: { $lte: totalAmount } });
+    console.log('couponDetails:',couponDetails);
+    const validCoupons = couponDetails.filter(coupon => new Date(coupon.expiry) >= currentDate);
+    console.log('validCoupons:',validCoupons);
+
     // If everything is in stock, you can proceed with the checkout
-    return res.render('user/checkout', { categories, address, data, shippingCost });
-   
+    return res.render('user/checkout', { 
+      categories, 
+      address, 
+      data, 
+      DeliveryCharge,
+      validCoupons,
+      couponData,
+    });
+
   } catch (error) {
     console.log(error);
     return res.json({ success: false, message: 'An error occurred' });
@@ -73,7 +99,7 @@ const placeOrder = async (req, res) => {
     if (!cart || cart.item.length === 0) {
       return res.redirect('/cart');
     }
-    
+
     const useraddress = await addModel.findOne({ userId: userId });
 
     if (!useraddress || !useraddress.address || !useraddress.address[address]) {

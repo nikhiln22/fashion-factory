@@ -153,7 +153,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <% if (cart && cart.item && cart.item.length> 0) { %>
+                                            <% if (cart.item.length> 0) { %>
                                                 <% cart.item.forEach((item, index)=> { %>
                                                     <tr>
                                                         <td>
@@ -172,7 +172,7 @@
                                                         <td>
                                                             <%= item.size %>
                                                         </td>
-                                                        <td>₹<%= item.price.toFixed(2) %>
+                                                        <td>₹<%= item.discountedPrice %>
                                                         </td>
                                                         <td>
                                                             <div class="quantity__box">
@@ -188,8 +188,8 @@
                                                                     class="btn btn-outline-secondary btn-sm">&plus;</button>
                                                             </div>
                                                         </td>
-                                                        <td><span id="total<%= index %>">₹<%= (item.price *
-                                                                    item.quantity).toFixed(2) %></span></td>
+                                                        <td><span id="total<%= index %>">₹<%= (item.discountedPrice *
+                                                                    item.quantity) %></span></td>
                                                         <td>
                                                             <a onclick="confirmDelete('<%= item._id %>','<%= item.size %>')"
                                                                 class="delete-item">
@@ -213,10 +213,26 @@
                                         class="continue__shipping--btn primary__btn border-radius-5">Continue
                                         Shopping</a>
                                     <div class="cart-summary">
-                                        <h4 class="text-center">Cart Totals</h4>
+                                        <h4 class="text-center">Price Details:</h4>
                                         <div class="cart-total">
-                                            <span>Total:</span>
-                                            <strong id="cartTotal">₹<%= cart.total.toFixed(2) %></strong>
+                                            <span id="cartCount">Total MRP(<%= cart.item.length %> items):</span>
+                                            <strong id="cartTotal">₹<%= (totalActualAmount).toFixed(2) %></strong>
+                                        </div>
+                                        <div class="cart-total">
+                                            <span>Discount on MRP:</span>
+                                            <strong style="color: green;" id="totalSavings">-₹<%= (totalSavings).toFixed(2) %></strong>
+                                        </div>
+                                        <div class="cart-total">
+                                            <span>Delivery Charges:</span>
+                                            <% if (cart.total < 500) { %>
+                                                <strong>₹40.00</strong>
+                                            <% } else { %>
+                                                <strong><span style="text-decoration: line-through; color: grey;">₹40.00</span> FREE</strong>
+                                            <% } %>
+                                        </div>
+                                        <div class="cart-total">
+                                            <span>Total Amount:</span>
+                                            <strong id="cartTotalAmount">₹<%= (totalDiscountedAmount < 500 ? totalDiscountedAmount + 40 : totalDiscountedAmount).toFixed(2) %></strong>
                                         </div>
                                         <a href="#"
                                             class="continue__shipping--btn primary__btn border-radius-5 checkout-btn"
@@ -280,10 +296,13 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    console.log(data,'pppppp',data.total);
+                    // console.log(data,'pppppp',data.total);
                     quantityInput.value = data.newQuantity;
-                    document.getElementById(`total${index}`).innerText = `₹ ${(price * data.newQuantity).toFixed(2)}`;
-                    document.getElementById('cartTotal').innerText = `₹ ${(data.total).toFixed(2)}`;
+                    document.getElementById(`total${index}`).innerText = `₹ ${price * data.newQuantity}`;
+                    document.getElementById('cartTotal').innerText = `₹ ${data.total}`;
+                    document.getElementById('cartCount').innerHTML = `Total MRP(${data.cartCount} items):`;
+                    document.getElementById('totalSavings').innerText = `${data.savings}`;
+                    document.getElementById('cartTotalAmount').innerText = `₹ ${data.newProductTotal}`;
                 } else {
                     console.error('Failed to update quantity:', data.error);
                     quantityInput.value = currentQuantity;

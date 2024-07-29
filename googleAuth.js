@@ -15,8 +15,6 @@ passport.use(new GoogleStrategy({
   passReqToCallback: true
 },
   async function (request, accessToken, refreshToken, profile, done) {
-    console.log('---------->>  ', accessToken);
-    request.res.cookie('googleToken', accessToken, { httpOnly: true })
 
     try {
       let user = await userModel.findOneAndUpdate(
@@ -36,7 +34,6 @@ passport.use(new GoogleStrategy({
     }
   }
 ));
-
 
 //serializing and deserializing the user
 passport.serializeUser(function (user, done) {

@@ -35,15 +35,15 @@ var userSchema = new mongoose.Schema({
   }],
   referralCode: {
     type: String,
-    required:true
+    required: true
   },
   referredBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'userDetails',
   },
-  // googleToken:{
-  //   type:String
-  // }
+  usedCoupons: [{
+    type: String
+  }]
 }, {
   timestamps: true
 });

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const couponschema = new mongoose.Schema({
     couponCode:{
         type : String,
@@ -9,6 +8,7 @@ const couponschema = new mongoose.Schema({
     },
     type : {
         type : String,
+        enum :['percentageDiscount','flatDiscount'],
         required : true
     },
     minimumPrice : {

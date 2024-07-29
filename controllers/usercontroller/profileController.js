@@ -8,7 +8,7 @@ const walletModel = require('../../model/WalletModel');
 const flash = require('express-flash');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
-// const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 
 
 // rendering the user profile page
@@ -186,6 +186,12 @@ const editAddressPost = async (req, res) => {
         const addressId = req.params.id;
         const userId = req.session.userId;
 
+       const redirectToCheckout = req.query.redirect === 'checkout';
+
+       console.log('req.query.redirect:',req.query.redirect);
+
+       console.log('Redirect to checkout:',redirectToCheckout);
+
         const isAddressExists = await addModel.findOne({
             'userId': userId,
             'address': {
@@ -207,7 +213,7 @@ const editAddressPost = async (req, res) => {
 
         if (isAddressExists) {
             req.flash('error', 'This address already exists');
-            return res.redirect('/address');
+            return res.redirect(redirectToCheckout ? '/checkout' : '/address');
         }
 
         // Update the address
@@ -230,11 +236,11 @@ const editAddressPost = async (req, res) => {
         );
 
         if (updatedAddress.modifiedCount > 0) {
-            req.flash('updateSuccess', 'Address updated successfully');
+            req.flash('updateSuccess', 'Address updated successfully'); 
         } else {
             req.flash('error', 'No changes were made to the address');
         }
-        res.redirect('/address');
+        res.redirect(redirectToCheckout ? '/checkout' : '/address');
     } catch (error) {
         console.log(error);
         req.flash('error', 'An error occurred while processing your request');
@@ -278,8 +284,11 @@ const addAddressPost = async (req, res) => {
     try {
         console.log('adding new address for the user');
         const { saveas, name, email, housename, street, pincode, city, state, country, mobile } = req.body;
+        console.log('req.body:', req.body);
         const userId = req.session.userId;
+        console.log('userId:', userId);
         const existingUser = await addModel.findOne({ userId: userId });
+        console.log('existingUser:', existingUser);
         if (existingUser) {
             const existingAddress = await addModel.find({
                 'userId': userId,
@@ -293,7 +302,7 @@ const addAddressPost = async (req, res) => {
                 'address.country': country,
                 'address.mobile': mobile
             })
-            if (existingAddress) {
+            if (existingAddress.length) {
                 if (req.session.checkoutSave) {
                     return res.redirect('/checkout');
                 }
@@ -322,7 +331,7 @@ const addAddressPost = async (req, res) => {
             address: {
                 name: name,
                 mobile: mobile,
-                emaail: email,
+                email: email,
                 houseName: housename,
                 street: street,
                 city: city,
@@ -442,7 +451,7 @@ const cancelProduct = async (req, res) => {
 
         console.log('product:', product);
         const sizeIndex = product.stock.findIndex((stock) => stock.size == item.size)
-        console.log('sizeIndex:',sizeIndex);
+        console.log('sizeIndex:', sizeIndex);
         product.stock[sizeIndex].quantity += item.quantity;
         console.log('product before saving:', product);
 

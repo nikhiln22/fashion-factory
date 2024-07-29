@@ -1,16 +1,36 @@
 const razorpay = require('razorpay');
 const crypto = require('crypto');
-const Razorpay = require('razorpay');
+const order = require('../../model/orderModel');
+const couponModel = require('../../model/couponModel');
+const cartModel = require('../../model/cartModel');
 require('dotenv').config();
 
 
 const key_id = process.env.RAZORPAY_KEY_ID;
 const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
+// // creating an order instance 
+// const createOrder = async (req, res) => {
+//     try {
+//         let { orderId } = req.body;
+//         const userId = req.session.userId;
+//         let cartTotal = await cartModel.findOne({ userId: userId }).populate({
+//             path:'item.product'
+//         });
+//         console.log('cartTotal:', cartTotal);
+
+//         let totalAmount = cartTotal.reduce((acc, curr) => {
+//             return acc + curr.price;
+//         }, 0);
+//         if (req.session.coupon) {
+//             const coupon = await couponModel.findOne({ _id: req.session.coupon });
+            
+//         }
+//     }
+// }
 
 
 // adding funds to wallet using razorpay
-
 const addFund = async (req, res) => {
     try {
         console.log('adding funds to the wallet by razorpay');
@@ -20,7 +40,7 @@ const addFund = async (req, res) => {
         });
 
         const amount = parseInt(req.body.amount);
-        console.log('amount:',amount);
+        console.log('amount:', amount);
 
         const options = {
             amount: amount * 100,
@@ -37,7 +57,7 @@ const addFund = async (req, res) => {
                     success: true,
                     msg: "order created",
                     orderId: order.id,
-                    amount:  amount * 100,
+                    amount: amount * 100,
                     key_id: key_id,
                     product_name: "Add funds",
                     description: "Test Transaction"

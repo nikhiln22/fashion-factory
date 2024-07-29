@@ -10,7 +10,6 @@ const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator');
 const passport = require('passport');
 require('dotenv').config();
-const axios = require('axios');
 const walletModel = require('../../model/WalletModel');
 
 
@@ -80,11 +79,11 @@ const index = async (req, res) => {
     const products = await productModel.find().limit(5)
     if (req.user) {
       req.session.isAuth = true;
-      req.session.userId = user._id;
+      req.session.userId = req.user._id;
     }
     res.render('user/home', { categories, products });
   } catch (error) {
-    console.log('Error while loading the index page: ', error);
+    console.log('Error while loading the index page',error);
     res.render('user/error');
   }
 };
@@ -100,7 +99,7 @@ const signup = async (req, res) => {
       success: req.flash('success')
     });
   } catch (error) {
-    console.log('Error while loading the signup page:------------------> ', error);
+    console.log('Error while loading the signup page',error);
     res.render('user/error');
   }
 };
@@ -421,13 +420,9 @@ const newPasswordPost = async (req, res) => {
   }
 }
 
-
+// logging out by the user
 const logout = async (req, res) => {
   try {
-    if (req.cookies.googleToken) {
-      console.log('hello google auth');
-      await axios.post(`https://accounts.google.com/o/oauth2/revoke?token=${req.cookies.googleToken}`);
-    }
     console.log("hi")
     req.session.isAuth = false;
     req.logOut(function (err) {
@@ -436,7 +431,6 @@ const logout = async (req, res) => {
         return res.render('user/error');
       }
       req.flash('success', 'Logged out Successfully')
-
       res.redirect('/login');
     });
   } catch (err) {

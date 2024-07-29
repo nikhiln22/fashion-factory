@@ -6,7 +6,6 @@ var cartSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref:'userdetails'
     },
-    sessionId:String,
     item:[
         {
             productId:{
@@ -33,7 +32,11 @@ var cartSchema = new mongoose.Schema({
             total:{
                 type:Number,
                 required:true
-            }
+            },
+            offer_id:{
+                type:mongoose.Schema.Types.Object
+            },
+
         }
     ],
     total:Number,
