@@ -9,8 +9,9 @@ const userRouter = require('./routes/users');
 const adminRouter = require('./routes/admin');
 const flash = require('express-flash');
 const multer = require('multer');
-const passport = require('passport') ;
+const passport = require('passport');
 const cookieParser = require('cookie-parser');
+const { adAuth } = require('./middlewares/adminAuth');
 
 const PORT = process.env.PORT || 5000;
 
@@ -43,7 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // serve static files from the downloads folder in the home directory
-app.use(express.static(path.join(os.homedir(),'Downloads')));
+app.use(express.static(path.join(os.homedir(), 'Downloads')));
 
 // // setting up the multer
 const storage = multer.diskStorage({
@@ -62,19 +63,19 @@ app.post('/uploads', upload.array('files'), (req, res) => {
   console.log(req.files);
 })
 
-app.use('/uploads',express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
 
 // setting flash
 app.use(flash());
 
 //user session validating
-app.use((req,res,next)=>{
+app.use((req, res, next) => {
   res.locals.session = req.session
   next()
 })
 
 // Set view engine
-app.set('view engine', 'ejs'); 
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // User routes & admin routes

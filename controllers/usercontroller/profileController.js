@@ -186,11 +186,7 @@ const editAddressPost = async (req, res) => {
         const addressId = req.params.id;
         const userId = req.session.userId;
 
-       const redirectToCheckout = req.query.redirect === 'checkout';
-
-       console.log('req.query.redirect:',req.query.redirect);
-
-       console.log('Redirect to checkout:',redirectToCheckout);
+        const redirectToCheckout = req.query.redirect === 'checkout';
 
         const isAddressExists = await addModel.findOne({
             'userId': userId,
@@ -236,7 +232,7 @@ const editAddressPost = async (req, res) => {
         );
 
         if (updatedAddress.modifiedCount > 0) {
-            req.flash('updateSuccess', 'Address updated successfully'); 
+            req.flash('updateSuccess', 'Address updated successfully');
         } else {
             req.flash('error', 'No changes were made to the address');
         }
@@ -259,7 +255,12 @@ const delAddress = async (req, res) => {
             { $pull: { address: { _id: addressId } } }
         );
         req.flash('updateSuccess', 'Address deleted successfully');
-        res.redirect('/address');
+
+        if (req.query.redirect === 'checkout') {
+            res.redirect('/checkout');
+        } else {
+            res.redirect('/address');
+        }
     } catch (error) {
         console.log(error);
         req.flash('error', 'An error occurred while processing your request');
@@ -353,46 +354,57 @@ const addAddressPost = async (req, res) => {
 
 // rendering the order page
 const order = async (req, res) => {
-    console.log('Rendering the user side order details page');
+    const page = parseInt(req.query.page || 1);
+    const limit = 4;
+    const skip = (page - 1) * limit;
     try {
-        const categories = await catModel.find();
+        console.log('rendering the orders history page for the user side');
         const userId = req.session.userId;
+        const userData = await userModel.findOne({ _id: userId });
+        const totalOrderAmount = req.query.totalOrderAmount;
+        console.log('totalOrderAmount:', totalOrderAmount);
+        req.session.totalOrderAmount = totalOrderAmount;
+        const orderDetails = await orderModel.find({ userId: userId })
+            .populate('orderedItem.productId')
+            .sort({ _id: -1 })
+            .limit(limit)
+            .skip(skip)
 
-        const orders = await orderModel
-            .find({ userId: userId })
-            .sort({ createdAt: -1 })
-            .populate({
-                path: 'items.productId',
-                select: 'name image _id',
-            });
+        console.log('orderDetails:', orderDetails);
 
-        // console.log('Orders retrieved:', orders);
-
-        const itemCount = req.session.cartCount || 0;
+        const totaOrders = await orderModel.countDocuments({ userId: userId });
+        const totalPages = Math.ceil(totaOrders / limit);
 
         res.render('user/orders', {
-            orders: orders,
-            categories: categories,
-            itemCount: itemCount,
-        });
+            orderDetails,
+            userData,
+            currentPage: page,
+            totalPages: totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: totalPages,
+            totalOrderAmount
+        })
+
     } catch (error) {
-        console.error('Error while rendering the order page:', error);
-        res.status(500).render('user/error', { error: 'An error occurred while fetching your orders.' });
+        console.log('error occured while rendering the order page', error);
+        res.render('user/error');
     }
 }
 
+
 // renderirng the order summary page 
-const singleorder = async (req, res) => {
+const singleOrder = async (req, res) => {
     try {
+        console.log('entering into the single order page');
         const orderId = req.query.orderId.trim();
         const userId = req.session.userId;
+        const userData = await userModel.findOne({ _id: userId });
+        console.log('userData:', userData);
         const cartCount = await cartModel.countDocuments({ userId: userId });
-        const orderDetails = await orderModel.findOne({ userId: userId, _id: orderId }).populate({
-            path: 'items.productId',
-            select: 'name image _id',
-        });
-
-        // console.log('orderdetails:', orderDetails);
+        const orderDetails = await orderModel.findOne({ _id: orderId }).populate('deliveryAddress').populate('orderedItem.productId');
 
         if (!orderDetails) {
             return res.status(404).render('error', { error: 'Order not found.' });
@@ -400,6 +412,8 @@ const singleorder = async (req, res) => {
 
         res.render('user/singleorder', {
             orderDetails,
+            products: orderDetails.orderedItem,
+            userData,
             cartCount
         });
     } catch (error) {
@@ -412,34 +426,34 @@ const singleorder = async (req, res) => {
 const cancelProduct = async (req, res) => {
     try {
         console.log('entered');
-        const { orderId, productId } = req.body;
+        const { orderId, productId, paymentMethod } = req.body;
 
         console.log('body:', req.body);
 
         const userId = req.session.userId;
 
-        const orderdetails = await orderModel.findOne({ userId: userId, _id: orderId });
-        if (!orderdetails) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
-
+        const orderdetails = await orderModel.findOne({ _id: orderId, userId: userId }).populate("orderedItem.productId");
         console.log('orderdetails:', orderdetails);
 
-        const itemIndex = orderdetails.items.findIndex(item => item.productId.toString() === productId);
+        const totalOrderedProducts = orderdetails.orderedItem.length;
+
+
+        console.log('orderdetails.orderedItem[0].productId._id:', orderdetails.orderedItem[0].productId._id);
+
+        const itemIndex = orderdetails.orderedItem.findIndex(item => item.productId._id.toString() === productId);
         console.log('itemIndex:', itemIndex);
         if (itemIndex === -1) {
-            console.log('itemIndex:', itemIndex);
             return res.status(404).json({ success: false, message: 'Product not found in order' });
         }
 
         console.log('itemIndex:', itemIndex);
 
-        const item = orderdetails.items[itemIndex];
+        const item = orderdetails.orderedItem[itemIndex];
 
         console.log('item:', item);
 
         // Check if the item is already cancelled
-        if (item.status === 'cancelled') {
+        if (item.productStatus === 'cancelled') {
             return res.status(400).json({ success: false, message: 'Product is already cancelled' });
         }
 
@@ -457,16 +471,145 @@ const cancelProduct = async (req, res) => {
 
         await product.save();
 
-        // Update order item status
-        item.status = 'cancelled';
-        await orderdetails.save();
+        console.log('product after saving:', product);
 
+        // updating the order item status
+        const productStatus = await orderModel.updateOne(
+            { _id: orderId },
+            { $set: { 'orderedItem.$[item].productStatus': "cancelled" } },
+            { arrayFilters: [{ "item.productId": productId }] }
+        );
+
+        if (productStatus.modifiedCount === 0) {
+            return res.status(500).json({ success: false, message: 'Failed to update order status' });
+        }
+
+
+        // calculating the refund amount for the cancelled product
+        let refundAmount;
+        if (orderdetails.couponDiscount) {
+            refundAmount = (item.productPrice * item.quantity) - orderdetails.couponDiscount / totalOrderedProducts;
+            console.log('refundAmount:', refundAmount);
+        } else {
+            refundAmount = item.productPrice * item.quantity;
+            console.log('refundAmount:', refundAmount);
+        }
+
+        // handling the refund if the payment method is not COD
+        const existingWallet = await walletModel.findOne({ userId: userId });
+
+        if (paymentMethod !== "COD") {
+            if (!existingWallet) {
+                const newWallet = new walletModel({
+                    userId: userId,
+                    balance: refundAmount,
+                    transaction: [{
+                        amount: refundAmount,
+                        transactionsMethod: "Refund"
+                    }]
+                });
+                await newWallet.save();
+            } else {
+                await walletModel.updateOne({ userId: userId }, { $inc: { balance: refundAmount }, $push: { transaction: { amount: refundAmount, transactionsMethod: "Refund" } } })
+            }
+        }
         res.json({ success: true, message: 'Product cancelled successfully' });
     } catch (error) {
         console.error('Error cancelling product:', error);
         res.status(500).json({ success: false, message: 'Failed to cancel product' });
     }
 };
+
+// returning the placed order
+const returnOrder = async (req, res) => {
+    try {
+        console.log('returning the placed order by the user');
+        const userId = req.session.userId;
+        console.log('userId:', userId);
+        const { selectedReason, productId, orderId } = req.body;
+        console.log('selectedReason:', selectedReason);
+        console.log('productId:', productId);
+        console.log('orderId:', orderId);
+
+        // input validation
+        if (!selectedReason || !productId || !orderId) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+
+        // find the order and update the product status
+        const order = await orderModel.findOne({ _id: orderId, userId: userId });
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        const totalOrderedProducts = order.orderedItem.length
+
+        const itemIndex = order.orderedItem.findIndex(item => item.productId.toString() === productId);
+        console.log('itemIndex:', itemIndex);
+        if (itemIndex === -1) {
+            return res.status(404).json({ success: false, message: "product not found in order" });
+        }
+
+        const item = order.orderedItem[itemIndex];
+        console.log('item:', item);
+
+        if (item.productStatus === "returned") {
+            return res.status(400).json({ success: false, message: "Product already returned" });
+        }
+
+        // updating the order status
+        order.orderedItem[itemIndex].productStatus = "returned";
+        order.orderedItem[itemIndex].returnReason = selectedReason;
+        await order.save();
+
+        console.log('updated order details:', order);
+
+        // updating the product stock as well
+        const product = await productModel.findById(productId);
+        if (!product) {
+            return res.status(404).json({ success: false, message: "product not found" });
+        }
+
+        const sizeIndex = product.stock.findIndex(stock => stock.size === item.size);
+        if (sizeIndex !== -1) {
+            product.stock[sizeIndex].quantity += item.quantity;
+            product.totalStock += item.quantity;
+            await product.save()
+        }
+
+
+        // calculating the refund amount for the returned product
+        let refundAmount;
+        if (order.couponDiscount) {
+            refundAmount = (item.productPrice * item.quantity) - order.couponDiscount / totalOrderedProducts;
+            console.log('refundAmount:', refundAmount);
+        } else {
+            refundAmount = item.productPrice * item.quantity;
+            console.log('refundAmount:', refundAmount);
+        }
+
+        console.log('refundAmount:', refundAmount);
+
+        // processing the refund to the user
+        await walletModel.findOneAndUpdate(
+            { userId: userId },
+            {
+                $inc: { balance: refundAmount },
+                $push: {
+                    transaction: {
+                        amount: refundAmount,
+                        transactionsMethod: "Refund"
+                    }
+                }
+            },
+            { upsert: true, new: true }
+        );
+        res.status(200).json({ success: true, message: "Order returned successfully" });
+    } catch (error) {
+        console.log('Error occured while returning the order', error);
+        res.status(500).json({ success: false, message: "An error occurred while processing the return" });
+    }
+}
 
 // rendering the wallet page for the user
 const wallet = async (req, res) => {
@@ -489,6 +632,9 @@ const wallet = async (req, res) => {
                 ...walletDetails.toObject(),
                 transaction: formattedTransactions
             }
+
+            console.log('formattedWallet:', formattedWallet);
+
             res.render('user/wallet', { walletDetails: formattedWallet, cartCount, wishlistCount, userdata })
         } else {
             res.render('user/wallet', { walletDetails: 0, cartCount, wishlistCount, userdata });
@@ -528,8 +674,49 @@ const addWallet = async (req, res) => {
     }
 }
 
+// rendering the invoice page for the user
+const invoicePage = async (req, res) => {
+    try {
+        console.log('rendering the invoice page for the user displaying ordered product details');
+        const { orderId, productId } = req.body;
+        const userId = req.session.userId;
+        console.log('userId', userId);
+        console.log('orderId:', orderId);
+        console.log('productId:', productId);
 
+        if (!orderId || !productId) {
+            return res.status(400).json({ error: "Missing orderId or productId" });
+        }
 
+        const orderDetails = await orderModel.findOne({ _id: orderId.trim() }).populate('orderedItem.productId');
+        console.log('orderDetails:', orderDetails);
+
+        if (!orderDetails) {
+            return res.status(404).json({ error: 'order not found' });
+        }
+        const userData = await userModel.findOne({ _id: userId });
+        console.log('userData:', userData);
+
+        if (!userData) {
+            return res.status(404).json({ error: "user not found" });
+        }
+        const productData = orderDetails.orderedItem.find(item => item.productId._id.toString() === productId);
+        console.log('productData:', productData);
+
+        if (!productData) {
+            return res.status(404).json({ error: "product not found in the order" });
+        }
+
+        res.render('user/invoicepage', {
+            productData,
+            orderDetails,
+            userData
+        })
+    } catch (error) {
+        console.log('error while rendering the invoice page for the user', error);
+        res.render('user/error');
+    }
+}
 
 module.exports = {
     userProfile,
@@ -544,8 +731,10 @@ module.exports = {
     editAddressPost,
     delAddress,
     order,
-    singleorder,
+    singleOrder,
+    returnOrder,
     cancelProduct,
     wallet,
-    addWallet
+    addWallet,
+    invoicePage
 }

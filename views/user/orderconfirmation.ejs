@@ -1,22 +1,105 @@
 <%- include('navbar') %>
 
-<!-- Start thank you page area -->
-<div class="thankyou__page--area">
-    <div class="container">
-        <div class="thankyou__page--inner d-flex flex-column align-items-center">
-            <div class="main thankyou__main">
-                <header class="main__header thankyou__main--header mb-30">
-                    <h2 class="main__logo--title h3">Thank You for Your Order! <i class="fas fa-check-circle text-success"></i></h2>
-                    <p class="mb-0">Your order has been placed successfully.</p>
-                </header>
-                <main class="main__content_wrapper text-center">
-                    <p>We appreciate your business and hope you enjoy your purchase.</p>
-                    <a class="btn btn-primary mt-3" href="/orders">Your orders<i class="fas fa-shopping-cart"></i></a>
-                </main>
+    <style>
+        body {
+            background-color: rgb(241, 243, 246);
+        }
+
+        .order-success {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .order-details {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .highlight-color {
+            color: #7280e0;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            width: 250px;
+            height: auto;
+            line-height: 1.5;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .action-button.btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .action-button.btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .action-button.btn-dark {
+            background-color: #343a40;
+            border-color: #343a40;
+        }
+
+        .action-button.btn-dark:hover {
+            background-color: #23272b;
+            border-color: #23272b;
+        }
+    </style>
+
+    <!-- Start thank you page area -->
+    <div class="container order-success mt-5">
+        <div class="row">
+            <h2 class="text-center text-success">Thank You for Your Order! <i class="fas fa-check-circle"></i></h2>
+            <p class="text-center">Your order has been placed and is being processed. You will receive an email
+                confirmation shortly.</p>
+            <div class="order-details border shadow">
+                <h4 class="mb-3 highlight-color">Order Summary</h4>
+                <p class="mb-2"><strong>Order Number:</strong> #MN0124</p>
+                <p class="mb-2"><strong>Total:</strong> ₹<%= orderDetail.orderAmount %>
+                </p>
+                <p class="mb-2"><strong>Order Date:</strong>
+                    <%= formattedDate %>
+                </p>
+                <p class="mb-2"><strong>Payment Method:</strong>
+                    <%= orderDetail.paymentMethod %>
+                </p>
+
+                <h5 class="mb-3 mt-3 highlight-color"><strong>Shipping Address</strong></h5>
+                <p>
+                    <%= orderDetail.deliveryAddress[0].name %>
+                </p>
+                <p>
+                    <%= orderDetail.deliveryAddress[0].mobile %>
+                </p>
+                <p>
+                    <%= orderDetail.deliveryAddress[0].street %>
+                </p>
+                <p>
+                    <%= orderDetail.deliveryAddress[0].city %>, <%= orderDetail.deliveryAddress[0].state %>, <%=
+                                orderDetail.deliveryAddress[0].pincode %>
+                </p>
+            </div>
+            <div class="action-buttons">
+                <a href="/shop" class="btn btn-primary action-button">Continue Shopping</a>
+                <a href="/orders" class="btn btn-dark action-button">
+                    <span class="text-white">Track Order</span>
+                </a>
             </div>
         </div>
     </div>
-</div>
-<!-- End thank you page area -->
+    <!-- End thank you page area -->
 
-<%- include('footer') %>
+    <%- include('footer') %>

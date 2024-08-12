@@ -105,6 +105,7 @@ const signup = async (req, res) => {
 };
 
 // function to generate unique refferal code
+
 const generateuniqueRefferalCode = async () => {
   let code;
   let isUnique = false;
@@ -301,7 +302,6 @@ const login = async (req, res) => {
 };
 
 // user login post
-
 const loginPost = async (req, res) => {
   try {
     console.log('entered login post');

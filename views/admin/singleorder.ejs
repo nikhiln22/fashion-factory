@@ -30,7 +30,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <%orderDetails.items.forEach(function(item,i){%>
+                                <%orderDetails.orderedItem.forEach(function(item,i){%>
                                     <% if(item.productId && item.productId.name){%>
                                         <input type="hidden" name="" id="status" value=" <%=item.status%>">
                                         <input type="hidden" name="" id="productId<%=i%>"
@@ -51,10 +51,10 @@
                                             <td>
                                                 <%=item.quantity%>
                                             </td>
-                                            <td>₹<%=item.productId.discountPrice%>
+                                            <td>₹<%=item.totalProductPrice%>
                                             </td>
                                             <td>
-                                                <%=item.status%>
+                                                <%=item.productStatus%>
                                             </td>
                                             <td>
                                             
@@ -80,7 +80,7 @@
                         </div>
                         <div class="modal-body">
                             <select class="form-select" id="modalOrderStatus">
-                                <option value="placed">Placed</option>
+                                <option value="pending">Pending</option>
                                 <option value="shipped">Shipped</option>
                                 <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>

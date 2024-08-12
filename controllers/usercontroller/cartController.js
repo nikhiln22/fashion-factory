@@ -22,12 +22,6 @@ const showCart = async (req, res) => {
             }
         });
 
-        // const originalPrice = cart?.item.map((items) => {
-        //     return items.productId.price;
-        // })
-
-        // console.log('originalPrice:', originalPrice);
-
         if (!cart || !cart.item) {
             cart = new cartModel({
                 userId: id,
@@ -42,21 +36,17 @@ const showCart = async (req, res) => {
             endDate: { $gte: new Date() }
         });
 
-        console.log('offerData:', offerData);
-
-
         let totalActualAmount = 0;
         let totalDiscountedAmount = 0;
 
         // process each cart items with offers
         const cartItemsWithOffers = cart.item.map(cartItem => {
             const product = cartItem.productId;
+            console.log('product:',product);
             const originalPrice = cartItem.productId.price;
 
             console.log('originalPrice:', originalPrice);
 
-            // let productDiscountedPrice = cartItem.price;
-            // let categoryDiscountedPrice = cartItem.price;
             let productDiscountedPrice = cartItem.productId.price;
             let categoryDiscountedPrice = cartItem.productId.price;
 
@@ -83,7 +73,6 @@ const showCart = async (req, res) => {
                 }
             });
 
-            // let discountedPrice = cartItem.price;
             let discountedPrice = originalPrice;
 
             if (offerApplied) {
@@ -162,7 +151,7 @@ const showCart = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.render("user/serverError");
+        res.render("user/error");
     }
 };
 
@@ -176,7 +165,7 @@ const addCart = async (req, res) => {
         const userId = req.session.userId;
 
         const product = await productModel.findOne({ _id: pid });
-        console.log('product:', product);
+        // console.log('product:', product);
 
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found.' });
@@ -188,10 +177,10 @@ const addCart = async (req, res) => {
             endDate: { $gte: new Date() }
         });
 
-        console.log('activeOffers:', activeOffers);
+        // console.log('activeOffers:', activeOffers);
 
         let discountedPrice = product.price;
-        console.log('discountedPrice:', discountedPrice);
+        // console.log('discountedPrice:', discountedPrice);
         let appliedOffer = null;
 
         // checking for the product specific orders
@@ -304,23 +293,7 @@ const updateCart = async (req, res) => {
 
         const { productId, size } = req.params;
         const { action, cartId } = req.body;
-
         const id = req.session.userId;
-
-        console.log('action:', action);
-        console.log('productId:', productId);
-        console.log('size:', size);
-        console.log('cartId:', cartId);
-
-        // let cartDetails = await cartModel.findOne({ userId: id }).populate({
-        //     path: "item.productId",
-        //     select: "name stock image category price",
-        //     populate: {
-        //         path: "category"
-        //     }
-        // });
-
-
         const cart = await cartModel.findOne({ _id: cartId }).populate({
             path: "item.productId",
             select: "name stock image category price",
@@ -368,8 +341,6 @@ const updateCart = async (req, res) => {
             return res.status(400).json({ success: false, error: "Invalid action" });
         }
 
-
-
         if (updatedQuantity > stockLimit2 && action == "1") {
             return res.status(400).json({ success: false, error: "Quantity exceeds stock limits" });
         } else if (updatedQuantity == 0) {
@@ -392,8 +363,6 @@ const updateCart = async (req, res) => {
         const newProductTotal = ((offerPrice < price) ? offerPrice : price) * updatedQuantity;
 
         console.log('newProductTotal:', newProductTotal);
-
-        // const newProductTotal = (price -(price * offer/100) )* updatedQuantity;
 
         cart.item[itemIndex].total = newProductTotal;
 

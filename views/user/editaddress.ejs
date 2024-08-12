@@ -44,10 +44,10 @@
                     <div class="account__left--sidebar">
                         <ul class="account__menu">
                             <li class="account__menu--list"><a href="/profile">My Profile</a></li>
-                            <li class="account__menu--list"><a href="my-account-2.html">Orders</a></li>
+                            <li class="account__menu--list"><a href="/orders">Orders</a></li>
                             <li class="account__menu--list"><a href="/address">Addresses</a></li>
                             <li class="account__menu--list"><a href="/resetpassword">change password</a></li>
-                            <li class="account__menu--list"><a href="wishlist.html">Wishlist</a></li>
+                            <li class="account__menu--list"><a href="/wallet">Wallet</a></li>
                             <li class="account__menu--list"><a href="/logout">Log Out</a></li>
                         </ul>
                     </div>
@@ -57,7 +57,7 @@
                         <div class="account__content">
                             <div id="addressFormContainer">
                                 <h3 class="mb-4">Edit Address</h3>
-                                <form action="/editaddress/<%= address.address._id %>" id="addressForm" method="POST">
+                                <form action="/editaddress/<%= address.address._id %>?redirect=checkout" id="addressForm" method="POST">
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label for="saveas" class="form-label">Save as</label>  

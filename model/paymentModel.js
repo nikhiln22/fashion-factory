@@ -26,10 +26,10 @@ const paymentSchema = new mongoose.Schema({
         enum: ['COD', 'online', 'Razorpay', 'Wallet']
     },
     transactionId: {
-        type: string
-    },
-    timestamps: true
-})
+        type: String
+    }
+
+}, { timestamps: true });
 
 
-module.exports = mongoose.model('payment',paymentSchema);
+module.exports = mongoose.model('payment', paymentSchema);

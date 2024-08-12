@@ -38,7 +38,7 @@ const shop = async (req, res) => {
 
             offerData.forEach((offer) => {
                 if (
-                    offer.offerType === "category" && offer.categoryId.includes(product.categoryId.toString())
+                    offer.offerType === "category" && offer.categoryId.includes(product.category.toString())
                 ) {
                     categoryDiscountedPrice = product.price - (product.price * offer.discount) / 100;
                 }
@@ -48,7 +48,7 @@ const shop = async (req, res) => {
                 appliedOffer = offerData.find((offer) => offer.offerType === 'product' && offer.productId.includes(product._id.toString()));
                 discountedPrice = Math.round(productDiscountedPrice);
             } else {
-                appliedOffer = offerData.find((offer) => offer.offerType === 'category' && offer.categoryId.includes(product.categoryId.toString()));
+                appliedOffer = offerData.find((offer) => offer.offerType === 'category' && offer.categoryId.includes(product.category.toString()));
                 discountedPrice = Math.round(categoryDiscountedPrice);
             }
 
@@ -64,6 +64,7 @@ const shop = async (req, res) => {
                 offerText: appliedOffer ? `${appliedOffer.discount}% off` : '',
             };
         });
+
         const totalProducts = await productModel.countDocuments({ status: true });
         const totalPages = Math.ceil(totalProducts / limit);
 

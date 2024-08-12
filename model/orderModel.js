@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const shortid = require('shortid');
 const Schema = mongoose.Schema;
 
 const orderSchema = new mongoose.Schema({
@@ -7,12 +6,11 @@ const orderSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'userDetails',
     },
-    orderId: {
-        type: String,
-        default: shortid.generate,
-        unique: true
+    cartId: {
+        type: Schema.Types.ObjectId,
+        ref:'cart'
     },
-    items: [{
+    orderedItem: [{
         productId: {
             type: Schema.Types.ObjectId,
             ref: 'productDetails',
@@ -25,43 +23,50 @@ const orderSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
-        price: {
+        productPrice: {
             type: Number,
             required: true,
         },
-        status: {
+        productStatus: {
             type: String,
             default: "pending",
             required: true
         },
-        returnReason:{
-            type:String,    
+        totalProductPrice: {
+            type: Number,
+            required: true
+        },
+        returnReason: {
+            type: String,
+        },
+        offer_id: {
+            type: mongoose.Schema.Types.ObjectId,
         }
     }],
-    address: {
+    deliveryAddress: {
         type: Array,
         required: true
     },
-    amount: {
+    orderAmount: {
         type: Number,
         required: true
     },
-    deliveryDate:{
-        type:Date
+    deliveryDate: {
+        type: Date
     },
-    shippingDate:{
-        type:Date
+    shippingDate: {
+        type: Date
     },
     paymentMethod: {
         type: String,
         required: true
     },
-    paymentStatus:{
-        type:String,
-        required:true
+    paymentStatus: {
+        type: String,
+        required: true
     },
-    couponDiscount:{
-        type:Number
+    couponDiscount: {
+        type: Number
     }
 }, { timestamps: true });
 

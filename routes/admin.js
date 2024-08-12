@@ -6,6 +6,7 @@ const productController = require('../controllers/admincontroller/productControl
 const orderController = require('../controllers/admincontroller/orderController');
 const couponController = require('../controllers/admincontroller/couponController');
 const offerController = require('../controllers/admincontroller/offerController');
+const salesReportController = require('../controllers/admincontroller/salesReportController');
 const { adAuth } = require('../middlewares/adminAuth');
 const multer = require('multer');
 
@@ -61,6 +62,50 @@ adminRoute.post('/prodidsave', adAuth, offerController.offerProdIdSave);
 adminRoute.post('/catidsave', adAuth, offerController.offercatIdSave);
 adminRoute.patch('/editoffer', adAuth, offerController.editoffer);
 adminRoute.post('/deleteoffer', adAuth, offerController.deleteOffer);
+
+adminRoute.get('/checkdataexist', adAuth, salesReportController.checkDataExist);
+
+adminRoute.get('/dailysales', adAuth, (req, res) => {
+    if (req.query.format === 'pdf') {
+        console.log('entered in the if case in daily');
+        salesReportController.dailySalesReport(req, res);
+    } else {
+        console.log('entered into the else');
+        salesReportController.dailySalesReport(req, res);
+    }
+});
+
+adminRoute.get('/weeklysales', adAuth, (req, res) => {
+    if (req.query.format === 'pdf') {
+        salesReportController.weeklySalesReport(req, res);
+    } else {
+        salesReportController.weeklySalesReport(req, res);
+    }
+});
+adminRoute.get('/monthlysales', adAuth, (req, res) => {
+    if (req.query.format === 'pdf') {
+        salesReportController.monthlySalesReport(req, res);
+    } else {
+        salesReportController.monthlySalesReport(req, res);
+    }
+});
+adminRoute.get('/yearlysales', adAuth, (req, res) => {
+    if (req.query.format === 'pdf') {
+        salesReportController.yearlySalesReport(req, res);
+    } else {
+        salesReportController.yearlySalesReport(req, res);
+    }
+});
+
+adminRoute.post('/customdate', adAuth, (req, res) => {
+    if (req.query.format === 'pdf') {
+        console.log('hiting the route in the if case');
+        salesReportController.customDateSort(req, res);
+    } else {
+        console.log('hitting the route in the else case');
+        salesReportController.customDateSort(req, res);
+    }
+});
 
 adminRoute.get('/logout', adAuth, adminController.adLogOut);
 

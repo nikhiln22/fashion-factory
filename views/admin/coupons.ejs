@@ -1,15 +1,15 @@
 <%- include('adminHeader') %>
 
-<style>
-    .table-bordered {
-        border: 1px solid #000000;
-    }
+    <style>
+        .table-bordered {
+            border: 1px solid #000000;
+        }
 
-    .table-bordered th,
-    .table-bordered td {
-        border: 1px solid #000000;
-    }
-</style>
+        .table-bordered th,
+        .table-bordered td {
+            border: 1px solid #000000;
+        }
+    </style>
     <section class="content-main">
         <div class="content-header">
             <div>
@@ -21,9 +21,19 @@
                     <%= couponExists%>
                 </div>
                 <%}%>
-            <div>
-                <a href="/admin/addcoupon" class="btn btn-dark d-flex mb-3">Add Coupon</a>
-            </div>
+                    <% if(success){%>
+                        <div style="color: red; font-size: 16px; font-weight: bold;">
+                            <%= success%>
+                        </div>
+                        <%}%>
+                            <% if(error){%>
+                                <div style="color: red; font-size: 16px; font-weight: bold;">
+                                    <%= error%>
+                                </div>
+                                <%}%>
+                                    <div>
+                                        <a href="/admin/addcoupon" class="btn btn-dark d-flex mb-3">Add Coupon</a>
+                                    </div>
         </div>
         <div class="col-lg-12">
             <div class="table-responsive">
@@ -71,9 +81,9 @@
                                     </td>
                                     <td>
                                         <centre>
-                                            <%= data.expiry.toLocaleString('en-US', { month: 'short' ,
-                                            day: 'numeric' , year: 'numeric' , hour: 'numeric' ,
-                                            minute: 'numeric' , hour12: true })%>
+                                            <%= data.expiry.toLocaleString('en-US', { month: 'short' , day: 'numeric' ,
+                                                year: 'numeric' , hour: 'numeric' , minute: 'numeric' , hour12: true
+                                                })%>
                                         </centre>
                                     </td>
                                     <td>

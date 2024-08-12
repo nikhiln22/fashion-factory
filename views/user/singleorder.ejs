@@ -1,60 +1,80 @@
 <%- include('navbar') %>
 
     <style>
-        .order__details--table__product--img {
-            max-width: 40px;
+        .page-wrapper {
+            padding-top: 53px;
+        }
+
+        .order-image {
+            width: 80px;
             height: auto;
         }
 
-        .order__details--table {
-            width: 100%;
-            border-collapse: collapse;
+        .info-section {
+            background-color: white;
+            padding: 20px;
             margin-bottom: 20px;
         }
 
-        .order__details--table__header th {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .order__details--table__body--items {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .order__details--table__product {
+        .order-status {
             display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
         }
 
-        .order__details--table__product--img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-        }
-
-        .order__details--table__product--title {
-            margin: 0;
-        }
-
-        .order__details--action {
+        .status-icon {
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 2;
         }
 
-        .btn-primary {
+        .status-container {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 0 15px;
+            width: 100%;
+        }
+
+        .status-container::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: calc(12.5% + 15px);
+            right: calc(12.5% + 15px);
+            height: 2px;
+            background-color: #ccc;
+            z-index: 0;
+        }
+
+        .status-item.active .status-icon {
+            background-color: #28a745;
+        }
+
+        .invoice-button {
             background-color: #007bff;
             color: white;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 4px;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
         }
 
         .swal-wide {
@@ -65,218 +85,378 @@
         .swal-wide .swal2-content {
             font-size: 18px !important;
         }
+
+
+        .large-modal {
+            max-width: 90% !important;
+            width: 50em !important;
+        }
+
+        .large-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .large-content .swal2-html-container {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .large-modal .swal2-select,
+        .large-modal .swal2-textarea {
+            width: 100% !important;
+            margin-bottom: 10px;
+        }
+
+        .large-modal .swal2-textarea {
+            height: 100px !important;
+        }
     </style>
 
-
-    <main class="main__content_wrapper">
-        <!-- Breadcrumb section -->
-        <section class="breadcrumb__section breadcrumb__bg">
-            <div class="container">
-                <div class="row row-cols-1">
-                    <div class="col">
-                        <div class="breadcrumb__content text-center">
-                            <h1 class="breadcrumb__content--title text-white mb-25">Order Details</h1>
-                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
-                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a>
-                                </li>
-                                <li class="breadcrumb__content--menu__items"><a class="text-white"
-                                        href="/orders">Orders</a></li>
-                                <li class="breadcrumb__content--menu__items"><span class="text-white">Order #<%=
-                                            orderDetails.orderId %></span></li>
-                            </ul>
-                        </div>
+    <!-- Breadcrumb section -->
+    <section class="breadcrumb__section breadcrumb__bg">
+        <div class="container">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <div class="breadcrumb__content text-center">
+                        <h1 class="breadcrumb__content--title text-white mb-25">Order Details</h1>
+                        <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a>
+                            </li>
+                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="/orders">Orders</a>
+                            </li>
+                            <li class="breadcrumb__content--menu__items"><span class="text-white">Order #<%=
+                                        orderDetails.orderId %></span></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </section>
-        <!-- End breadcrumb section -->
+        </div>
+    </section>
+    <!-- End breadcrumb section -->
 
-        <!-- Order details section start -->
-        <section class="order__details--section section--padding">
-            <div class="container">
+    <div class="page-wrapper">
+        <main class="main">
+            <div class="container py-5">
                 <div class="row">
-                    <div class="col-12">
-                        <div class="order__details--inner">
-                            <h2 class="order__details--title h3 mb-15">Order #<%= orderDetails.orderId %>
-                            </h2>
-                            <div class="order__details--top d-flex justify-content-between align-items-center">
-                                <div class="order__details--top__left">
-                                    <h3 class="order__details--top__title h4">Order Info</h3>
-                                    <ul class="order__details--top__list">
-                                        <li><strong>Date:</strong>
-                                            <%= new Date(orderDetails.createdAt).toLocaleDateString() %>
-                                        </li>
-                                        <li><strong>Payment Method:</strong>
-                                            <%= orderDetails.payment=='cod'?"Cash On Delivery":orderDetails.payment %>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="order__details--top__right">
-                                    <h3 class="order__details--top__title h4">Delivery Address</h3>
-                                    <address>
-                                        <%= orderDetails.address[0].saveAs %><br>
-                                            <%= orderDetails.address[0].street %><br>
-                                                <%= orderDetails.address[0].city %>, <%= orderDetails.address[0].pincode
-                                                        %>
-                                    </address>
-                                </div>
-                            </div>
-                            <div class="order__details--products">
-                                <h3 class="order__details--products__title h4 mb-15">Order Items</h3>
-                                <table class="order__details--table">
-                                    <thead class="order__details--table__header">
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Size</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
-                                            <th>Total</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="order__details--table__body">
-                                        <% orderDetails.items.forEach(function(item) { %>
-                                            <tr>
-                                                <td class="order__details--table__body--items">
-                                                    <div
-                                                        class="order__details--table__product d-flex align-items-center">
-                                                        <img class="order__details--table__product--img"
-                                                            src="<%= item.productId.image[0] %>"
-                                                            alt="<%= item.productId.name %>">
-                                                        <div class="order__details--table__product--content">
-                                                            <h3 class="order__details--table__product--title h4">
-                                                                <%= item.productId.name %>
-                                                            </h3>
-                                                        </div>
+                    <!-- Order details section start -->
+                    <div class="col-12 info-section shadow">
+                        <h3>User Information</h3>
+                        <% if(orderDetails) { %>
+                            <p><strong>Name:</strong>
+                                <%= orderDetails.deliveryAddress[0].name %>
+                            </p>
+                            <p><strong>Phone:</strong>
+                                <%= orderDetails.deliveryAddress[0].mobile %>
+                            </p>
+                            <p><strong>Address:</strong>
+                                <%= orderDetails.deliveryAddress[0].street%>,
+                                    <%= orderDetails.deliveryAddress[0].city %>,
+                                        <%= orderDetails.deliveryAddress[0].state %>,
+                                            <%= orderDetails.deliveryAddress[0].pincode %>
+                            </p>
+                            <p><strong>Date:</strong>
+                                <%= new Date(orderDetails.createdAt).toLocaleDateString("en-US") %>
+                            </p>
+                            <% } %>
+                    </div>
+
+                    <!-- Order Details and Status Column -->
+                    <div class="col-12 info-section shadow mt-4">
+                        <h3>Order Details</h3>
+                        <input type="hidden" id="paymentMethod" value="<%= orderDetails.paymentMethod %>">
+                        <input type="hidden" id="orderId" value="<%= orderDetails._id %>">
+
+                        <!-- Ordered Product Details -->
+
+                        <!-- Product Details -->
+                        <% orderDetails.orderedItem.forEach(function(product) { %>
+                            <div class="row mb-4">
+                                <% if(product.productStatus=="delivered" || product.productStatus=="returned" ) { %>
+                                    <div class="col-12 d-flex justify-content-end mb-3">
+                                        <a href="/invoice?orderId=<%= orderDetails._id %>&productId=<%= product.productId._id %>"
+                                            class="invoice-button">
+                                            <i class="fas fa-file-invoice-dollar"></i> Invoice
+                                        </a>
+                                    </div>
+                                    <% } %>
+
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center">
+                                                <img src="<%= product.productId.image[0] %>" alt="Product Image"
+                                                    class="order-image me-3">
+                                                <div>
+                                                    <h6 class="m-0">
+                                                        <%= product.productId.name %>
+                                                    </h6>
+                                                    <small class="text-muted">Size: <%= product.size %></small>
+                                                    <div>Quantity: <%= product.quantity %>
                                                     </div>
-                                                </td>
-                                                <td class="order__details--table__body--items">
-                                                    <%= item.size %>
-                                                </td>
-                                                <td class="order__details--table__body--items">₹<%=
-                                                        item.price.toFixed(2) %>
-                                                </td>
-                                                <td class="order__details--table__body--items">
-                                                    <%= item.quantity %>
-                                                </td>
-                                                <td class="order__details--table__body--items">₹<%= (item.price *
-                                                        item.quantity).toFixed(2) %>
-                                                </td>
-                                                <td class="order__details--table__body--items">
-                                                    <%= item.status %>
-                                                </td>
-                                                <td class="order__details--table__body--items">
-                                                    <% if (item.status==="pending" ) { %>
-                                                        <div class="order__details--action mt-15">
-                                                            <button class="btn btn-primary cancel-order"
-                                                                data-order-id="<%= orderDetails._id %>"
-                                                                data-product-id="<%= item.productId._id %>">Cancel
-                                                                Order</button>
-                                                        </div>
+                                                    <div>Price: ₹<%= product.totalProductPrice %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <% if(orderDetails.paymentStatus !=="pending" ||
+                                            orderDetails.paymentMethod==="COD" ) { %>
+                                            <div class="col-md-6 d-flex justify-content-end align-items-start">
+                                                <input type="hidden" class="productId"
+                                                    value="<%= product.productId._id %>">
+                                                <input type="hidden" class="status"
+                                                    value="<%= product.productStatus %>">
+                                                <% if (product.productStatus==="delivered" ) { %>
+                                                    <button class="btn btn-outline-primary">Return</button>
+                                                    <% } else if (product.productStatus !=="cancelled" &&
+                                                        product.productStatus !=="returned" ) { %>
+                                                        <a href="#" class="btn btn-outline-primary me-2 cancel-order"
+                                                            data-product-id="<%= product.productId._id %>">
+                                                            <i class="fa-solid fa-xmark"></i> Cancel
+                                                        </a>
                                                         <% } %>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                    </tbody>
-                                </table>
+                                            </div>
+                                            <% } %>
                             </div>
-                            <div class="order__details--footer d-flex justify-content-between">
-                                <div class="order__details--footer__left">
-                                    <!-- <h3 class="order__details--footer__title h4">Order Notes</h3>
-                                    <p class="order__details--footer__notes">
-                                        <%= orderDetails.notes || 'No notes for this order.' %>
-                                    </p> -->
-                                </div>
-                                <div class="order__details--footer__right">
-                                    <h3 class="order__details--footer__title h4">Order Summary</h3>
-                                    <ul class="order__details--footer__list">
-                                        <li><span>Subtotal:</span> ₹<%= orderDetails.amount.toFixed(2) %>
-                                        </li>
-                                        <li><span>Shipping:</span> ₹<%= orderDetails.shippingCost ?
-                                                orderDetails.shippingCost.toFixed(2) : '0.00' %>
-                                        </li>
-                                        <li><span>Total:</span> ₹<%= (orderDetails.amount + (orderDetails.shippingCost
-                                                || 0)).toFixed(2) %>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+
+
+                            <% if(orderDetails.paymentStatus !=="pending" || orderDetails.paymentMethod==="COD" ) { %>
+                                <span
+                                    class="status-text 
+                                        <%= product.productStatus === 'cancelled' ? 'text-danger' : 
+                                           product.productStatus === 'delivered' ? 'text-success' : 
+                                           product.productStatus === 'Shipped' ? 'text-warning' : 'text-primary' %> fw-bold">
+                                    Status: <%= product.productStatus==='Shipped' ? 'Shipped' :
+                                        (product.productStatus.charAt(0).toUpperCase() + product.productStatus.slice(1))
+                                        %>
+                                </span>
+                                <% } %>
+
+                                    <hr class="my-4">
+                                    <% }); %>
                     </div>
                 </div>
             </div>
-        </section>
-        <!-- Order details section end -->
-    </main>
+        </main>
+    </div>
 
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.cancel-order').forEach(function (cancelButton) {
-            cancelButton.addEventListener('click', function (e) {
-                e.preventDefault();
-                const orderId = this.getAttribute('data-order-id');
-                const productId = this.getAttribute('data-product-id');
-    
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Do you really want to cancel this product?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, cancel it!',
-                    cancelButtonText: 'No, keep it',
-                    customClass: {
-                        popup: 'swal-wide'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch(`/cancelproduct`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ orderId, productId })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cancelButtons = document.querySelectorAll('.cancel-order');
+
+            cancelButtons.forEach((cancelBtn) => {
+                cancelBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const productId = this.getAttribute('data-product-id');
+                    const orderId = document.getElementById('orderId').value.trim();
+                    const paymentMethod = document.getElementById('paymentMethod').value;
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this cancellation!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, cancel it!',
+                        cancelButtonText: 'No, keep it',
+                        customClass: {
+                            popup: 'swal-wide'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/cancelproduct`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ orderId, productId, paymentMethod })
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire({
+                                            title: 'Cancelled!',
+                                            text: 'Your item has been cancelled successfully.',
+                                            icon: 'success',
+                                            customClass: {
+                                                popup: 'swal-wide'
+                                            }
+                                        }).then(() => {
+                                            // Update UI
+                                            this.classList.add('d-none');  // Hide cancel button
+
+                                            // Hide return button if it exists
+                                            const returnButton = this.closest('.row').querySelector('.btn-outline-primary');
+                                            if (returnButton && returnButton.textContent.trim() === 'Return') {
+                                                returnButton.classList.add('d-none');
+                                            }
+
+                                            // Update status text
+                                            const statusText = this.closest('.row').querySelector('.status-text');
+                                            if (statusText) {
+                                                statusText.textContent = 'Status: Cancelled';
+                                                statusText.className = 'status-text text-danger fw-bold';
+                                            }
+                                        });
+                                    } else {
+                                        throw new Error(data.message || 'Failed to cancel the product');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
                                     Swal.fire({
-                                        title: 'Cancelled!',
-                                        text: 'The product has been cancelled.',
-                                        icon: 'success',
-                                        customClass: {
-                                            popup: 'swal-wide'
-                                        }
-                                    }).then(() => {
-                                        location.reload();
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: 'Failed!',
-                                        text: 'Failed to cancel the product.',
+                                        title: 'Error!',
+                                        text: `An error occurred: ${error.message}`,
                                         icon: 'error',
                                         customClass: {
                                             popup: 'swal-wide'
                                         }
                                     });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                Swal.fire({
-                                    title: 'Error!',
-                                    text: 'An error occurred while cancelling the product.',
-                                    icon: 'error',
-                                    customClass: {
-                                        popup: 'swal-wide'
-                                    }
                                 });
-                            });
-                    }
+                        }
+                    });
                 });
             });
         });
-    });    
-</script>
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM loaded');
+
+            // Return functionality
+            const returnButtons = document.querySelectorAll('.btn-outline-primary');
+
+            returnButtons.forEach(button => {
+                if (button.textContent.trim() === 'Return') {
+                    button.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const productId = this.closest('.row').querySelector('.productId').value;
+                        const orderId = document.getElementById('orderId').value;
+                        const paymentMethod = document.getElementById('paymentMethod').value;
+
+                        Swal.fire({
+                            title: 'Return Item',
+                            html: `
+                        <select id="returnReason" class="swal2-select">
+                            <option value="">Choose reason...</option>
+                            <option value="damaged">Item was damaged</option>
+                            <option value="incorrect">Incorrect item was sent</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <textarea id="otherReason" class="swal2-textarea" placeholder="Please specify..." style="display: none;"></textarea>
+                    `,
+                            focusConfirm: false,
+                            showCancelButton: true,
+                            confirmButtonText: 'Confirm Return',
+                            cancelButtonText: 'Cancel',
+                            width: '50em', // Increased width
+                            heightAuto: false,
+                            height: '40em', // Set a fixed height
+                            customClass: {
+                                popup: 'large-modal',
+                                content: 'large-content'
+                            },
+                            didOpen: () => {
+                                const returnReasonSelect = Swal.getPopup().querySelector('#returnReason');
+                                const otherReasonInput = Swal.getPopup().querySelector('#otherReason');
+
+                                returnReasonSelect.addEventListener('change', function () {
+                                    otherReasonInput.style.display = this.value === 'other' ? 'block' : 'none';
+                                });
+                            },
+                            preConfirm: () => {
+                                const returnReason = Swal.getPopup().querySelector('#returnReason').value;
+                                const otherReason = Swal.getPopup().querySelector('#otherReason').value;
+
+                                if (!returnReason) {
+                                    Swal.showValidationMessage('Please select a reason for return');
+                                    return false;
+                                }
+                                if (returnReason === 'other' && !otherReason.trim()) {
+                                    Swal.showValidationMessage('Please specify a reason for return');
+                                    return false;
+                                }
+                                return { returnReason, otherReason };
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const { returnReason, otherReason } = result.value;
+                                const finalReason = returnReason === 'other' ? otherReason : returnReason;
+
+                                // Send return request to server
+                                fetch('/returnorder', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        selectedReason: finalReason,
+                                        productId,
+                                        orderId,
+                                        paymentMethod
+                                    })
+                                })
+                                    .then(response => response.json())
+                                    .then((data) => {
+                                        if (data.success) {
+                                            Swal.fire({
+                                                position: "top",
+                                                icon: "success",
+                                                title: "Item returned successfully",
+                                                showConfirmButton: false,
+                                                timer: 1500
+                                            }).then(() => {
+                                                // Update UI to reflect the returned status
+                                                const statusText = this.closest('.row').querySelector('.status-text');
+                                                if (statusText) {
+                                                    statusText.textContent = 'Status: Returned';
+                                                    statusText.className = 'status-text text-danger fw-bold';
+                                                }
+
+                                                // Hide the return button
+                                                this.style.display = 'none';
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                title: 'Error!',
+                                                text: 'Failed to return the item.',
+                                                icon: 'error',
+                                                customClass: {
+                                                    popup: 'swal-wide'
+                                                }
+                                            });
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        Swal.fire({
+                                            title: 'Error!',
+                                            text: 'An error occurred while processing the return.',
+                                            icon: 'error',
+                                            customClass: {
+                                                popup: 'swal-wide'
+                                            }
+                                        });
+                                    });
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+
+
+
+
     <%- include('footer') %>

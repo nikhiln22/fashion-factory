@@ -10,6 +10,8 @@ const coupons = async (req, res) => {
     try {
         console.log('rendering the coupon listing page from the admin side');
         const couponExists = req.flash('couponExists');
+        const success = req.flash('success');
+        const error = req.flash('error');
 
         const totalCoupons = await couponModel.countDocuments({});
         const fetchedCoupons = await couponModel.find({})
@@ -27,6 +29,8 @@ const coupons = async (req, res) => {
         res.render('admin/coupons', {
             coupons: fetchedCoupons,
             couponExists,
+            success,
+            error,
             currentPage: page,
             startPage: startPage,
             endPage: endPage,
@@ -122,26 +126,40 @@ const updateCoupon = async (req, res) => {
     try {
         console.log('updating the existing coupon from the admin side');
         const { couponId, couponCode, couponType, minimumPrice, discount, maxRedeem, expiry } = req.body;
-        const couponExists = await couponModel.findOne({ couponCode: couponCode });
-        if (couponExists) {
-            req.flash('couponExists', 'This coupon alreay exists');
-            res.redirect('/admin/coupons');
+
+        const existingCoupon = await couponModel.findById(couponId);
+        if (!existingCoupon) {
+            req.flash('error', 'coupon not found');
+            return res.redirect('/admin/coupons');
         }
-        else {
-            const updatedCoupon = await couponModel.findByIdAndUpdate(
-                couponId,
-                {
-                    $set: {
-                        couponCode: couponCode,
-                        type: couponType,
-                        minimumPrice: Number(minimumPrice),
-                        discount: Number(discount),
-                        maxRedeem: Number(maxRedeem),
-                        expiry: new Date(expiry)
-                    }
-                });
-            res.redirect('/admin/coupons');
+
+        if (couponCode !== existingCoupon.couponCode) {
+            const couponExists = await couponModel.findOne({ couponCode: couponCode });
+            if (couponExists) {
+                req.flash('couponExists', 'This coupon alreay exists');
+                return res.redirect('/admin/coupons');
+            }
         }
+
+        const updatedCoupon = await couponModel.findByIdAndUpdate(
+            couponId,
+            {
+                $set: {
+                    couponCode: couponCode,
+                    type: couponType,
+                    minimumPrice: Number(minimumPrice),
+                    discount: Number(discount),
+                    maxRedeem: Number(maxRedeem),
+                    expiry: new Date(expiry)
+                }
+            });
+        if (updatedCoupon) {
+            req.flash('success', 'Coupon updated successfully');
+        } else {
+            req.flash('error', 'Failed to update coupon');
+        }
+        res.redirect('/admin/coupons');
+
     } catch (error) {
         console.log('error while updating the existing coupon', error);
         res.render('admin/servererror');

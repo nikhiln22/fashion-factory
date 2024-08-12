@@ -6,7 +6,7 @@ const profileController = require('../controllers/usercontroller/profileControll
 const cartController = require('../controllers/usercontroller/cartController');
 const checkOutController = require('../controllers/usercontroller/checkOutController');
 const paymentController = require('../controllers/usercontroller/paymentController');
-const { ifLogged, logged, signed, forgot, checkoutValid } = require('../middlewares/userAuth');
+const { ifLogged, logged, signed, forgot } = require('../middlewares/userAuth');
 require('../googleAuth');
 const passport = require('passport');
 
@@ -25,7 +25,7 @@ userRoute.get('/auth/failure', userController.authFailure);
 userRoute.get('/otp', signed, userController.otp);
 userRoute.post('/verifyotp', userController.verifyOtp);
 userRoute.post('/resendotp', userController.resendOtp);
-userRoute.get('/forgot', userController.forgotPassword); checkoutValid
+userRoute.get('/forgot', userController.forgotPassword);
 userRoute.post('/forgot', userController.forgotPasswordPost);
 userRoute.get('/newpassword', forgot, userController.newpassword);
 userRoute.post('/newpassword', forgot, userController.newPasswordPost);
@@ -43,8 +43,10 @@ userRoute.get('/deladdress/:id', logged, profileController.delAddress);
 userRoute.get('/addaddress', logged, profileController.addAddress);
 userRoute.post('/addaddress', logged, profileController.addAddressPost);
 userRoute.get('/orders', logged, profileController.order);
-userRoute.get('/singleorder', logged, profileController.singleorder);
+userRoute.get('/singleorder', logged, profileController.singleOrder);
+userRoute.post('/returnorder', logged, profileController.returnOrder);
 userRoute.post('/cancelproduct', logged, profileController.cancelProduct);
+userRoute.get('/invoicepage', logged, profileController.invoicePage);
 userRoute.get('/wallet', logged, profileController.wallet);
 userRoute.post('/addwallet', logged, profileController.addWallet);
 
@@ -71,9 +73,18 @@ userRoute.post('/addcart/:id', logged, cartController.addCart);
 userRoute.post('/updatecartquantity/:productId/:size', logged, cartController.updateCart);
 userRoute.get('/delete/:id/:size', logged, cartController.deleteCart);
 
-userRoute.get('/checkout', logged, checkoutValid, checkOutController.checkout);
-userRoute.post('/placeorder', logged, checkoutValid, checkOutController.placeOrder);
-userRoute.get('/orderconfirmation', logged, checkoutValid, checkOutController.orderConfirmation);
+
+userRoute.get('/checkout', logged, checkOutController.checkout);
+userRoute.post('/applycoupon', logged, checkOutController.applyCoupon);
+userRoute.post('/removecoupon', logged, checkOutController.removeCoupon);
+
+
+userRoute.post('/placeorder', logged, checkOutController.placeOrder);
+userRoute.post('/placeorderwallet', logged, checkOutController.placeOrderWallet);
+userRoute.post('/createorder', logged, paymentController.createOrder);
+userRoute.post('/verification', logged, paymentController.verifyPayment);
+userRoute.post('retrypayment',logged,checkOutController.retryPayment);
+userRoute.get('/orderconfirmation', logged, checkOutController.orderConfirmation);
 
 
 userRoute.get('/logout', userController.logout);

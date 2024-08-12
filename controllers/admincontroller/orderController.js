@@ -12,10 +12,12 @@ const orders = async (req, res) => {
         console.log('rendering the order listing page from the admin side');
         const orders = await orderModel.find({})
             .populate('userId')
-            .populate('items.productId')
+            .populate('orderedItem')
             .sort({ _id: -1 })
             .limit(limit)
             .skip(skip)
+
+            console.log('orders:',orders);
 
         const formattedOrders = orders.map(order => {
             const date = new Date(order.createdAt);
@@ -51,25 +53,25 @@ const orders = async (req, res) => {
 const singleOrder = async (req, res) => {
     try {
         console.log('rendering the single order view from the admin side');
-        const orderId = req.query.orderId.trim();
+        const orderId = req.query.orderId.replace(/\s+/g,'');
         const orderDetails = await orderModel.findOne({ _id: orderId })
             .populate('userId')
-            .populate({ path: 'items.productId' })
-            
+            .populate({ path: 'orderedItem.productId' })
+        console.log('orderDetails:',orderDetails);    
         res.render('admin/singleorder', { orderDetails, activePage: 'orders' })
     } catch (error) {
         console.log('error in single product', error);
     }
 }
 
-// updating the 
+// updating the product status
 const updateStatus = async (req, res) => {
     try {
         console.log('updating the status from the admin side');
         console.log('body object:',req.body);
         const { selectedOrderStatus, orderId, productId } = req.body
 
-        const orderStatus = await orderModel.updateOne({ _id: orderId }, { $set: { 'items.$[item].status': selectedOrderStatus } }, { arrayFilters: [{ "item.productId": productId }] })
+        const orderStatus = await orderModel.updateOne({ _id: orderId }, { $set: { 'orderedItem.$[item].productStatus': selectedOrderStatus } }, { arrayFilters: [{ "item.productId": productId }] })
 
         console.log('order status:', orderStatus);
 
@@ -80,10 +82,6 @@ const updateStatus = async (req, res) => {
         console.log('error in update status');
     }
 }
-
-
-
-
 
 
 module.exports = { orders, singleOrder, updateStatus }

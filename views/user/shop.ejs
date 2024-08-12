@@ -472,14 +472,32 @@
                                                     <% } %>
                     </ul>
                 </nav>
-                <!-----pagination Endss-->
+                <!-----pagination Ends------->
         </section>
         <!-- End shop section -->
     </main>
     <script>
+        function toggleDropdown() {
+            document.getElementById('filterDropdown').classList.toggle("show");
+        }
+
+        // close the dropdown if the user clicks outside the dropdown
+        window.onclick = function (event) {
+            if (!event.target.matches('.stext-106')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+
         document.addEventListener('DOMContentLoaded', function () {
             const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
-            
+
             wishlistButtons.forEach(button => {
                 button.addEventListener('click', function (e) {
                     e.preventDefault();
