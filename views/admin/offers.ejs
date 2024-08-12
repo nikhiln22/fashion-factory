@@ -254,10 +254,12 @@
                             if (res.data.productDetails) {
                                 // Handle product selection
                                 const products = res.data.productDetails;
+                                console.log('products:',products);
                                 const modalProductList = document.getElementById('modalProductList');
                                 modalProductList.innerHTML = '';
                                 products.forEach(product => {
                                     const imageUrl = `/${product.image[0]}`;
+                                    console.log('imageUrl:',imageUrl);
                                     const productItem = document.createElement('div');
                                     productItem.className = 'product-item d-flex align-items-center justify-content-between p-2';
                                     productItem.innerHTML = `

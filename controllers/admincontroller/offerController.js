@@ -118,49 +118,7 @@ const addOffer = async (req, res) => {
     }
 };
 
-
-
-// const addOffer = async (req, res) => {
-//     try {
-//         console.log('entered into offer deciding function');
-//         const { offerName, discountRate, startDate, endDate, offerType, selectedValues } = req.body;
-//         console.log('req.body:', req.body);
-//         // Validate the request body
-//         if (!offerName || !discountRate || !startDate || !endDate || !offerType || !selectedValues) {
-//             return res.status(400).json({ message: 'All fields are required' });
-//         }
-
-//         // Additional validation checks can be added here (e.g., check if dates are valid)
-
-//         // Create a new offer object
-//         const newOffer = new offerModel({
-//             offerName,
-//             discount:discountRate,
-//             startDate,
-//             endDate,
-//             offerType,
-//             selectedValues
-//         });
-
-//         // Save the new offer to the database
-//         await newOffer.save();
-
-//         // Send a success response
-//         return res.status(201).json({ message: 'Offer added successfully', offer: newOffer });
-//     } catch (error) {
-//         console.error(error);
-
-//         // Check if headers have already been sent
-//         if (!res.headersSent) {
-//             return res.status(500).json({ message: 'Internal server error', error });
-//         }
-//     }
-// };
-
-
 // rendering the offer editing page
-
-
 const editOfferPage = async (req, res) => {
     try {
         console.log('rendering the offer editing page from the admin side');
