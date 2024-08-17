@@ -46,7 +46,8 @@ userRoute.get('/orders', logged, profileController.order);
 userRoute.get('/singleorder', logged, profileController.singleOrder);
 userRoute.post('/returnorder', logged, profileController.returnOrder);
 userRoute.post('/cancelproduct', logged, profileController.cancelProduct);
-userRoute.get('/invoicepage', logged, profileController.invoicePage);
+userRoute.get('/invoice', logged, profileController.invoicePage);
+userRoute.get('/invoicedownload', logged, profileController.invoiceDownload);
 userRoute.get('/wallet', logged, profileController.wallet);
 userRoute.post('/addwallet', logged, profileController.addWallet);
 
@@ -83,7 +84,7 @@ userRoute.post('/placeorder', logged, checkOutController.placeOrder);
 userRoute.post('/placeorderwallet', logged, checkOutController.placeOrderWallet);
 userRoute.post('/createorder', logged, paymentController.createOrder);
 userRoute.post('/verification', logged, paymentController.verifyPayment);
-userRoute.post('retrypayment',logged,checkOutController.retryPayment);
+userRoute.post('/retrypayment', logged, checkOutController.retryPayment);
 userRoute.get('/orderconfirmation', logged, checkOutController.orderConfirmation);
 
 

@@ -18,10 +18,18 @@ const createOrder = async (req, res) => {
         console.log('req.body:', req.body);
         console.log('orderId:', orderId);
         const userId = req.session.userId;
-        const cartDetails = await cartModel.findOne({ userId: userId });
-        console.log('cartDetails:', cartDetails);
-        let totalAmount = cartDetails.total;
-        console.log('totalAmount:', totalAmount);
+        console.log('userId :', userId);
+        let totalAmount;
+        if (orderId) {
+            const orderDetails = await orderModel.findOne({ _id: orderId });
+            totalAmount = orderDetails.orderAmount;
+            console.log('totalAmount from the existing order:', totalAmount);
+        } else {
+            const cartDetails = await cartModel.findOne({ userId: userId });
+            console.log('cartDetails:', cartDetails);
+            totalAmount = cartDetails.total;
+            console.log('totalAmount from the cart:', totalAmount);
+        }
         console.log('req.session.coupon:', req.session.coupon);
         if (req.session.coupon) {
             const couponDetails = await couponModel.findOne({ _id: req.session.coupon });

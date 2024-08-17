@@ -17,8 +17,8 @@ const upload = multer({ dest: 'uploads/' })
 
 
 adminRoute.get('/', adminController.adlogin);
-adminRoute.post('/adminloginPost', adminController.adloginpost);
-adminRoute.get('/adminpanel', adAuth, adminController.adminpanel);
+adminRoute.post('/adminlogin', adminController.adloginpost);
+adminRoute.get('/dashboard', adAuth, adminController.dashboard);
 
 adminRoute.get('/users', adAuth, adminController.users);
 adminRoute.get('/userblock/:id', adAuth, adminController.checkUserStatus);
@@ -64,7 +64,6 @@ adminRoute.patch('/editoffer', adAuth, offerController.editoffer);
 adminRoute.post('/deleteoffer', adAuth, offerController.deleteOffer);
 
 adminRoute.get('/checkdataexist', adAuth, salesReportController.checkDataExist);
-
 adminRoute.get('/dailysales', adAuth, (req, res) => {
     if (req.query.format === 'pdf') {
         console.log('entered in the if case in daily');
@@ -106,6 +105,10 @@ adminRoute.post('/customdate', adAuth, (req, res) => {
         salesReportController.customDateSort(req, res);
     }
 });
+
+adminRoute.get('/yearlychart', adAuth, salesReportController.yearlyChart);
+adminRoute.get('/bestsellingproducts', adAuth, salesReportController.bestSellingProduct);
+adminRoute.get('/bestsellingcategories', adAuth, salesReportController.bestSellingCategory);
 
 adminRoute.get('/logout', adAuth, adminController.adLogOut);
 

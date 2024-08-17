@@ -46,7 +46,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 // serve static files from the downloads folder in the home directory
 app.use(express.static(path.join(os.homedir(), 'Downloads')));
 
-// // setting up the multer
+// setting up the multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     return cb(null, 'uploads/')

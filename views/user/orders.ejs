@@ -188,7 +188,8 @@
                                                             </td>
                                                             <td class="account__table--body__child--items"
                                                                 rowspan="<%= order.orderedItem.length %>">
-                                                                <%= new Date(order.createdAt).toLocaleDateString("en-US") %>
+                                                                <%= new
+                                                                    Date(order.createdAt).toLocaleDateString("en-US") %>
                                                             </td>
                                                             <% } %>
                                                                 <td class="account__table--body__child--items">
@@ -218,7 +219,8 @@
                                                                         rowspan="<%= order.orderedItem.length %>">
                                                                         <a href="/singleorder?orderId=<%= order._id %>"
                                                                             class="btn-small">View</a>
-                                                                        <% if(order.paymentStatus==="pending" && order.paymentMethod === 'Razorpay') { %>
+                                                                        <% if(order.paymentStatus==="pending" &&
+                                                                            order.paymentMethod==='Razorpay' ) { %>
                                                                             <button class="btn-small btn-retry"
                                                                                 data-orderid="<%= order._id %>">Retry</button>
                                                                             <% } %>
@@ -274,10 +276,140 @@
                                         <% } %>
                 </ul>
             </div>
-
-
         </section>
         <!-- my account section end -->
     </main>
 
+
     <%- include('footer') %>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                console.log('DOM content loaded');
+                const retryButtons = document.querySelectorAll('.btn-retry');
+                console.log('Retry buttons found:', retryButtons.length);
+
+                retryButtons.forEach(button => {
+                    button.addEventListener('click', async function (e) {
+                        e.preventDefault();
+                        const orderId = this.getAttribute('data-orderid');
+                        console.log("Retry button clicked for order:", orderId);
+
+                        try {
+                            const orderResponse = await fetch('/createorder', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ orderId })
+                            });
+
+                            if (!orderResponse.ok) {
+                                throw new Error('Failed to create order');
+                            }
+
+                            const orderData = await orderResponse.json();
+                            console.log("Order created:", orderData);
+
+                            if (!orderData.success) {
+                                throw new Error('Order creation was not successful');
+                            }
+
+                            const options = {
+                                key: orderData.key_id,
+                                amount: orderData.amount * 100,
+                                currency: "INR",
+                                name: "Fashion Factory",
+                                description: "Order Payment",
+                                order_id: orderData.orderId,
+                                handler: async function (response) {
+                                    try {
+                                        const verificationResponse = await fetch('/verification', {
+                                            method: "POST",
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({
+                                                razorpay_payment_id: response.razorpay_payment_id,
+                                                razorpay_order_id: response.razorpay_order_id,
+                                                razorpay_signature: response.razorpay_signature
+                                            })
+                                        });
+
+                                        if (!verificationResponse.ok) {
+                                            throw new Error('Payment verification failed');
+                                        }
+
+                                        const verificationData = await verificationResponse.json();
+
+                                        if (verificationData.success) {
+                                            const retryResponse = await fetch('/retrypayment', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({
+                                                    orderId,
+                                                    transactionId: response.razorpay_payment_id
+                                                })
+                                            });
+
+                                            if (!retryResponse.ok) {
+                                                throw new Error('Retry payment failed');
+                                            }
+
+                                            const retryData = await retryResponse.json();
+
+                                            if (retryData.success) {
+                                                console.log('Payment successful');
+                                                await Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Payment Successful',
+                                                    text: 'Your order has been placed successfully!',
+                                                });
+                                                window.location.href = `/orderconfirmation?orderId=${orderId}`;
+                                            } else {
+                                                throw new Error('Retry payment was not successful');
+                                            }
+                                        } else {
+                                            throw new Error('Payment verification was not successful');
+                                        }
+                                    } catch (error) {
+                                        console.error('Error in payment process:', error);
+                                        await Swal.fire({
+                                            icon: 'error',
+                                            title: 'Payment Failed',
+                                            text: 'Please try again or contact support.',
+                                        });
+                                    }
+                                },
+                                prefill: {},
+                                theme: {
+                                    color: "#3399cc"
+                                }
+                            };
+
+                            const razorpayObject = new Razorpay(options);
+                            razorpayObject.on('payment.failed', async function (res) {
+                                console.error("Payment failed:", res);
+                                await Swal.fire({
+                                    icon: 'error',
+                                    title: 'Payment Failed',
+                                    text: 'Please try again or choose a different payment method.',
+                                });
+                                window.location.href = `/orders?totalOrderAmount=${orderData.amount}`;
+                            });
+
+                            razorpayObject.open();
+
+                        } catch (error) {
+                            console.error('Error in payment process:', error);
+                            await Swal.fire({
+                                icon: 'error',
+                                title: 'Payment Process Failed',
+                                text: 'Please try again or contact support.',
+                            });
+                        }
+                    });
+                });
+            });
+        </script>

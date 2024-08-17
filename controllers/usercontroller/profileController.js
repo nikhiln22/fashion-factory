@@ -8,6 +8,8 @@ const walletModel = require('../../model/WalletModel');
 const flash = require('express-flash');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 const mongoose = require('mongoose');
 
 
@@ -523,7 +525,7 @@ const cancelProduct = async (req, res) => {
 // returning the placed order
 const returnOrder = async (req, res) => {
     try {
-        console.log('returning the placed order by the user');
+        console.log('Initiating return request for the placed order by the user');
         const userId = req.session.userId;
         console.log('userId:', userId);
         const { selectedReason, productId, orderId } = req.body;
@@ -531,83 +533,41 @@ const returnOrder = async (req, res) => {
         console.log('productId:', productId);
         console.log('orderId:', orderId);
 
-        // input validation
+        // Input validation
         if (!selectedReason || !productId || !orderId) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
-        // find the order and update the product status
+        // Find the order and update the product status
         const order = await orderModel.findOne({ _id: orderId, userId: userId });
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        const totalOrderedProducts = order.orderedItem.length
-
         const itemIndex = order.orderedItem.findIndex(item => item.productId.toString() === productId);
         console.log('itemIndex:', itemIndex);
         if (itemIndex === -1) {
-            return res.status(404).json({ success: false, message: "product not found in order" });
+            return res.status(404).json({ success: false, message: "Product not found in order" });
         }
 
         const item = order.orderedItem[itemIndex];
         console.log('item:', item);
 
-        if (item.productStatus === "returned") {
-            return res.status(400).json({ success: false, message: "Product already returned" });
+        if (item.productStatus === "return initiated" || item.productStatus === "returned") {
+            return res.status(400).json({ success: false, message: "Return already initiated or completed for this product" });
         }
 
-        // updating the order status
-        order.orderedItem[itemIndex].productStatus = "returned";
+        // Updating the order status
+        order.orderedItem[itemIndex].productStatus = "return initiated";
         order.orderedItem[itemIndex].returnReason = selectedReason;
         await order.save();
 
-        console.log('updated order details:', order);
+        console.log('Updated order details:', order);
 
-        // updating the product stock as well
-        const product = await productModel.findById(productId);
-        if (!product) {
-            return res.status(404).json({ success: false, message: "product not found" });
-        }
-
-        const sizeIndex = product.stock.findIndex(stock => stock.size === item.size);
-        if (sizeIndex !== -1) {
-            product.stock[sizeIndex].quantity += item.quantity;
-            product.totalStock += item.quantity;
-            await product.save()
-        }
-
-
-        // calculating the refund amount for the returned product
-        let refundAmount;
-        if (order.couponDiscount) {
-            refundAmount = (item.productPrice * item.quantity) - order.couponDiscount / totalOrderedProducts;
-            console.log('refundAmount:', refundAmount);
-        } else {
-            refundAmount = item.productPrice * item.quantity;
-            console.log('refundAmount:', refundAmount);
-        }
-
-        console.log('refundAmount:', refundAmount);
-
-        // processing the refund to the user
-        await walletModel.findOneAndUpdate(
-            { userId: userId },
-            {
-                $inc: { balance: refundAmount },
-                $push: {
-                    transaction: {
-                        amount: refundAmount,
-                        transactionsMethod: "Refund"
-                    }
-                }
-            },
-            { upsert: true, new: true }
-        );
-        res.status(200).json({ success: true, message: "Order returned successfully" });
+        res.status(200).json({ success: true, message: "Return request initiated successfully" });
     } catch (error) {
-        console.log('Error occured while returning the order', error);
-        res.status(500).json({ success: false, message: "An error occurred while processing the return" });
+        console.log('Error occurred while initiating the return request', error);
+        res.status(500).json({ success: false, message: "An error occurred while processing the return request" });
     }
 }
 
@@ -678,7 +638,7 @@ const addWallet = async (req, res) => {
 const invoicePage = async (req, res) => {
     try {
         console.log('rendering the invoice page for the user displaying ordered product details');
-        const { orderId, productId } = req.body;
+        const { orderId, productId } = req.query;
         const userId = req.session.userId;
         console.log('userId', userId);
         console.log('orderId:', orderId);
@@ -707,7 +667,7 @@ const invoicePage = async (req, res) => {
             return res.status(404).json({ error: "product not found in the order" });
         }
 
-        res.render('user/invoicepage', {
+        res.render('user/invoice', {
             productData,
             orderDetails,
             userData
@@ -717,6 +677,173 @@ const invoicePage = async (req, res) => {
         res.render('user/error');
     }
 }
+
+// downloading the invoice in the PDF format
+const invoiceDownload = async (req, res) => {
+    try {
+        console.log('Entering the function for downloading the invoice PDF');
+        const { orderId, productId } = req.query;
+        console.log('req.query:', req.query);
+
+        const userId = req.session.userId;
+
+        const orderDetails = await orderModel.findOne({ _id: orderId.trim() }).populate('orderedItem.productId');
+        console.log('orderDetails:', orderDetails);
+        const userData = await userModel.findOne({ _id: userId });
+        const productData = orderDetails.orderedItem.find(item => item.productId._id.toString() === productId);
+
+        const generatePdf = () => {
+            return new Promise((resolve, reject) => {
+                const doc = new PDFDocument({ margin: 50, size: 'A4' });
+                const chunks = [];
+                doc.on('data', chunk => chunks.push(chunk));
+                doc.on('end', () => resolve(Buffer.concat(chunks)));
+                doc.on('error', reject);
+
+                // Header
+                doc.fontSize(20).text('Fashion Factory, Inc', { align: 'center' });
+                doc.moveDown();
+
+                // From Address
+                doc.fontSize(10).text('From:', { continued: true }).fontSize(12).text('Fashion Factory Inc.');
+                doc.fontSize(10)
+                   .text('ABC Building')
+                   .text('Bengaluru, 521456')
+                   .text('Phone: (91) 123456890')
+                   .text('Fax: (123) 456-7890');
+                doc.moveDown();
+
+                // To Address
+                doc.fontSize(10).text('To:', { continued: true }).fontSize(12).text(orderDetails.deliveryAddress[0].name);
+                doc.fontSize(10)
+                   .text(orderDetails.deliveryAddress[0].street)
+                   .text(`${orderDetails.deliveryAddress[0].city}, ${orderDetails.deliveryAddress[0].state}`)
+                   .text(`Phone: ${orderDetails.deliveryAddress[0].mobile}`)
+                   .text(`Pincode: ${orderDetails.deliveryAddress[0].pincode}`);
+                doc.moveDown();
+
+                // Invoice Details
+                const date = new Date(orderDetails.createdAt);
+                const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+                doc.fontSize(10)
+                   .text(`Invoice Date: ${formattedDate}`)
+                   .text(`Invoice Number: ${orderDetails._id}S`);
+                doc.moveDown();
+
+                // Table
+                const tableTop = doc.y;
+                const tableHeaders = ['Product', 'Rate', 'Qty', 'Discount', 'Total Amount'];
+                const tableData = [
+                    [
+                        productData.productId.name,
+                        `₹${productData.productId.price.toFixed(2)}`,
+                        productData.quantity.toString(),
+                        `₹${((productData.productId.price - (productData.totalProductPrice / productData.quantity)) * productData.quantity).toFixed(2)}`,
+                        `₹${productData.totalProductPrice.toFixed(2)}`
+                    ]
+                ];
+
+                drawTable(doc, tableTop, tableHeaders, tableData);
+                doc.moveDown();
+
+                // Notes and Total in two columns
+                const notesStartY = doc.y;
+                const pageWidth = doc.page.width - 2 * doc.page.margins.left;
+                const columnWidth = pageWidth / 2;
+
+                // Notes column (left)
+                doc.fontSize(10).text('Notes:', { continued: false });
+                doc.fontSize(9)
+                   .text('* Make all cheques payable to Fashion Factory Inc.', { width: columnWidth - 10 })
+                   .text('* Payment is due within 30 days', { width: columnWidth - 10 })
+                   .text('* If you have any questions concerning this invoice, contact [Name, Phone Number, Email]', { width: columnWidth - 10 });
+
+                // Total column (right)
+                doc.fontSize(12);
+                doc.text('Subtotal:', columnWidth + doc.page.margins.left, notesStartY, { width: columnWidth, align: 'right' });
+                doc.text('Fee:', columnWidth + doc.page.margins.left, doc.y, { width: columnWidth, align: 'right' });
+                doc.font('Helvetica-Bold').fontSize(14);
+                doc.text('Total:', columnWidth + doc.page.margins.left, doc.y, { width: columnWidth, align: 'right' });
+
+                doc.fontSize(12).font('Helvetica');
+                doc.text(`₹${productData.totalProductPrice.toFixed(2)}`, columnWidth + doc.page.margins.left, notesStartY, { width: columnWidth - 10, align: 'right' });
+                doc.text('₹0.00', columnWidth + doc.page.margins.left, doc.y - 36, { width: columnWidth - 10, align: 'right' });
+                doc.font('Helvetica-Bold').fontSize(14);
+                doc.text(`₹${productData.totalProductPrice.toFixed(2)}`, columnWidth + doc.page.margins.left, doc.y - 36, { width: columnWidth - 10, align: 'right' });
+
+                doc.moveDown();
+
+                // Footer
+                doc.font('Helvetica').fontSize(10);
+                const footerY = doc.page.height - doc.page.margins.bottom - 30;
+                doc.text('THANK YOU FOR YOUR BUSINESS', doc.page.margins.left, footerY, { width: pageWidth, align: 'center' });
+                doc.text('FashionFactory.com | T:(91) 123456890 | fashionfactory@gmail.com', doc.page.margins.left, footerY + 15, { width: pageWidth, align: 'center' });
+
+                doc.end();
+            });
+        };
+
+        const pdfBuffer = await generatePdf();
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
+        res.setHeader('Content-Length', pdfBuffer.length);
+        res.send(pdfBuffer);
+
+    } catch(error) {
+        console.error('Error occurred while generating the invoice PDF:', error);
+        res.status(500).json({ error: 'Failed to generate invoice PDF', details: error.message });
+    }
+};
+
+// Helper function to draw the table
+function drawTable(doc, y, headers, data) {
+    const columnCount = headers.length;
+    const columnWidths = [200, 80, 50, 80, 100]; // Adjust these values to fit your needs
+    const tableWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+    const cellPadding = 5;
+    const fontSize = 10;
+    const rowHeight = 20;
+
+    // Draw headers
+    doc.font('Helvetica-Bold').fontSize(fontSize);
+    let x = 50;
+    headers.forEach((header, i) => {
+        doc.text(header, x + cellPadding, y + cellPadding, {
+            width: columnWidths[i] - 2 * cellPadding,
+            align: 'left'
+        });
+        x += columnWidths[i];
+    });
+
+    // Draw data
+    doc.font('Helvetica').fontSize(fontSize);
+    data.forEach((row, rowIndex) => {
+        y += rowHeight;
+        x = 50;
+        row.forEach((cell, cellIndex) => {
+            doc.text(cell, x + cellPadding, y + cellPadding, {
+                width: columnWidths[cellIndex] - 2 * cellPadding,
+                align: cellIndex > 0 ? 'right' : 'left' // Align numbers to the right
+            });
+            x += columnWidths[cellIndex];
+        });
+    });
+
+    // Draw lines
+    doc.lineWidth(1);
+    // Top and bottom borders
+    doc.moveTo(50, y).lineTo(50 + tableWidth, y).stroke();
+    doc.moveTo(50, y + rowHeight).lineTo(50 + tableWidth, y + rowHeight).stroke();
+    doc.moveTo(50, y + rowHeight * (data.length + 1)).lineTo(50 + tableWidth, y + rowHeight * (data.length + 1)).stroke();
+    // Vertical lines
+    x = 50;
+    for (let i = 0; i <= columnCount; i++) {
+        doc.moveTo(x, y).lineTo(x, y + rowHeight * (data.length + 1)).stroke();
+        x += columnWidths[i] || 0;
+    }
+}
+
 
 module.exports = {
     userProfile,
@@ -736,5 +863,6 @@ module.exports = {
     cancelProduct,
     wallet,
     addWallet,
-    invoicePage
+    invoicePage,
+    invoiceDownload
 }

@@ -1,0 +1,276 @@
+<%- include('navbar') %>
+
+    <style>
+        .table-invoice {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table-invoice th,
+        .table-invoice td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .table-invoice th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .table-invoice .text-center {
+            text-align: center;
+        }
+
+        .table-invoice .text-right {
+            text-align: right;
+        }
+
+        .table-invoice tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table-invoice tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .invoice-details-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .invoice-notes {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .invoice-price {
+            width: 300px;
+            background: #f0f3f4;
+            padding: 20px;
+        }
+
+        .invoice-price-right {
+            text-align: right;
+        }
+
+        .invoice-price-row {
+            margin-bottom: 10px;
+        }
+
+        .sub-price {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .total-price {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .invoice-company {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .invoice-content {
+            position: relative;
+        }
+    </style>
+
+    <!-- Start Breadcrumb section -->
+    <section class="breadcrumb__section breadcrumb__bg">
+        <div class="container">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <div class="breadcrumb__content text-center">
+                        <h1 class="breadcrumb__content--title text-white mb-25">Invoice</h1>
+                        <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a></li>
+                            <li class="breadcrumb__content--menu__items"><a class="text-white"
+                                    href="/profile">Profile</a></li>
+                            <li class="breadcrumb__content--menu__items"><a class="text-white">Invoice</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End breadcrumb section -->
+
+    <!-- invoice section starts -->
+    <div class="container mt-5 pt-5">
+        <div class="col-md-12">
+            <div class="invoice">
+                <div class="invoice-content">
+                    <div class="invoice-header">
+                        <h4 class="invoice-company">Fashion Factory, Inc</h4>
+                    </div>
+                    <a href="javascript:;" class="btn btn-primary download-btn" id="downloadInvoice"
+                    data-order-id="<%= orderDetails._id %>"
+                            data-product-id="<%= productData.productId._id %>"
+                    >
+                                <i class="fa fa-download"></i> Download Invoice
+                    </a>
+
+                    <div class="invoice-details">
+                        <div class="invoice-from">
+                            <small>From</small>
+                            <address class="m-t-5 m-b-5">
+                                <strong class="text-inverse">Fashion Factory Inc.</strong><br>
+                                ABC Building<br>
+                                Bengaluru, 521456<br>
+                                Phone: (91) 123456890<br>
+                                Fax: (123) 456-7890
+                            </address>
+                        </div>
+                        <div class="invoice-to">
+                            <small>To</small>
+                            <address class="m-t-5 m-b-5">
+                                <strong class="text-inverse">
+                                    <%=orderDetails.deliveryAddress[0].name%>
+                                </strong><br>
+                                <%=orderDetails.deliveryAddress[0].street%><br>
+                                    <%=orderDetails.deliveryAddress[0].city%><br>
+                                        <%=orderDetails.deliveryAddress[0].state%><br>
+                                            Phone: <%=orderDetails.deliveryAddress[0].mobile%><br>
+                                                Pincode:<%=orderDetails.deliveryAddress[0].pincode%>
+                            </address>
+                        </div>
+                        <div class="invoice-date">
+                            <small>Invoice </small>
+                            <% let date=new Date(orderDetails.createdAt); let day=date.getDate(); let
+                                month=date.getMonth() + 1; let year=date.getFullYear(); let formattedDate=day + '-' +
+                                month + '-' + year; %>
+                                <div class="date text-inverse m-t-5">
+                                    <%=formattedDate%>
+                                </div>
+                                <div class="invoice-detail">
+                                    # <%=orderDetails._id%>S<br>
+                                        online shopping
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="invoice-content">
+                        <div class="table-responsive">
+                            <table class="table table-invoice">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">RATE</th>
+                                        <th class="text-center">QTY</th>
+                                        <th class="text-center">Discount</th>
+                                        <th class="text-right">TOTAL AMOUNT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span class="text-inverse">
+                                                <%=productData.productId.name%>
+                                            </span><br>
+                                            <small>
+                                                <%=productData.productId.description%>
+                                            </small>
+                                        </td>
+                                        <td class="text-center">₹ <%=productData.productId.price%>
+                                        </td>
+                                        <td class="text-center">
+                                            <%=productData.quantity%>
+                                        </td>
+                                        <td class="text-center">₹<%=(productData.productId.price-
+                                                (productData.totalProductPrice/productData.quantity))*productData.quantity
+                                                %></td>
+                                        <td class="text-right">₹ <%=productData.totalProductPrice %>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="invoice-details-container">
+                            <div class="invoice-notes">
+                                <div class="invoice-note">
+                                    * Make all cheques payable to Fashion Factory Inc.<br>
+                                    * Payment is due within 30 days<br>
+                                    * If you have any questions concerning this invoice, contact [Name, Phone Number,
+                                    Email]
+                                </div>
+                            </div>
+                            <div class="invoice-price">
+                                <div class="invoice-price-right">
+                                    <div class="invoice-price-row">
+                                        <div class="sub-price">
+                                            <small>SUBTOTAL</small>
+                                            <span class="text-inverse">₹ <%=productData.totalProductPrice%></span>
+                                        </div>
+                                    </div>
+                                    <div class="invoice-price-row">
+                                        <div class="sub-price">
+                                            <small>FEE</small>
+                                            <span class="text-inverse">₹ 0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="total-price">
+                                        <small>TOTAL</small> <span class="f-w-600">₹ <%=productData.totalProductPrice%>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="invoice-footer">
+                        <p class="text-center m-b-5 f-w-600">
+                            THANK YOU FOR YOUR BUSINESS
+                        </p>
+                        <p class="text-center">
+                            <span class="m-r-10"><i class="fa fa-fw fa-lg fa-globe"></i> FashionFactory.com</span>
+                            <span class="m-r-10"><i class="fa fa-fw fa-lg fa-phone-volume"></i> T:(91) 123456890</span>
+                            <span class="m-r-10"><i class="fa fa-fw fa-lg fa-envelope"></i>
+                                fashionfactory@gmail.com</a></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- invoice section ends -->
+
+
+        <%- include('footer') %>
+
+            <script>
+                document.getElementById('downloadInvoice').addEventListener('click', function () {
+                    console.log('download button clicked');
+                    const orderId = this.getAttribute('data-order-id');
+                    console.log('orderID:', orderId);
+                    const productId = this.getAttribute('data-product-id');
+                    console.log('productId:', productId);
+
+                    if (productId && orderId) {
+                        window.location.href = `/invoicedownload?orderId=${orderId}&productId=${productId}`;
+                    } else {
+                        alert("Missing order or product information");
+                    }
+                });
+            </script>

@@ -542,6 +542,10 @@
             const totalAmountElement = document.getElementById('cartTotalAmount');
             const orderTotalElement = document.getElementById('orderTotalAmount');
 
+            // COD restriction
+            const codOption = document.getElementById('pay-methodoption3');
+            const codError = document.getElementById('codError');
+            const paymentOptions = document.querySelectorAll('input[name="pay-method"]');
 
             function updateButtonStates() {
                 const isAddressSelected = document.querySelector('.address-radio:checked');
@@ -554,9 +558,46 @@
                 }
             }
 
+            console.log('Initial order total:', parseFloat(orderTotalElement.textContent.replace('₹', '').trim()));
+
+
+            function updateCODAvailability() {
+                const orderTotal = parseFloat(orderTotalElement.textContent.replace('₹', '').trim());
+                console.log('updating the COD availability.order total:', orderTotal);
+                if (orderTotal > 1000) {
+                    console.log('Disabling the COD option');
+                    codOption.disabled = true;
+                    codOption.parentElement.style.opacity = '0.5';
+                    codError.classList.remove('d-none');
+                } else {
+                    console.log('Enabling the COD option');
+                    codOption.disabled = false;
+                    codOption.parentElement.style.opacity = '1';
+                    codError.classList.add('d-none');
+                }
+            }
+
+            // calling the function initially
+            updateCODAvailability();
+
             addressRadios.forEach(radio => {
                 radio.addEventListener('change', updateButtonStates)
 
+            });
+
+            paymentOptions.forEach(option => {
+                option.addEventListener('change', function () {
+                    if (this.value === 'COD' && this.disabled) {
+                        swal.fire({
+                            icon: 'error',
+                            title: 'cash on Delivary is not available for the orders above ₹1000.',
+                            customClass: {
+                                popup: 'swal2-custom-popup'
+                            }
+                        });
+                        this.checked = false;
+                    }
+                });
             });
 
             editAddressBtn.addEventListener('click', function (event) {
@@ -701,6 +742,7 @@
                         applyCouponBtn.textContent = 'Apply Coupon';
                         removeCouponBtn.style.display = 'none';
                         couponInput.value = '';
+                        // updateCODAvailability(); //checking COD availability after removing the coupon
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -730,8 +772,10 @@
             }
 
             function updateOrderSummary(discountPrice, newTotal) {
+                console.log('Updating Order Summary. Discount:', discountPrice, 'New Total:', newTotal);
                 couponDiscountElement.textContent = `₹${discountPrice.toFixed(2)}`;
                 orderTotalElement.textContent = `₹${newTotal.toFixed(2)}`;
+                updateCODAvailability();
             }
 
             updateButtonStates();
@@ -782,6 +826,18 @@
                 console.log('selectedAddress:', selectedAddress);
                 const selectedPaymentMethod = selectedPaymentMethodElem.value;
                 const orderAmount = parseFloat(document.getElementById('orderTotalAmount').textContent.replace('₹', ''));
+
+                if (selectedPaymentMethod === 'COD' && orderAmount > 1000) {
+                    swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Payment Method',
+                        text: 'Cash On Delivery is not available for orders above ₹1000. Please Choose another payment Method.',
+                        customClass: {
+                            popup: 'swal2-custom-popup'
+                        }
+                    });
+                    return;
+                }
 
                 try {
                     let response;
@@ -919,8 +975,6 @@
                                 }
                             };
                             const rzp = new Razorpay(options);
-                            rzp.open();
-
                             rzp.on('payment.failed', async function (response) {
                                 // handling the failed payment
                                 console.log('handling the failed payment');
@@ -937,16 +991,20 @@
                                         coupon: coupon
                                     }),
                                 });
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Payment Failed',
-                                    text: 'Your payment was unsuccessful. Please try again.',
-                                    customClass: {
-                                        popup: 'swal2-custom-popup'
-                                    }
-                                });
+                                const result = await response.json();
+                                if (result.success)
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Payment Failed',
+                                        text: 'Your payment was unsuccessful. Please try again.',
+                                        customClass: {
+                                            popup: 'swal2-custom-popup'
+                                        }
+                                    }).then(() => {
+                                        window.location.href = `/orders?totalOrderAmount=${orderAmount}`
+                                    })
                             });
-                            return;
+                            rzp.open();
                         }
                     } else if (selectedPaymentMethod === "Wallet") {
                         console.log('Making the payment through the wallet');

@@ -17,7 +17,7 @@ const orders = async (req, res) => {
             .limit(limit)
             .skip(skip)
 
-            console.log('orders:',orders);
+        console.log('orders:', orders);
 
         const formattedOrders = orders.map(order => {
             const date = new Date(order.createdAt);
@@ -53,11 +53,11 @@ const orders = async (req, res) => {
 const singleOrder = async (req, res) => {
     try {
         console.log('rendering the single order view from the admin side');
-        const orderId = req.query.orderId.replace(/\s+/g,'');
+        const orderId = req.query.orderId.replace(/\s+/g, '');
         const orderDetails = await orderModel.findOne({ _id: orderId })
             .populate('userId')
             .populate({ path: 'orderedItem.productId' })
-        console.log('orderDetails:',orderDetails);    
+        console.log('orderDetails:', orderDetails);
         res.render('admin/singleorder', { orderDetails, activePage: 'orders' })
     } catch (error) {
         console.log('error in single product', error);
@@ -68,7 +68,7 @@ const singleOrder = async (req, res) => {
 const updateStatus = async (req, res) => {
     try {
         console.log('updating the status from the admin side');
-        console.log('body object:',req.body);
+        console.log('body object:', req.body);
         const { selectedOrderStatus, orderId, productId } = req.body
 
         const orderStatus = await orderModel.updateOne({ _id: orderId }, { $set: { 'orderedItem.$[item].productStatus': selectedOrderStatus } }, { arrayFilters: [{ "item.productId": productId }] })
@@ -80,6 +80,14 @@ const updateStatus = async (req, res) => {
     } catch (error) {
         res.status(302).json({ success: false })
         console.log('error in update status');
+    }
+}
+
+// rendering the order return request page from the admin side
+const returnrequest = async (req, res) => {
+    try {
+        console.log('rendering the order return request page');
+
     }
 }
 

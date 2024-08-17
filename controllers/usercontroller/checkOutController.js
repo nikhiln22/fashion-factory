@@ -15,8 +15,6 @@ const checkout = async (req, res) => {
   try {
     console.log('entered the checkout page');
     const userId = req.session.userId;
-    req.session.checkoutSave = true;
-    const categories = await catModel.find();
 
     const address = await addModel.findOne({ userId: userId });
 
@@ -50,17 +48,22 @@ const checkout = async (req, res) => {
     const couponData = req.session.coupon;
     console.log('couponData:', couponData);
     const currentDate = new Date();
-    const DocumentCount = await couponModel.countDocuments({})
-    console.log('DocumentCount:', DocumentCount);
+
+
     const couponDetails = await couponModel.find({ minimumPrice: { $lte: totalAmount } });
     console.log('couponDetails:', couponDetails);
-    const validCoupons = couponDetails.filter(coupon => new Date(coupon.expiry) >= currentDate);
+
+    const validCoupons = couponDetails.filter(coupon =>
+      new Date(coupon.expiry) >= currentDate &&
+      !user.usedCoupons.includes(coupon.couponCode)
+    );
+
     console.log('validCoupons:', validCoupons);
 
     if (!couponData) {
-      res.render('user/checkout', { categories, address, data, validCoupons, couponData: "" });
+      res.render('user/checkout', { address, data, validCoupons, couponData: "" });
     } else {
-      res.render('user/checkout', { categories, address, data, validCoupons, couponData: couponData })
+      res.render('user/checkout', { address, data, validCoupons, couponData: couponData })
     }
   } catch (error) {
     console.log(error);
@@ -336,7 +339,6 @@ const placeOrderWallet = async (req, res) => {
       }
     }
 
-
     // fetching the wallet details
     const walletDetails = await WalletModel.findOne({ userId });
     console.log('walletDetails:', walletDetails);
@@ -396,12 +398,14 @@ const placeOrderWallet = async (req, res) => {
 // retrying the failed payment while order placing using Razorpay
 const retryPayment = async (req, res) => {
   try {
-    console.log('entering into the retrying the order placing function from the user side');
+    console.log('entering into the retrying the failed razorpay payment while placing an order');
     const userId = req.session.userId;
     const { orderId, transactionId } = req.body;
     console.log('req.body:', req.body);
     const orderDetail = await orderModel.findOne({ _id: orderId });
+    console.log('orderDetail:', orderDetail);
     const updateOrderStatus = await orderModel.updateOne({ _id: orderId }, { $set: { paymentStatus: 'success' } });
+    console.log('updateOrderStatus:', updateOrderStatus);
     const payment = new paymentModel({
       userId: userId,
       orderId: orderId,
@@ -411,9 +415,8 @@ const retryPayment = async (req, res) => {
       transactionId: transactionId
     });
     await payment.save();
-    if (update) {
-      res.status(200).json({ success: true, message: "order placed successfully", orderId: order._id });
-    }
+    console.log('updated payment model:', payment);
+    res.status(200).json({ success: true, message: "order placed successfully", orderId: orderId._id });
   } catch (error) {
     console.log('error occurred while retrying the payment method', error);
     res.render('user/error');
