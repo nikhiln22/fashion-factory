@@ -12,6 +12,7 @@ const multer = require('multer');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const { adAuth } = require('./middlewares/adminAuth');
+const orderModel = require('./model/orderModel');
 
 const PORT = process.env.PORT || 5000;
 
@@ -88,6 +89,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
+
 
 // Start the server
 app.listen(PORT, () => {

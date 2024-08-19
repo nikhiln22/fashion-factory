@@ -44,6 +44,9 @@ adminRoute.post('/updateimage/:id', adAuth, upload.array('images'), productContr
 adminRoute.get('/orders', adAuth, orderController.orders);
 adminRoute.get('/singleorder', adAuth, orderController.singleOrder);
 adminRoute.post('/updatestatus', adAuth, orderController.updateStatus);
+adminRoute.get('/returnrequests', adAuth, orderController.returnRequest);
+adminRoute.get('/approvereturn/:orderId', adAuth, orderController.approveReturn);
+adminRoute.get('/rejectreturn/:orderId', adAuth, orderController.rejectReturn);
 
 
 adminRoute.get('/coupons', adAuth, couponController.coupons);

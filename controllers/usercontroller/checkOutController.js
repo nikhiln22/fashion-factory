@@ -15,9 +15,12 @@ const checkout = async (req, res) => {
   try {
     console.log('entered the checkout page');
     const userId = req.session.userId;
+    console.log('userId:', userId);
 
     const address = await addModel.findOne({ userId: userId });
 
+    const user = await userModel.findOne({ _id: userId });
+    console.log('user:', user);
     const data = await cartModel.findOne({ userId }).populate({
       path: 'item.productId',
       select: 'name image price'
@@ -347,15 +350,6 @@ const placeOrderWallet = async (req, res) => {
       return res.status(400).json({ success: false, message: "Insufficient Wallet balance" });
     }
 
-    const walletFund = await WalletModel.updateOne(
-      { userId: userId },
-      {
-        $inc: { balance: -totalAmount },
-        $push: { transaction: { amount: totalAmount, transactionsMethod: "Payment" } }
-      }
-    );
-    console.log('walletFund:', walletFund);
-
     // creating a new order
     const order = new orderModel({
       userId: userId,
@@ -368,11 +362,22 @@ const placeOrderWallet = async (req, res) => {
       couponDiscount: couponDiscount
     });
 
-    await cartModel.deleteOne({ userId: userId });
-
     console.log('order before saving:', order);
     await order.save();
     console.log('order after saving:', order);
+
+
+    // updating the wallet with the order reference
+    const walletFund = await WalletModel.updateOne(
+      { userId: userId },
+      {
+        $inc: { balance: -totalAmount },
+        $push: { transaction: { amount: totalAmount, transactionsMethod: "Payment", orderId: order._id } }
+      }
+    );
+    console.log('walletFund:', walletFund);
+
+    await cartModel.deleteOne({ userId: userId });
 
     // creating a payment model
     const payment = new paymentModel({

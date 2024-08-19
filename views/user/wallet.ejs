@@ -20,8 +20,44 @@
             padding: 10px 24px !important;
         }
 
-      
+        .transaction-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
+        .transaction-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transaction-table th,
+        .transaction-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .transaction-table th {
+            background-color: #f2f2f2;
+        }
+
+        .transaction-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        @media (max-width: 768px) {
+            .transaction-card {
+                padding: 15px;
+            }
+        }
     </style>
 
     <main class="main__content_wrapper">
@@ -44,6 +80,8 @@
             </div>
         </section>
         <!-- End breadcrumb section -->
+
+        <!-- my account section start -->
 
         <!-- my account section start -->
         <section class="my__account--section section--padding">
@@ -86,7 +124,7 @@
                                                                                         Balance:</strong> <span
                                                                                         id="walletBalance">₹
                                                                                         <%=walletDetails.balance%>
-                                                                                    </span></p>
+                                                                                            </span></p>
                                                                                 <%}else{%>
                                                                                     <p class="mt-4"><strong>Current
                                                                                             Balance:</strong> <span
@@ -99,10 +137,18 @@
                                                                 <div class="col-md-6 mb-3">
                                                                     <div class="card" style="width: 100%;">
                                                                         <div class="card-body">
-                                                                            <h5 class="card-title"><i class="fa fa-history" style="color: #000000;"></i> Transaction History</h5>
-                                                                            <p>View your recent transactions and manage your wallet.</p>
+                                                                            <h5 class="card-title"><i
+                                                                                    class="fa fa-history"
+                                                                                    style="color: #000000;"></i>
+                                                                                Transaction History</h5>
+                                                                            <p>View your recent transactions and manage
+                                                                                your wallet.</p>
                                                                             <div class="text-center mt-4">
-                                                                                <a href="#transactions" id="transactionbtn" class="btn btn-primary px-4" style="width: 100%;">View Transactions</a>
+                                                                                <a href="#transactions"
+                                                                                    id="transactionbtn"
+                                                                                    class="btn btn-primary px-4"
+                                                                                    style="width: 100%;">View
+                                                                                    Transactions</a>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -130,42 +176,51 @@
                                             <div class="row mt-5">
                                                 <div class="col-md-8 col-lg-11">
                                                     <div class="tab-content">
-                                                        <div class="p-5 shadow rounded bg-white">
-                                                            <h2 class="mb-5 text-center" style="color:#000000;">
-                                                                Transaction History</h2>
-                                                            <div class="table-responsive">
-                                                                <table class="table">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Date</th>
-                                                                            <th>Transaction Method</th>
-                                                                            <th>Amount</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        <% if (walletDetails &&
-                                                                            walletDetails.transaction) { %>
-                                                                            <% walletDetails.transaction.forEach(item=>
-                                                                                { %>
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        <%= item.formattedDate %>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <%= item.transactionsMethod %>
-                                                                                    </td>
-                                                                                    <td>₹<%= item.amount %>
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <% }) %>
-                                                                                    <% } else { %>
-                                                                                        <tr>
-                                                                                            <td colspan="3">No
-                                                                                                transactions found</td>
-                                                                                        </tr>
-                                                                                        <% } %>
-                                                                    </tbody>
-                                                                </table>
+                                                        <div class="transaction-container">
+                                                            <div class="transaction-card">
+                                                                <h2 class="mb-4 text-center" style="color:#000000;">
+                                                                    Transaction History</h2>
+                                                                <div class="table-responsive">
+                                                                    <table class="table transaction-table">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Date</th>
+                                                                                <th>Transaction Method</th>
+                                                                                <th>Amount</th>
+                                                                                <th>Order Reference</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <% if (walletDetails &&
+                                                                                walletDetails.transaction) { %>
+                                                                                <%
+                                                                                    walletDetails.transaction.forEach(item=>
+                                                                                    { %>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <%= item.formattedDate %>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <%= item.transactionsMethod
+                                                                                                %>
+                                                                                        </td>
+                                                                                        <td>₹<%= item.amount %>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <%= item.orderReference %>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    <% }) %>
+                                                                                        <% } else { %>
+                                                                                            <tr>
+                                                                                                <td colspan="4">No
+                                                                                                    transactions found
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <% } %>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -177,12 +232,7 @@
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
-
-
             </div>
         </section>
         <!-- my account section end -->

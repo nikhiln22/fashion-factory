@@ -439,9 +439,6 @@ const cancelProduct = async (req, res) => {
 
         const totalOrderedProducts = orderdetails.orderedItem.length;
 
-
-        console.log('orderdetails.orderedItem[0].productId._id:', orderdetails.orderedItem[0].productId._id);
-
         const itemIndex = orderdetails.orderedItem.findIndex(item => item.productId._id.toString() === productId);
         console.log('itemIndex:', itemIndex);
         if (itemIndex === -1) {
@@ -507,12 +504,13 @@ const cancelProduct = async (req, res) => {
                     balance: refundAmount,
                     transaction: [{
                         amount: refundAmount,
-                        transactionsMethod: "Refund"
+                        transactionsMethod: "Refund",
+                        orderId: orderId
                     }]
                 });
                 await newWallet.save();
             } else {
-                await walletModel.updateOne({ userId: userId }, { $inc: { balance: refundAmount }, $push: { transaction: { amount: refundAmount, transactionsMethod: "Refund" } } })
+                await walletModel.updateOne({ userId: userId }, { $inc: { balance: refundAmount }, $push: { transaction: { amount: refundAmount, transactionsMethod: "Refund", orderId: orderId } } })
             }
         }
         res.json({ success: true, message: 'Product cancelled successfully' });
@@ -579,13 +577,14 @@ const wallet = async (req, res) => {
         const userdata = await userModel.findOne({ _id: userId });
         const cartCount = await cartModel.countDocuments({ userId: userId });
         const wishlistCount = userdata.wishlist.length;
-        const walletDetails = await walletModel.findOne({ userId: userId });
+        const walletDetails = await walletModel.findOne({ userId: userId }).populate('transaction.orderId');
         if (walletDetails) {
             const formattedTransactions = walletDetails.transaction.map(transaction => {
                 const formattedDate = moment(transaction.date).format('DD-MM-YYYY');
                 return {
                     ...transaction.toObject(),
                     formattedDate,
+                    orderReference: transaction.orderId ? transaction.orderId._id : 'N/A'
                 }
             }).sort((a, b) => (a._id > b._id ? -1 : 1));
             const formattedWallet = {
@@ -707,27 +706,27 @@ const invoiceDownload = async (req, res) => {
                 // From Address
                 doc.fontSize(10).text('From:', { continued: true }).fontSize(12).text('Fashion Factory Inc.');
                 doc.fontSize(10)
-                   .text('ABC Building')
-                   .text('Bengaluru, 521456')
-                   .text('Phone: (91) 123456890')
-                   .text('Fax: (123) 456-7890');
+                    .text('ABC Building')
+                    .text('Bengaluru, 521456')
+                    .text('Phone: (91) 123456890')
+                    .text('Fax: (123) 456-7890');
                 doc.moveDown();
 
                 // To Address
                 doc.fontSize(10).text('To:', { continued: true }).fontSize(12).text(orderDetails.deliveryAddress[0].name);
                 doc.fontSize(10)
-                   .text(orderDetails.deliveryAddress[0].street)
-                   .text(`${orderDetails.deliveryAddress[0].city}, ${orderDetails.deliveryAddress[0].state}`)
-                   .text(`Phone: ${orderDetails.deliveryAddress[0].mobile}`)
-                   .text(`Pincode: ${orderDetails.deliveryAddress[0].pincode}`);
+                    .text(orderDetails.deliveryAddress[0].street)
+                    .text(`${orderDetails.deliveryAddress[0].city}, ${orderDetails.deliveryAddress[0].state}`)
+                    .text(`Phone: ${orderDetails.deliveryAddress[0].mobile}`)
+                    .text(`Pincode: ${orderDetails.deliveryAddress[0].pincode}`);
                 doc.moveDown();
 
                 // Invoice Details
                 const date = new Date(orderDetails.createdAt);
                 const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
                 doc.fontSize(10)
-                   .text(`Invoice Date: ${formattedDate}`)
-                   .text(`Invoice Number: ${orderDetails._id}S`);
+                    .text(`Invoice Date: ${formattedDate}`)
+                    .text(`Invoice Number: ${orderDetails._id}S`);
                 doc.moveDown();
 
                 // Table
@@ -754,9 +753,9 @@ const invoiceDownload = async (req, res) => {
                 // Notes column (left)
                 doc.fontSize(10).text('Notes:', { continued: false });
                 doc.fontSize(9)
-                   .text('* Make all cheques payable to Fashion Factory Inc.', { width: columnWidth - 10 })
-                   .text('* Payment is due within 30 days', { width: columnWidth - 10 })
-                   .text('* If you have any questions concerning this invoice, contact [Name, Phone Number, Email]', { width: columnWidth - 10 });
+                    .text('* Make all cheques payable to Fashion Factory Inc.', { width: columnWidth - 10 })
+                    .text('* Payment is due within 30 days', { width: columnWidth - 10 })
+                    .text('* If you have any questions concerning this invoice, contact [Name, Phone Number, Email]', { width: columnWidth - 10 });
 
                 // Total column (right)
                 doc.fontSize(12);
@@ -790,7 +789,7 @@ const invoiceDownload = async (req, res) => {
         res.setHeader('Content-Length', pdfBuffer.length);
         res.send(pdfBuffer);
 
-    } catch(error) {
+    } catch (error) {
         console.error('Error occurred while generating the invoice PDF:', error);
         res.status(500).json({ error: 'Failed to generate invoice PDF', details: error.message });
     }

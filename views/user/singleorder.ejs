@@ -209,7 +209,7 @@
                                                 <% if (product.productStatus==="delivered" ) { %>
                                                     <button class="btn btn-outline-primary">Return</button>
                                                     <% } else if (product.productStatus !=="cancelled" &&
-                                                        product.productStatus !=="returned" ) { %>
+                                                        product.productStatus !=="returned" && product.productStatus !== "return rejected" ) { %>
                                                         <a href="#" class="btn btn-outline-primary me-2 cancel-order"
                                                             data-product-id="<%= product.productId._id %>">
                                                             <i class="fa-solid fa-xmark"></i> Cancel
@@ -375,7 +375,9 @@
                                 });
                             },
                             preConfirm: () => {
-                                const returnReason = Swal.getPopup().querySelector('#returnReason').value;
+                                const returnReasonSelect = Swal.getPopup().querySelector('#returnReason');
+                                const returnReason = returnReasonSelect.value;
+                                const returnReasonText = returnReason ? returnReasonSelect.options[returnReasonSelect.selectedIndex].text:'';
                                 const otherReason = Swal.getPopup().querySelector('#otherReason').value;
 
                                 if (!returnReason) {
@@ -412,14 +414,15 @@
                                             Swal.fire({
                                                 position: "top",
                                                 icon: "success",
-                                                title: "Item returned successfully",
+                                                title: "Return request initiated successfully",
+                                                text:"Your return request has been initiated",
                                                 showConfirmButton: false,
                                                 timer: 1500
                                             }).then(() => {
                                                 // Update UI to reflect the returned status
                                                 const statusText = this.closest('.row').querySelector('.status-text');
                                                 if (statusText) {
-                                                    statusText.textContent = 'Status: Returned';
+                                                    statusText.textContent = 'Status: Returned Initiated';
                                                     statusText.className = 'status-text text-danger fw-bold';
                                                 }
 

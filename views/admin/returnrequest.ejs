@@ -1,13 +1,74 @@
 <%- include('adminHeader') %>
+<style>
+    .table-bordered {
+        border: 1px solid #000000;
+    }
 
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #000000;
+    }
+</style>
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h1 class="content-title card-title">Return Requests </h1>
+            <p>List of requests:</p>
+        </div>
+    </div>
 
-
-
-
-
-
-
-
-
-
+    <div class="col-lg-12 mt-4">
+        <div class="table-responsive">
+            <% if (returnRequests && returnRequests.length > 0) { %>
+                <table class="table table-bordered mt-2 text-center">
+                    <thead>
+                        <tr class="table-primary">
+                            <th style="width: 50px;">ID</th>
+                            <th>Order Number</th>
+                            <th>Order Date</th>
+                            <th>Customer Details</th>
+                            <th>Total Amount</th>
+                            <th>Products</th>
+                            <th style="width: 200px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% returnRequests.forEach((request, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= request.orderNumber %></td>
+                                <td><%= new Date(request.orderDate).toLocaleDateString() %></td>
+                                <td>
+                                    <%= request.customerName %><br>
+                                    <%= request.customerEmail %><br>
+                                    <%= request.customerPhone %>
+                                </td>
+                                <td>₹<%= request.totalAmount.toFixed(2) %></td>
+                                <td>
+                                    <ul style="list-style-type: none; padding: 0;">
+                                        <% request.items.forEach(item => { %>
+                                            <li>
+                                                <%= item.name %> (Size: <%= item.size %>)<br>
+                                                Quantity: <%= item.quantity %><br>
+                                                Price: ₹<%= item.price.toFixed(2) %><br>
+                                                Total: ₹<%= item.totalPrice.toFixed(2) %><br>
+                                                Return Reason: <%= item.returnReason %>
+                                            </li>
+                                        <% }) %>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <a href="/admin/approvereturn/<%= request._id %>" class="btn btn-success">Approve</a>
+                                    <a href="/admin/rejectreturn/<%= request._id %>" class="btn btn-danger">Reject</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            <% } else { %>
+                <h1 class="text-center text-secondary mt-5">No return requests at the moment.</h1>
+            <% } %>
+        </div>
+    </div>
+</section>
 <%- include('adminfooter') %>
