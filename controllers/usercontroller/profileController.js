@@ -8,10 +8,9 @@ const walletModel = require('../../model/WalletModel');
 const flash = require('express-flash');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
-const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const mongoose = require('mongoose');
-
+const easyinvoice = require('easyinvoice');
 
 // rendering the user profile page
 const userProfile = async (req, res) => {
@@ -666,6 +665,27 @@ const invoicePage = async (req, res) => {
             return res.status(404).json({ error: "product not found in the order" });
         }
 
+        // calculating the product specific discount
+        const originalPrice = productData.productId.price * productData.quantity;
+        console.log('originalPrice:', originalPrice);
+        const productDiscount = originalPrice - productData.totalProductPrice;
+        console.log('productDiscount:', productDiscount);
+
+        // getting coupon Discount from order details
+        const couponDiscount = orderDetails.couponDiscount || 0;
+        console.log('couponDiscount:', couponDiscount);
+
+        // calculate total discount and final price
+        const totalDiscount = productDiscount + couponDiscount;
+        const finalPrice = productData.totalProductPrice - couponDiscount;
+
+        // add discount information to productData
+        productData.originalPrice = originalPrice;
+        productData.productDiscount = productDiscount;
+        productData.couponDiscount = couponDiscount;
+        productData.totalDiscount = totalDiscount;
+        productData.finalPrice = finalPrice;
+
         res.render('user/invoice', {
             productData,
             orderDetails,
@@ -677,7 +697,6 @@ const invoicePage = async (req, res) => {
     }
 }
 
-// downloading the invoice in the PDF format
 const invoiceDownload = async (req, res) => {
     try {
         console.log('Entering the function for downloading the invoice PDF');
@@ -690,161 +709,96 @@ const invoiceDownload = async (req, res) => {
         console.log('orderDetails:', orderDetails);
         const userData = await userModel.findOne({ _id: userId });
         const productData = orderDetails.orderedItem.find(item => item.productId._id.toString() === productId);
+        console.log('productData:', productData);
+        const date = new Date(orderDetails.createdAt);
+        const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
 
-        const generatePdf = () => {
-            return new Promise((resolve, reject) => {
-                const doc = new PDFDocument({ margin: 50, size: 'A4' });
-                const chunks = [];
-                doc.on('data', chunk => chunks.push(chunk));
-                doc.on('end', () => resolve(Buffer.concat(chunks)));
-                doc.on('error', reject);
+        // Calculate the required values
+        const originalPrice = productData.quantity * productData.productPrice;
+        const productDiscount = originalPrice - productData.totalProductPrice;
+        const couponDiscount = 0; // You'll need to calculate this based on your business logic
+        const totalDiscount = productDiscount + couponDiscount;
+        const finalPrice = originalPrice - totalDiscount;
 
-                // Header
-                doc.fontSize(20).text('Fashion Factory, Inc', { align: 'center' });
-                doc.moveDown(2);
-
-                // From Address
-                doc.fontSize(10).text('From:', { continued: true }).fontSize(12).text('Fashion Factory Inc.');
-                doc.fontSize(10)
-                    .text('ABC Building')
-                    .text('Bengaluru, 521456')
-                    .text('Phone: (91) 123456890')
-                    .text('Fax: (123) 456-7890');
-                doc.moveDown(2);
-
-                // To Address
-                doc.fontSize(10).text('To:', { continued: true }).fontSize(12).text(orderDetails.deliveryAddress[0].name);
-                doc.fontSize(10)
-                    .text(orderDetails.deliveryAddress[0].street)
-                    .text(`${orderDetails.deliveryAddress[0].city}, ${orderDetails.deliveryAddress[0].state}`)
-                    .text(`Phone: ${orderDetails.deliveryAddress[0].mobile}`)
-                    .text(`Pincode: ${orderDetails.deliveryAddress[0].pincode}`);
-                doc.moveDown(2);
-
-                // Invoice Details
-                const date = new Date(orderDetails.createdAt);
-                const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-                doc.fontSize(10)
-                    .text(`Invoice Date: ${formattedDate}`)
-                    .text(`Invoice Number: ${orderDetails._id}S`);
-                doc.moveDown(2);
-
-                // Table
-                const tableTop = doc.y;
-                const tableHeaders = ['Product', 'Rate', 'Qty', 'Discount', 'Total Amount'];
-                const tableData = [
-                    [
-                        productData.productId.name,
-                        `₹${productData.productId.price.toFixed(2)}`,
-                        productData.quantity.toString(),
-                        `₹${((productData.productId.price - (productData.totalProductPrice / productData.quantity)) * productData.quantity).toFixed(2)}`,
-                        `₹${productData.totalProductPrice.toFixed(2)}`
-                    ]
-                ];
-
-                drawTable(doc, tableTop, tableHeaders, tableData);
-                doc.moveDown();
-
-                // Notes and Total in two columns
-                const notesStartY = doc.y;
-                const pageWidth = doc.page.width - 2 * doc.page.margins.left;
-                const columnWidth = pageWidth / 2;
-
-                // Notes column (left)
-                doc.fontSize(10).text('Notes:', { continued: false });
-                doc.fontSize(9)
-                    .text('* Make all cheques payable to Fashion Factory Inc.', { width: columnWidth - 10 })
-                    .text('* Payment is due within 30 days', { width: columnWidth - 10 })
-                    .text('* If you have any questions concerning this invoice, contact [Name, Phone Number, Email]', { width: columnWidth - 10 });
-
-                // Move to next line to avoid overlap
-                // doc.y = notesStartY;
-
-                // Total column (right)
-                doc.fontSize(12);
-                doc.text('Subtotal:', columnWidth + doc.page.margins.left, notesStartY, { width: columnWidth, align: 'right' });
-                doc.text('Fee:', columnWidth + doc.page.margins.left, doc.y + 20, { width: columnWidth, align: 'right' });
-                doc.font('Helvetica-Bold').fontSize(14);
-                doc.text('Total:', columnWidth + doc.page.margins.left, doc.y + 40, { width: columnWidth, align: 'right' });
-
-                doc.fontSize(12).font('Helvetica');
-                doc.text(`₹${productData.totalProductPrice.toFixed(2)}`, columnWidth + doc.page.margins.left, notesStartY, { width: columnWidth - 10, align: 'right' });
-                doc.text('₹0.00', columnWidth + doc.page.margins.left, doc.y + 20, { width: columnWidth - 10, align: 'right' });
-                doc.font('Helvetica-Bold').fontSize(14);
-                doc.text(`₹${productData.totalProductPrice.toFixed(2)}`, columnWidth + doc.page.margins.left, doc.y + 40, { width: columnWidth - 10, align: 'right' });
-
-                doc.moveDown();
-
-                // Footer
-                doc.font('Helvetica').fontSize(10);
-                const footerY = doc.page.height - doc.page.margins.bottom - 30;
-                doc.text('THANK YOU FOR YOUR BUSINESS', doc.page.margins.left, footerY, { width: pageWidth, align: 'center' });
-                doc.text('FashionFactory.com | T:(91) 123456890 | fashionfactory@gmail.com', doc.page.margins.left, footerY + 15, { width: pageWidth, align: 'center' });
-
-                doc.end();
-            });
+        const data = {
+            "sender": {
+                "company": "Fashion Factory Inc.",
+                "address": "ABC Building",
+                "zip": "521456",
+                "city": "Bengaluru",
+                "country": "India"
+            },
+            "client": {
+                "company": orderDetails.deliveryAddress[0].name,
+                "address": orderDetails.deliveryAddress[0].street,
+                "zip": orderDetails.deliveryAddress[0].pincode,
+                "city": orderDetails.deliveryAddress[0].city,
+                "country": orderDetails.deliveryAddress[0].state
+            },
+            "information": {
+                "number": orderDetails._id,
+                "date": formattedDate,
+                "due-date": "N/A"
+            },
+            "products": [
+                {
+                    "quantity": productData.quantity,
+                    "description": productData.productId.name,
+                    "tax-rate": 0,
+                    "price": productData.totalProductPrice
+                }
+            ],
+            "bottom-notice": "Thank you for your business!",
+            "settings": {
+                "currency": "INR",
+            },
+            "translate": {
+                "invoice": "INVOICE",
+                "number": "Invoice Number",
+                "date": "Invoice Date",
+                "due-date": "Due Date",
+                "subtotal": "Subtotal",
+                "products": "Products",
+                "quantity": "Quantity",
+                "price": "Price",
+                "product-total": "Total",
+                "total": "Total"
+            },
+            "subtotal": originalPrice,
+            "products": [{
+                "quantity": productData.quantity,
+                "description": productData.productId.name,
+                "tax-rate": 0,
+                "price": productData.productPrice
+            }],
+            "total": finalPrice,
+            "custom-fields": [
+                {
+                    "label": "Product Discount:",
+                    "value": `₹${productDiscount.toFixed(2)}`
+                },
+                {
+                    "label": "Coupon Discount:",
+                    "value": `₹${couponDiscount.toFixed(2)}`
+                },
+                {
+                    "label": "Total Discount:",
+                    "value": `₹${totalDiscount.toFixed(2)}`
+                }
+            ]
         };
 
-        const pdfBuffer = await generatePdf();
+        const result = await easyinvoice.createInvoice(data);
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
-        res.setHeader('Content-Length', pdfBuffer.length);
-        res.send(pdfBuffer);
+        res.send(Buffer.from(result.pdf, 'base64'));
 
     } catch (error) {
         console.error('Error occurred while generating the invoice PDF:', error);
         res.status(500).json({ error: 'Failed to generate invoice PDF', details: error.message });
     }
 };
-
-// Helper function to draw the table
-function drawTable(doc, y, headers, data) {
-    const columnCount = headers.length;
-    const columnWidths = [200, 80, 50, 80, 100]; // Adjust these values to fit your needs
-    const tableWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-    const cellPadding = 5;
-    const fontSize = 10;
-    const rowHeight = 20;
-
-    // Draw headers
-    doc.font('Helvetica-Bold').fontSize(fontSize);
-    let x = 50;
-    headers.forEach((header, i) => {
-        doc.text(header, x + cellPadding, y + cellPadding, {
-            width: columnWidths[i] - 2 * cellPadding,
-            align: 'left'
-        });
-        x += columnWidths[i];
-    });
-
-    // Draw data
-    doc.font('Helvetica').fontSize(fontSize);
-    data.forEach((row, rowIndex) => {
-        y += rowHeight;
-        x = 50;
-        row.forEach((cell, cellIndex) => {
-            doc.text(cell, x + cellPadding, y + cellPadding, {
-                width: columnWidths[cellIndex] - 2 * cellPadding,
-                align: cellIndex > 0 ? 'right' : 'left' // Align numbers to the right
-            });
-            x += columnWidths[cellIndex];
-        });
-    });
-
-    // Draw lines
-    doc.lineWidth(1);
-    // Top and bottom borders
-    doc.moveTo(50, y).lineTo(50 + tableWidth, y).stroke();
-    doc.moveTo(50, y + rowHeight).lineTo(50 + tableWidth, y + rowHeight).stroke();
-    doc.moveTo(50, y + rowHeight * (data.length + 1)).lineTo(50 + tableWidth, y + rowHeight * (data.length + 1)).stroke();
-    // Vertical lines
-    x = 50;
-    for (let i = 0; i <= columnCount; i++) {
-        doc.moveTo(x, y).lineTo(x, y + rowHeight * (data.length + 1)).stroke();
-        x += columnWidths[i] || 0;
-    }
-}
 
 
 module.exports = {

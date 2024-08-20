@@ -83,7 +83,7 @@
                         <div class="text">
                             <h6 class="mb-1 card-title">Total Coupon Discount</h6>
                             <span>
-                                <%= totalCouponDiscount %>
+                                <%= totalCouponDiscount.toFixed(2) %>
                             </span>
                         </div>
                     </article>
@@ -97,7 +97,7 @@
                         <div class="text">
                             <h6 class="mb-1 card-title">Total Revenue</h6>
                             <span>
-                                <%= totalAmount %>
+                                <%= totalAmount.toFixed(2) %>
                             </span>
                         </div>
                     </article>
@@ -238,70 +238,5 @@
             fetchSalesData('daily');
         });
     </script>
-
-    <script>
-        // Best Selling Chart
-        // document.addEventListener('DOMContentLoaded', function () {
-        //     let chart2;
-
-        //     const updateChart = (url, itemDescription) => {
-        //         axios.get(url)
-        //             .then((res) => {
-        //                 const data = res.data.bestSellingProducts;
-        //                 const categoryData = res.data.bestSellingCategories;
-
-        //                 let labels = [];
-        //                 let totalSales = [];
-        //                 if (itemDescription === 'Products') {
-        //                     labels = data.map(product => product.productId);
-        //                     totalSales = data.map(product => product.totalSales);
-        //                 } else {
-        //                     labels = categoryData.map(product => product.categoryName);
-        //                     totalSales = categoryData.map(product => product.totalSales);
-        //                 }
-
-        //                 const options = {
-        //                     series: [{
-        //                         name: `Total Sales`,
-        //                         data: totalSales
-        //                     }],
-        //                     chart: {
-        //                         height: 350,
-        //                         type: 'bar'
-        //                     },
-        //                     title: {
-        //                         text: `Best selling ${itemDescription}`
-        //                     },
-        //                     xaxis: {
-        //                         categories: labels
-        //                     }
-        //                 };
-
-        //                 if (chart2) {
-        //                     chart2.destroy();
-        //                 }
-
-        //                 chart2 = new ApexCharts(document.querySelector("#chart2"), options);
-        //                 chart2.render();
-        //             })
-        //             .catch((err) => {
-        //                 console.log(err);
-        //             });
-        //     };
-
-        //     document.getElementById('bestProducts').addEventListener('click', function (e) {
-        //         e.preventDefault();
-        //         updateChart('/admin/bestsellingproducts', 'Products');
-        //     });
-
-        //     document.getElementById('bestCategory').addEventListener('click', function (e) {
-        //         e.preventDefault();
-        //         updateChart('/admin/bestsellingcategories', 'Categories');
-        //     });
-
-        // Initialize with Products
-        // updateChart('/admin/bestsellingproducts', 'Products');
-        // });
-        // </script>
 
     <%- include ('adminfooter') %>

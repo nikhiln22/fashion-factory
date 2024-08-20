@@ -177,30 +177,22 @@
                                         <th>Product</th>
                                         <th class="text-center">RATE</th>
                                         <th class="text-center">QTY</th>
-                                        <th class="text-center">Discount</th>
-                                        <th class="text-right">TOTAL AMOUNT</th>
+                                        <th class="text-center">Size</th>
+                                        <th class="text-center">Product Discount</th>
+                                        <th class="text-right">SUBTOTAL</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>
-                                            <span class="text-inverse">
-                                                <%=productData.productId.name%>
-                                            </span><br>
-                                            <small>
-                                                <%=productData.productId.description%>
-                                            </small>
+                                            <span class="text-inverse"><%=productData.productId.name%></span><br>
+                                            <small><%=productData.productId.description%></small>
                                         </td>
-                                        <td class="text-center">₹ <%=productData.productId.price%>
-                                        </td>
-                                        <td class="text-center">
-                                            <%=productData.quantity%>
-                                        </td>
-                                        <td class="text-center">₹<%=(productData.productId.price-
-                                                (productData.totalProductPrice/productData.quantity))*productData.quantity
-                                                %></td>
-                                        <td class="text-right">₹ <%=productData.totalProductPrice %>
-                                        </td>
+                                        <td class="text-center">₹ <%=productData.productPrice%></td>
+                                        <td class="text-center"><%=productData.quantity%></td>
+                                        <td class="text-center"><%=productData.size%></td>
+                                        <td class="text-center">₹<%=productData.productDiscount%></td>
+                                        <td class="text-right">₹<%=productData.totalProductPrice%></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -220,19 +212,32 @@
                                     <div class="invoice-price-row">
                                         <div class="sub-price">
                                             <small>SUBTOTAL</small>
-                                            <span class="text-inverse">₹ <%=productData.totalProductPrice%></span>
+                                            <span class="text-inverse">₹ <%=productData.originalPrice%></span>
                                         </div>
                                     </div>
                                     <div class="invoice-price-row">
                                         <div class="sub-price">
-                                            <small>FEE</small>
-                                            <span class="text-inverse">₹ 0.00</span>
+                                            <small>PRODUCT DISCOUNT</small>
+                                            <span class="text-inverse">₹ <%=productData.productDiscount%></span>
                                         </div>
                                     </div>
-                                    <div class="total-price">
-                                        <small>TOTAL</small> <span class="f-w-600">₹ <%=productData.totalProductPrice%>
-                                        </span>
-                                    </div>
+                                    <% if (productData.couponDiscount > 0) { %>
+                                        <div class="invoice-price-row">
+                                            <div class="sub-price">
+                                                <small>COUPON DISCOUNT</small>
+                                                <span class="text-inverse">₹ <%=productData.couponDiscount.toFixed(2)%></span>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                        <div class="invoice-price-row">
+                                            <div class="sub-price">
+                                                <small>TOTAL DISCOUNT</small>
+                                                <span class="text-inverse">₹ <%=productData.totalDiscount.toFixed(2)%></span>
+                                            </div>
+                                        </div>
+                                        <div class="total-price">
+                                            <small>TOTAL</small> <span class="f-w-600">₹ <%=productData.finalPrice%></span>
+                                        </div>
                                 </div>
                             </div>
                         </div>

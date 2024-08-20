@@ -15,6 +15,7 @@
     "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
+    "easyinvoice": "^3.0.47",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-flash": "^0.0.2",
