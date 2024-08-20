@@ -472,217 +472,191 @@ const yearlySalesReport = async (req, res) => {
 };
 
 // displaying the yearly sales chart in admin dashboard
-const yearlyChart = async (req, res) => {
+// const yearlyChart = async (req, res) => {
+//     try {
+//         console.log('rendering the chart of the products in the admin dashboard');
+//         const userCount = await userModel.countDocuments({});
+//         console.log('userCount:', userCount);
+//         const tenYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 10));
+//         console.log('tenYearsAgo:', tenYearsAgo);
+//         const yearlyOrderData = await orders.aggregate([
+//             { $match: { createdAt: { $gte: tenYearsAgo } } },
+//             { $unwind: "$orderedItem" },
+//             { $match: { "$orderedItem.productStatus": { $nin: ["cancelled", "returned", "pending", "shipping"] } } },
+//             {
+//                 $group: {
+//                     _id: {
+//                         orderId: "$_id",
+//                         year: { year: "$createdAt" }
+//                     },
+//                     orderAmount: { $first: "$orderAmount" },
+//                     couponDiscount: { $first: "$couponDiscount" }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: {
+//                         year: "$_id.year"
+//                     },
+//                     yearlyTotal: { $sum: "$orderAmount" },
+//                     yearlyCouponDiscount: { $sum: "$couponDiscount" },
+//                     orderCount: { $sum: 1 }
+//                 }
+//             },
+//             { $sort: { "_id.year": 1 } }
+//         ]);
+//         let orderCounts = new Array(6).fill(0);
+//         console.log('orderCounts:', orderCounts);
+//         let totalAmounts = new Array(6).fill(0);
+//         console.log('totalAmounts:', totalAmounts);
+//         let couponDiscounts = new Array(6).fill(0);
+//         console.log('couponDiscounts:', couponDiscounts);
+//         let years = [];
+//         const currentYear = new Date().getFullYear();
+//         for (let i = 6; i >= 0; i--) {
+//             years.push(currentYear - i);
+//         }
+//         console.log('years:', years);
+
+//         yearlyOrderData.forEach(data => {
+//             const yearIndex = years.indexOf(data._id.year);
+//             if (yearIndex !== -1) {
+//                 orderCounts[yearIndex] = data.orderCount;
+//                 totalAmounts[yearIndex] = data.yearlyTotal;
+//                 couponDiscounts[yearIndex] = data.yearlyCouponDiscount;
+//             }
+//         });
+
+//         console.log('yearlyOrderData:', yearlyOrderData);
+
+//         const totalAmount = yearlyOrderData.reduce((acc, curr) => acc + curr.yearlyTotal, 0);
+//         console.log('totalAmount:', totalAmount);
+//         const totalCouponDiscount = yearlyOrderData.reduce((acc, curr) => acc + curr.yearlyCouponDiscount, 0);
+//         console.log('totalCouponAmount:', totalCouponDiscount);
+//         const totalOrderCount = yearlyOrderData.reduce((acc, curr) => acc + curr.orderCount, 0);
+//         console.log('totalOrderCount:', totalOrderCount);
+
+//         res.render("admin/dashboard", {
+//             userCount,
+//             totalAmount,
+//             totalCouponDiscount,
+//             totalOrderCount,
+//             orderCounts,
+//             totalAmounts,
+//             couponDiscounts,
+//             categories: years,
+//             text: 'yearly',
+//             activepage: 'dashboard'
+//         });
+//     } catch (error) {
+//         console.log('error while rendering the admin dashboard', error);
+//         res.render('admin/servererror')
+//     }
+// }
+
+// filtering the sales data based on the montly, yearly and daily basis
+const salesData = async (req, res) => {
     try {
-        console.log('rendering the chart of the products in the admin dashboard');
-        const userCount = await userModel.countDocuments({});
-        console.log('userCount:', userCount);
-        const tenYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 10));
-        console.log('tenYearsAgo:', tenYearsAgo);
-        const yearlyOrderData = await orders.aggregate([
-            { $match: { createdAt: { $gte: tenYearsAgo } } },
-            { $unwind: "$orderedItem" },
-            { $match: { "$orderedItem.productStatus": { $nin: ["cancelled", "returned", "pending", "shipping"] } } },
-            {
-                $group: {
-                    _id: {
-                        orderId: "$_id",
-                        year: { year: "$createdAt" }
-                    },
-                    orderAmount: { $first: "$orderAmount" },
-                    couponDiscount: { $first: "$couponDiscount" }
-                }
-            },
-            {
-                $group: {
-                    _id: {
-                        year: "$_id.year"
-                    },
-                    yearlyTotal: { $sum: "$orderAmount" },
-                    yearlyCouponDiscount: { $sum: "$couponDiscount" },
-                    orderCount: { $sum: 1 }
-                }
-            },
-            { $sort: { "_id.year": 1 } }
-        ]);
-        let orderCounts = new Array(6).fill(0);
-        console.log('orderCounts:', orderCounts);
-        let totalAmounts = new Array(6).fill(0);
-        console.log('totalAmounts:', totalAmounts);
-        let couponDiscounts = new Array(6).fill(0);
-        console.log('couponDiscounts:', couponDiscounts);
-        let years = [];
-        const currentYear = new Date().getFullYear();
-        for (let i = 6; i >= 0; i--) {
-            years.push(currentYear - i);
+        console.log('entered to the filtering sales data');
+        const { filter } = req.query;
+        console.log('filter:',filter);
+        let salesData = {};
+        if (filter === 'yearly') {
+            salesData = await getYearlySalesData()
+        } else if (filter === 'monthly') {
+            salesData = await getMontlySalesData()
+        } else if (filter === 'daily') {
+            salesData = await getDailySalesData()
+        } else {
+            throw new Error("Invalid filter parameter");
         }
-        console.log('years:', years);
-
-        yearlyOrderData.forEach(data => {
-            const yearIndex = years.indexOf(data._id.year);
-            if (yearIndex !== -1) {
-                orderCounts[yearIndex] = data.orderCount;
-                totalAmounts[yearIndex] = data.yearlyTotal;
-                couponDiscounts[yearIndex] = data.yearlyCouponDiscount;
-            }
-        });
-
-        console.log('yearlyOrderData:', yearlyOrderData);
-
-        const totalAmount = yearlyOrderData.reduce((acc, curr) => acc + curr.yearlyTotal, 0);
-        console.log('totalAmount:', totalAmount);
-        const totalCouponDiscount = yearlyOrderData.reduce((acc, curr) => acc + curr.yearlyCouponDiscount, 0);
-        console.log('totalCouponAmount:', totalCouponDiscount);
-        const totalOrderCount = yearlyOrderData.reduce((acc, curr) => acc + curr.orderCount, 0);
-        console.log('totalOrderCount:', totalOrderCount);
-
-        res.render("admin/dashboard", {
-            userCount,
-            totalAmount,
-            totalCouponDiscount,
-            totalOrderCount,
-            orderCounts,
-            totalAmounts,
-            couponDiscounts,
-            categories: years,
-            text: 'yearly',
-            activepage: 'dashboard'
-        });
+        res.json(salesData)
     } catch (error) {
-        console.log('error while rendering the admin dashboard', error);
-        res.render('admin/servererror')
-    }
-}
-
-// rendering the best selling product details in the admin dashboard
-const bestSellingProduct = async (req, res) => {
-    try {
-        console.log('enterd the function which renders the chart for best selling product');
-        const bestSellingProducts = await orderModel.aggregate([
-            {
-                $unwind: "$orderdItem"
-            },
-            {
-                $match: {
-                    "orderedItem.productStatus": { $nin: ["cancelled", "pending", "returned", "shipped"] }
-                }
-            },
-            {
-                $lookup: {
-                    from: 'productDetails',
-                    localField: 'orderedItem.productId',
-                    foreignField: '_id',
-                    as: 'productDetails'
-                }
-            },
-            {
-                $unwind: "$productDetails"
-            },
-            {
-                $group: {
-                    _id: "$productDetails.name",
-                    totalSales: {
-                        $sum: {
-                            $cond: [
-                                { $ifNull: ["$orderedItem.totalProductPrice", 0] },
-                                "$orderedItem.totalProductPrice",
-                                0
-                            ]
-                        }
-                    }
-                }
-            },
-            {
-                $sort: { totalSales: -1 }
-            },
-            {
-                $limit: 10
-            },
-            {
-                $project: {
-                    _id: 0,
-                    name: "$_id",
-                    totalSales: 1
-                }
-            }
-        ]);
-
-        console.log('bestSellingProducts:', bestSellingProducts);
-        res.status(200).json({ bestSellingProducts, item: 'Product' })
-    } catch (error) {
-        console.log('Error occured while rendering the best selling products chart', error);
+        console.log('error occured while fetching the sales data', error);
         res.render('admin/servererror');
     }
 }
 
-// rendering the best selling categories in the admin dashboard
-const bestSellingCategory = async (req, res) => {
-    try {
-        const bestSellingCategories = await orderModel.aggregate([
-            {
-                $unwind: "$orderedItem"
+async function getDailySalesData() {
+    console.log('function fetching the saily sales data');
+    const Aggregation = await orderModel.aggregate([
+        {
+            $match: {
+                createdAt: { $exists: true },
             },
-            {
-                $match: {
-                    "orderedItem.productStatus": { $nin: ["cancelled", "pending", "returned", "shipped"] }
-                }
+        },
+        {
+            $group: {
+                _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                count: { $sum: 1 },
             },
-            {
-                $lookup: {
-                    from: 'productDetails',
-                    localField: 'orderedItem.productId',
-                    foreignField: '_id',
-                    as: 'productDetails'
-                }
-            },
-            {
-                $unwind: "$productDetails"
-            },
-            {
-                $lookup: {
-                    from: 'productDetails.category',
-                    foreignField: '_id',
-                    as: 'categoryDetails'
-                }
-            },
-            {
-                $unwind: "$categoryDetails"
-            },
-            {
-                $group: {
-                    _id: {
-                        category: "$categoryDetails._id",
-                        categoryName: "$categoryDetails.name"
-                    },
-                    totalSales: {
-                        $sum: {
-                            $cond: [{ $ifNull: ["$orderedItem.totalProductPrice", 0] },
-                                "$orderedItem.totalProductPrice", 0]
-                        }
-                    }
-                }
-            },
-            {
-                $sort: { totalSales: -1 }
-            },
-            {
-                $limit: 10
-            },
-            {
-                $project: {
-                    _id: 0,
-                    categoryName: "$_id.categoryName",
-                    totalSales: 1
-                }
-            }
-        ]);
-        console.log('bestSellingCategories:', bestSellingCategories);
-        res.status(200).json({ bestSellingCategories, item: "category" });
-    } catch (error) {
-        console.log('error occured while rendering the best categoris');
-        res.render('admin/servererror');
-    }
+        },
+        {
+            $sort: { _id: 1 },
+        },
+    ]);
+
+
+    const saleDate = Aggregation.map((item) => item._id);
+    console.log('saleData:',saleDate);
+    const count = Aggregation.map((item) => item.count);
+    console.log('count:',count);
+    return { saleDate, count };
 }
+
+async function getMontlySalesData() {
+    const Aggregation = await orderModel.aggregate([
+        {
+            $match: {
+                createdAt: { $exists: true },
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    year: { $year: "$createdAt" },
+                    month: { $month: "$createdAt" },
+                },
+                count: { $sum: 1 },
+            },
+        },
+        {
+            $sort: {
+                "_id.year": 1,
+                "_id.month": 1,
+            },
+        },
+    ]);
+
+
+    const saleDate = Aggregation.map((item) => item._id.month);
+    const count = Aggregation.map((item) => item.count);
+    return { saleDate, count };
+}
+
+async function getYearlySalesData() {
+    const getYearlySalesData = await orderModel.aggregate([
+        {
+            $match: {
+                createdAt: { $exists: true },
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    year: { $year: "$createdAt" },
+                },
+                count: { $sum: 1 },
+            },
+        },
+
+    ]);
+
+    const saleDate = getYearlySalesData.map((item) => item._id.year);
+    const count = getYearlySalesData.map((item) => item.count);
+    return { saleDate, count };
+}
+
 
 // rendering the reports based on the selected date
 const customDateSort = async (req, res) => {
@@ -972,7 +946,5 @@ module.exports = {
     yearlySalesReport,
     customDateSort,
     checkDataExist,
-    yearlyChart,
-    bestSellingProduct,
-    bestSellingCategory
+    salesData,
 }

@@ -83,7 +83,7 @@ const index = async (req, res) => {
     }
     res.render('user/home', { categories, products });
   } catch (error) {
-    console.log('Error while loading the index page',error);
+    console.log('Error while loading the index page', error);
     res.render('user/error');
   }
 };
@@ -99,7 +99,7 @@ const signup = async (req, res) => {
       success: req.flash('success')
     });
   } catch (error) {
-    console.log('Error while loading the signup page',error);
+    console.log('Error while loading the signup page', error);
     res.render('user/error');
   }
 };
@@ -152,7 +152,7 @@ const signUpPost = async (req, res) => {
         phone,
         password: hashedPassword,
         referralCode: newReferalCode,
-        referredBy 
+        referredBy
       };
 
       req.session.user = newuser;
@@ -205,7 +205,7 @@ const verifyOtp = async (req, res) => {
 
     const enteredOtp = req.body.otp;
     const converetedOtp = parseInt(enteredOtp.join(''));
-    
+
     const email = req.session.user.email;
     const userdb = await otpModel.findOne({ email: email });
 
@@ -221,9 +221,9 @@ const verifyOtp = async (req, res) => {
       if (req.session.signup) {
         const newUser = await userModel.create(req.session.user);
 
-        if (newUser.referredBy ) {
-          const referrer = await userModel.findById(newUser.referredBy );
-          
+        if (newUser.referredBy) {
+          const referrer = await userModel.findById(newUser.referredBy);
+
           // referral reward for the refferrer
           await walletModel.findOneAndUpdate(
             { userId: referrer._id },
@@ -270,7 +270,7 @@ const resendOtp = async (req, res) => {
     console.log('***********entered the veryfying resended otp****************');
     const email = req.session.user.email;
     const otp = generateOtp();
-    console.log('otp:',otp);
+    console.log('otp:', otp);
     const currTime = Date.now();
     const expiry = currTime + 60 * 1000;
     await otpModel.updateOne({ email: email }, { otp: otp, expiry: new Date(expiry) });
@@ -434,9 +434,26 @@ const logout = async (req, res) => {
       res.redirect('/login');
     });
   } catch (err) {
-    console.log('Error while logging out',err.message);
+    console.log('Error while logging out', err.message);
     res.render('user/error')
   }
 }
 
-module.exports = { index, signup, signUpPost, login, otp, verifyOtp, resendOtp, loginPost, googleSignIn, googleCallback, authFailure, forgotPassword, forgotPasswordPost, newpassword, newPasswordPost, logout };
+module.exports = {
+  index,
+  signup,
+  signUpPost,
+  login,
+  otp,
+  verifyOtp,
+  resendOtp,
+  loginPost,
+  googleSignIn,
+  googleCallback,
+  authFailure,
+  forgotPassword,
+  forgotPasswordPost,
+  newpassword,
+  newPasswordPost,
+  logout
+};

@@ -201,7 +201,7 @@
                                     data-filter="*">
                                     <a href="/shop" class="text-dark">All Products</a>
                                 </button>
-                                <% if(categories.length) { %>
+                                <% if(categories && categories.length) { %>
                                     <% categories.forEach(item=> { %>
                                         <a class="text-dark" href="/catsort?id=<%= item._id %>">
                                             <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"
@@ -282,7 +282,7 @@
                                                                         </div>
                                                                         <% } else { %>
                                                                             <span class="current__price">₹<%=
-                                                                                    product.price %></span>
+                                                                                    product.originalPrice %></span>
                                                                             <% } %>
                                                                 </div>
                                                                 <% if (product.totalstock===0) { %>

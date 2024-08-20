@@ -1,8 +1,27 @@
 <%- include ('adminHeader') %>
+
+    <style>
+        .rounded {
+            border-radius: 8px;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            background-color: transparent;
+            color: #000000;
+        }
+
+        select {
+            font-weight: bold;
+        }
+    </style>
     <section class="content-main">
         <div class="content-header">
             <div>
-                <h2 class="content-title card-title">Admin Dashboard </h2>
+                <h2 class="content-title card-title">Admin Dashboard</h2>
                 <p>Whole data about your business here</p>
             </div>
             <div class="d-flex justify-content-end pe-4 pt-2">
@@ -26,14 +45,15 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
+
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-6">
+                <div class="card card-body">
                     <article class="icontext">
                         <span class="icon icon-sm rounded-circle bg-primary-light"><i
                                 class="text-primary material-icons md-monetization_on"></i></span>
                         <div class="text">
-                            <h6 class="mb-1 card-title">Users</h6>
+                            <h6 class="mb-1 card-title">Total Users</h6>
                             <span>
                                 <%= userCount %>
                             </span>
@@ -41,13 +61,13 @@
                     </article>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card card-body">
                     <article class="icontext">
                         <span class="icon icon-sm rounded-circle bg-success-light"><i
                                 class="text-success material-icons md-local_shipping"></i></span>
                         <div class="text">
-                            <h6 class="mb-1 card-title">Orders</h6>
+                            <h6 class="mb-1 card-title">Total Orders</h6>
                             <span>
                                 <%= totalOrderCount %>
                             </span>
@@ -55,13 +75,13 @@
                     </article>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card card-body">
                     <article class="icontext">
                         <span class="icon icon-sm rounded-circle bg-warning-light"><i
                                 class="text-warning material-icons md-qr_code"></i></span>
                         <div class="text">
-                            <h6 class="mb-1 card-title">Discount</h6>
+                            <h6 class="mb-1 card-title">Total Coupon Discount</h6>
                             <span>
                                 <%= totalCouponDiscount %>
                             </span>
@@ -69,13 +89,13 @@
                     </article>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card card-body">
                     <article class="icontext">
                         <span class="icon icon-sm rounded-circle bg-info-light"><i
                                 class="text-info material-icons md-shopping_basket"></i></span>
                         <div class="text">
-                            <h6 class="mb-1 card-title">Revenue</h6>
+                            <h6 class="mb-1 card-title">Total Revenue</h6>
                             <span>
                                 <%= totalAmount %>
                             </span>
@@ -85,168 +105,203 @@
             </div>
         </div>
 
-
-
-        <div id="chart" class="col-11"></div>
-        <div class="col-7 mt-5">
-
-            <p class="btn btn-secondary mb-5" id="bestProducts" value="product">Best selling product</p>
-            <p class="btn btn-secondary mb-5" id="bestCategory" value="category">Best selling Category</p>
-            <div id="chart2"></div>
+        <div class="container-fluid my-4">
+            <div class="d-flex justify-content-end align-items-center mb-3">
+                <label class="me-2" for="filter" style="font-weight: bold;">Filter By:</label>
+                <select id="filter" class="p-2 rounded filter-select"
+                    style="color: #8a8d93; background-color: transparent; font-weight: bold;">
+                    <option value="daily" selected>Daily</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div style="height: 400px;">
+                <canvas id="salesChart"></canvas>
+            </div>
         </div>
 
 
+        <section class="no-padding-bottom">
+            <div class="container-fluid">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="checklist-block block">
+                            <div class="title" style="font-weight: bold;">Best Selling Products</div>
+                            <div class="checklist">
+                                <% for( let i=0; i < 5; i++ ) { %>
+                                    <div class="item d-flex align-items-center">
+                                        <span style="padding: 4px;">
+                                            <%= i+1 %>.
+                                        </span>
+                                        <label for="input-1">
+                                            <%= bestProducts[i]._id %>
+                                        </label>
+                                    </div>
+                                    <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="checklist-block block">
+                            <div class="title" style="font-weight: bold;">Best Selling Category</div>
+                            <div class="checklist">
+                                <% for( let i=0; i < 3; i++ ) { %>
+                                    <div class="item d-flex align-items-center">
+                                        <span style="padding: 4px;">
+                                            <%= i+1 %>.
+                                        </span>
+                                        <label for="input-1">
+                                            <%= topCategories[i].category %>
+                                        </label>
+                                    </div>
+                                    <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </section> <!-- content-main end// -->
 
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
 
     <script>
-        // Sales Statistics Chart
-        var ordersData = "<%- JSON.stringify(orderCounts) %>"
-        console.log('ordersData:', ordersData);
-        var revenueData = "<%- JSON.stringify(totalAmount) %>"
-        console.log('revenueData:', revenueData);
-        var discountData = "<%- JSON.stringify(totalCouponDiscount) %>"
-        console.log('discountData:', discountData);
-        var categories = "<%- JSON.stringify(categories) %>"
-        console.log('categories:', categories);
-        var text = "<%- JSON.stringify(text) %>"
-        console.log('text:', text);
+        document.addEventListener('DOMContentLoaded', function () {
 
-
-        var options = {
-            series: [{
-                name: 'Orders',
-                type: 'column',
-                data: ordersData
-            }, {
-                name: 'Revenue',
-                type: 'line',
-                data: revenueData
-            }, {
-                name: 'Discount',
-                type: 'line',
-                data: discountData
-            }],
-            chart: {
-                height: 350,
-                type: 'line',
-            },
-            stroke: {
-                width: [0, 4]
-            },
-            title: {
-                text: 'Sales Statistics'
-            },
-            dataLabels: {
-                enabled: true,
-                enabledOnSeries: [1, 2]
-            },
-            labels: categories,
-            xaxis: {
-                type: 'category'
-            },
-            yaxis: [{
-                title: {
-                    text: 'Orders',
-                },
-            }, {
-                opposite: true,
-                title: {
-                    text: 'Revenue / Discount'
-                },
-            }],
-            tooltip: {
-                shared: true,
-                intersect: false,
-                y: {
-                    formatter: function (val) {
-                        return val + " ";
-                    }
-                }
+            function fetchSalesData(filter) {
+                console.log("Is fetch working for bar graph--------------???");
+                fetch(`/admin/salesdata?filter=${filter}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Is this data response working??");
+                        console.log(data);
+                        console.log("Is this data response working??jhhafafjkskjfaskjhfasjhj ");
+                        updateChart(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching sales data:', error);
+                    });
             }
-        };
 
-        var chart = new ApexCharts(document.querySelector("#Chart"), options);
-        chart.render();
+            // Function to update chart with sales data
+            function updateChart(data) {
+                console.log('data:', data);
+                const labels = data.saleDate;
+                const salesData = data.count;
 
-        function updateChart(interval) {
+                // Get the canvas element
+                const ctx = document.getElementById('salesChart').getContext('2d');
 
-            console.log(`Updating chart for ${interval}`);
+                // If a chart already exists, destroy it before creating a new one
+                if (window.salesChart instanceof Chart) {
+                    window.salesChart.destroy();
+                }
 
 
-            let newData = fetchDataForInterval(interval);
+                // Initialize Chart.js with the updated data
+                window.salesChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Orders',
+                            data: salesData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            }
 
+            // Event listener for filter change
+            document.getElementById('filter').addEventListener('change', function () {
+                const filter = this.value;
+                console.log("Filter value is:", filter);
+                fetchSalesData(filter);
+            });
 
-            ApexCharts.exec('yourChartId', 'updateSeries', newData);
-        }
-
+            // Fetch initial data on page load
+            fetchSalesData('daily');
+        });
     </script>
 
     <script>
         // Best Selling Chart
-        document.addEventListener('DOMContentLoaded', function () {
-            let chart2;
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     let chart2;
 
-            const updateChart = (url, itemDescription) => {
-                axios.get(url)
-                    .then((res) => {
-                        const data = res.data.bestSellingProducts;
-                        const categoryData = res.data.bestSellingCategories;
+        //     const updateChart = (url, itemDescription) => {
+        //         axios.get(url)
+        //             .then((res) => {
+        //                 const data = res.data.bestSellingProducts;
+        //                 const categoryData = res.data.bestSellingCategories;
 
-                        let labels = [];
-                        let totalSales = [];
-                        if (itemDescription === 'Products') {
-                            labels = data.map(product => product.productId);
-                            totalSales = data.map(product => product.totalSales);
-                        } else {
-                            labels = categoryData.map(product => product.categoryName);
-                            totalSales = categoryData.map(product => product.totalSales);
-                        }
+        //                 let labels = [];
+        //                 let totalSales = [];
+        //                 if (itemDescription === 'Products') {
+        //                     labels = data.map(product => product.productId);
+        //                     totalSales = data.map(product => product.totalSales);
+        //                 } else {
+        //                     labels = categoryData.map(product => product.categoryName);
+        //                     totalSales = categoryData.map(product => product.totalSales);
+        //                 }
 
-                        const options = {
-                            series: [{
-                                name: `Total Sales`,
-                                data: totalSales
-                            }],
-                            chart: {
-                                height: 350,
-                                type: 'bar'
-                            },
-                            title: {
-                                text: `Best selling ${itemDescription}`
-                            },
-                            xaxis: {
-                                categories: labels
-                            }
-                        };
+        //                 const options = {
+        //                     series: [{
+        //                         name: `Total Sales`,
+        //                         data: totalSales
+        //                     }],
+        //                     chart: {
+        //                         height: 350,
+        //                         type: 'bar'
+        //                     },
+        //                     title: {
+        //                         text: `Best selling ${itemDescription}`
+        //                     },
+        //                     xaxis: {
+        //                         categories: labels
+        //                     }
+        //                 };
 
-                        if (chart2) {
-                            chart2.destroy();
-                        }
+        //                 if (chart2) {
+        //                     chart2.destroy();
+        //                 }
 
-                        chart2 = new ApexCharts(document.querySelector("#chart2"), options);
-                        chart2.render();
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            };
+        //                 chart2 = new ApexCharts(document.querySelector("#chart2"), options);
+        //                 chart2.render();
+        //             })
+        //             .catch((err) => {
+        //                 console.log(err);
+        //             });
+        //     };
 
-            document.getElementById('bestProducts').addEventListener('click', function (e) {
-                e.preventDefault();
-                updateChart('/admin/bestsellingproducts', 'Products');
-            });
+        //     document.getElementById('bestProducts').addEventListener('click', function (e) {
+        //         e.preventDefault();
+        //         updateChart('/admin/bestsellingproducts', 'Products');
+        //     });
 
-            document.getElementById('bestCategory').addEventListener('click', function (e) {
-                e.preventDefault();
-                updateChart('/admin/bestsellingcategories', 'Categories');
-            });
+        //     document.getElementById('bestCategory').addEventListener('click', function (e) {
+        //         e.preventDefault();
+        //         updateChart('/admin/bestsellingcategories', 'Categories');
+        //     });
 
-            // Initialize with Products
-            updateChart('/admin/bestsellingproducts', 'Products');
-        });
-    </script>
+        // Initialize with Products
+        // updateChart('/admin/bestsellingproducts', 'Products');
+        // });
+        // </script>
 
     <%- include ('adminfooter') %>

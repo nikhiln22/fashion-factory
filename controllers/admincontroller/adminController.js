@@ -123,6 +123,87 @@ const dashboard = async (req, res) => {
         const totalOrderCount = orderCounts.reduce((acc, curr) => acc + curr, 0);
         console.log('totalOrderCount:', totalOrderCount);
 
+        const bestProducts = await orderModel.aggregate([
+            {
+                $unwind: "$orderedItem"
+            },
+            {
+                $lookup: {
+                    from: "productdetails",
+                    localField: "orderedItem.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            {
+                $addFields: {
+                    productName: { $arrayElemAt: ["$productDetails.name", 0] } 
+                }
+            },
+            {
+                $group: {
+                    _id: "$productName", 
+                    count: { $sum: "$orderedItem.quantity" }
+                }
+            },
+            {
+                $sort: {
+                    count: -1
+                }
+            }
+        ]);
+
+        console.log('bestProducts:', bestProducts);
+
+        const topCategories = await orderModel.aggregate([
+            {
+                $unwind: "$orderedItem"
+            },
+            {
+                $lookup: {
+                    from: "productdetails",
+                    localField: "orderedItem.productId",
+                    foreignField: "_id",
+                    as: "product_details"
+                }
+            },
+            {
+                $unwind: "$product_details"
+            },
+            {
+                $group: {
+                    _id: "$product_details.category",
+                    totalQuantity: { $sum: "$orderedItem.quantity" }
+                }
+            },
+            {
+                $sort: { totalQuantity: -1 }
+            },
+            {
+                $limit: 3
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "category_details"
+                }
+            },
+            {
+                $unwind: "$category_details"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    category: "$category_details.name",
+                    totalQuantity: 1
+                }
+            }
+        ]);
+
+        console.log('topCategories:', topCategories);
+
         // rendering the dashboard view with data
         res.render("admin/dashboard", {
             userCount,
@@ -132,13 +213,13 @@ const dashboard = async (req, res) => {
             totalOrderCount,
             totalAmounts,
             couponDiscounts,
+            bestProducts,
+            topCategories,
             orderCounts,
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            text: "Montly",
-            activePage: 'dashboard'
         });
     } catch (error) {
-        console.log('error while rendering the admin panel', error);
+        console.log('error while rendering the admin dashboard', error);
+        res.render('admin/servererror');
     }
 };
 

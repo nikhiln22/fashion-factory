@@ -701,7 +701,7 @@ const invoiceDownload = async (req, res) => {
 
                 // Header
                 doc.fontSize(20).text('Fashion Factory, Inc', { align: 'center' });
-                doc.moveDown();
+                doc.moveDown(2);
 
                 // From Address
                 doc.fontSize(10).text('From:', { continued: true }).fontSize(12).text('Fashion Factory Inc.');
@@ -710,7 +710,7 @@ const invoiceDownload = async (req, res) => {
                     .text('Bengaluru, 521456')
                     .text('Phone: (91) 123456890')
                     .text('Fax: (123) 456-7890');
-                doc.moveDown();
+                doc.moveDown(2);
 
                 // To Address
                 doc.fontSize(10).text('To:', { continued: true }).fontSize(12).text(orderDetails.deliveryAddress[0].name);
@@ -719,7 +719,7 @@ const invoiceDownload = async (req, res) => {
                     .text(`${orderDetails.deliveryAddress[0].city}, ${orderDetails.deliveryAddress[0].state}`)
                     .text(`Phone: ${orderDetails.deliveryAddress[0].mobile}`)
                     .text(`Pincode: ${orderDetails.deliveryAddress[0].pincode}`);
-                doc.moveDown();
+                doc.moveDown(2);
 
                 // Invoice Details
                 const date = new Date(orderDetails.createdAt);
@@ -727,7 +727,7 @@ const invoiceDownload = async (req, res) => {
                 doc.fontSize(10)
                     .text(`Invoice Date: ${formattedDate}`)
                     .text(`Invoice Number: ${orderDetails._id}S`);
-                doc.moveDown();
+                doc.moveDown(2);
 
                 // Table
                 const tableTop = doc.y;
@@ -757,18 +757,21 @@ const invoiceDownload = async (req, res) => {
                     .text('* Payment is due within 30 days', { width: columnWidth - 10 })
                     .text('* If you have any questions concerning this invoice, contact [Name, Phone Number, Email]', { width: columnWidth - 10 });
 
+                // Move to next line to avoid overlap
+                // doc.y = notesStartY;
+
                 // Total column (right)
                 doc.fontSize(12);
                 doc.text('Subtotal:', columnWidth + doc.page.margins.left, notesStartY, { width: columnWidth, align: 'right' });
-                doc.text('Fee:', columnWidth + doc.page.margins.left, doc.y, { width: columnWidth, align: 'right' });
+                doc.text('Fee:', columnWidth + doc.page.margins.left, doc.y + 20, { width: columnWidth, align: 'right' });
                 doc.font('Helvetica-Bold').fontSize(14);
-                doc.text('Total:', columnWidth + doc.page.margins.left, doc.y, { width: columnWidth, align: 'right' });
+                doc.text('Total:', columnWidth + doc.page.margins.left, doc.y + 40, { width: columnWidth, align: 'right' });
 
                 doc.fontSize(12).font('Helvetica');
                 doc.text(`₹${productData.totalProductPrice.toFixed(2)}`, columnWidth + doc.page.margins.left, notesStartY, { width: columnWidth - 10, align: 'right' });
-                doc.text('₹0.00', columnWidth + doc.page.margins.left, doc.y - 36, { width: columnWidth - 10, align: 'right' });
+                doc.text('₹0.00', columnWidth + doc.page.margins.left, doc.y + 20, { width: columnWidth - 10, align: 'right' });
                 doc.font('Helvetica-Bold').fontSize(14);
-                doc.text(`₹${productData.totalProductPrice.toFixed(2)}`, columnWidth + doc.page.margins.left, doc.y - 36, { width: columnWidth - 10, align: 'right' });
+                doc.text(`₹${productData.totalProductPrice.toFixed(2)}`, columnWidth + doc.page.margins.left, doc.y + 40, { width: columnWidth - 10, align: 'right' });
 
                 doc.moveDown();
 

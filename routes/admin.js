@@ -66,6 +66,8 @@ adminRoute.post('/catidsave', adAuth, offerController.offercatIdSave);
 adminRoute.patch('/editoffer', adAuth, offerController.editoffer);
 adminRoute.post('/deleteoffer', adAuth, offerController.deleteOffer);
 
+
+adminRoute.get('/salesdata', adAuth, salesReportController.salesData);
 adminRoute.get('/checkdataexist', adAuth, salesReportController.checkDataExist);
 adminRoute.get('/dailysales', adAuth, (req, res) => {
     if (req.query.format === 'pdf') {
@@ -109,9 +111,6 @@ adminRoute.post('/customdate', adAuth, (req, res) => {
     }
 });
 
-adminRoute.get('/yearlychart', adAuth, salesReportController.yearlyChart);
-adminRoute.get('/bestsellingproducts', adAuth, salesReportController.bestSellingProduct);
-adminRoute.get('/bestsellingcategories', adAuth, salesReportController.bestSellingCategory);
 
 adminRoute.get('/logout', adAuth, adminController.adLogOut);
 
