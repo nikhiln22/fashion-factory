@@ -992,7 +992,8 @@
                                     }),
                                 });
                                 const result = await response.json();
-                                if (result.success)
+                                console.log('result:',result);
+                                if (!result.success)
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Payment Failed',
