@@ -78,7 +78,8 @@ const shop = async (req, res) => {
             nextPage: page + 1,
             previousPage: page - 1,
             lastPage: totalPages,
-            selectedCategory: selectedCategory
+            selectedCategory: selectedCategory,
+            selectedCategoryId: selectedCategory
         });
     } catch (error) {
         console.log('error occurred while rendering the shop page', error);
@@ -478,6 +479,7 @@ const catfilter = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
+    const categoryId = req.query.category;
     try {
         console.log('filtering the products based on the category');
         const userId = req.session.userId;
@@ -550,7 +552,7 @@ const catfilter = async (req, res) => {
             nextPage: page + 1,
             previousPage: page - 1,
             lastPage: totalPages,
-            selectedCategory: id
+            selectedCategoryId: categoryId
         })
     } catch (error) {
         console.log('error while filter the category products', error);

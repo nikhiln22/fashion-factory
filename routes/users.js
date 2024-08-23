@@ -17,6 +17,8 @@ userRoute.get('/login', ifLogged, userController.login);
 userRoute.post('/login', userController.loginPost);
 userRoute.get('/signup', ifLogged, userController.signup);
 userRoute.post('/signup', userController.signUpPost);
+userRoute.get('/about', userController.about);
+userRoute.get('/contact', userController.contact);
 
 
 userRoute.get('/googlesignin', userController.googleSignIn);

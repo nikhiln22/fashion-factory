@@ -1,4 +1,4 @@
-<%- include('navbar') -%>
+<%- include('navbar',{ currentPage: 'signUp' }) -%>
 
     <style>
         .account__login--password {
@@ -18,6 +18,17 @@
         .account__login--input {
             padding-right: 30px;
             /* Add padding to accommodate the eye button */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .account__login--btn {
+            max-width: 200px;
+            width: 100%;
         }
     </style>
 
@@ -108,13 +119,16 @@
                                                 onclick="togglePasswordVisibility('confirmPassword')">&#128065;</span>
                                         </div>
                                         <span id="ConfirmPassworderror"></span>
-                                        
+
                                         <input class="account__login--input" name="referralCode" id="referralCode"
-                                            placeholder="Referral Code (Optional)" type="text" onblur="validateReferralCode()">
-                                        
-                                            <span id="referralCodeError"></span>
-                                        <button class="accountror__login--btn primary__btn mb-10" type="submit">Submit &
-                                            Register</button>
+                                            placeholder="Referral Code (Optional)" type="text"
+                                            onblur="validateReferralCode()">
+
+                                        <span id="referralCodeError"></span>
+                                        <div class="button-container">
+                                            <button class="account__login--btn primary__btn mb-10" type="submit">Submit
+                                                & Register</button>
+                                        </div>
                                         <p class="account__login--signup__text">Already an existing user?<a
                                                 href="/login">login</a></p>
                                     </div>

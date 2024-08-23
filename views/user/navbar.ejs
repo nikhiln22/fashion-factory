@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="zxx">
-
 <head>
     <meta charset="utf-8">
     <title>Fashion Factory</title>
@@ -21,7 +20,8 @@
 
     <link rel="stylesheet" href="/public/userasset/css/plugins/glightbox.min.css">
 
-    <link el="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap">
+    <link el="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap">
 
     <!-- Plugin css -->
     <link rel="stylesheet" href="/public/userasset/css/vendor/bootstrap.min.css">
@@ -44,7 +44,6 @@
 </head>
 
 <body>
-
     <style>
         .header__account--items {
             display: flex;
@@ -86,8 +85,114 @@
 
         .header__account--btn__text {
             margin-top: 5px;
-            font-size:12px;
+            font-size: 12px;
             text-align: center;
+        }
+
+        .main__header--inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header__menu {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .header__menu--navigation ul {
+            display: flex;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .header__menu--items {
+            margin: 0 15px;
+        }
+
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-auth {
+            background-color: #343a40;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-auth:hover {
+            background-color: #23272b;
+        }
+
+        .header__bottom .header__menu {
+            justify-content: flex-start;
+        }
+
+        .header__bottom .header__menu--navigation ul {
+            justify-content: flex-start;
+        }
+
+        .header__bottom .header__menu--items,
+        .header__sticky--block .header__menu--items {
+            margin: 0 15px;
+        }
+
+        .header__sticky--block .header__menu {
+            justify-content: center;
+        }
+
+        .header__sticky--block .header__menu--navigation ul {
+            justify-content: center;
+            padding-left: 0;
+        }
+
+        .header__menu--items,
+        .header__menu--items.style2 {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .header__menu--items::after,
+        .header__menu--items.style2::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            background-color: #000;
+            transition: all 0.3s ease;
+        }
+
+        .header__menu--items:hover::after,
+        .header__menu--items.style2:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+        .header__menu--link {
+            transition: color 0.3s ease;
+        }
+
+        .header__menu--items:hover .header__menu--link,
+        .header__menu--items.style2:hover .header__menu--link {
+            color: #000;
+
+        }
+
+
+        .header__sticky--block .header__menu--items::after,
+        .header__bottom .header__menu--items::after {
+            bottom: -2px;
         }
     </style>
 
@@ -135,7 +240,6 @@
 
     <!-- Start header area -->
     <header class="header__section">
-
         <div class="main__header header__sticky">
             <div class="container-fluid">
                 <div class="main__header--inner position__relative d-flex justify-content-between align-items-center">
@@ -150,9 +254,8 @@
                         </a>
                     </div>
                     <div class="main__logo">
-                        <h1 class="main__logo--title"><a class="main__logo--link" href="/"><img
-                                    class="main__logo--img" src="/public/userasset/img/logo/nav-log.png"
-                                    alt="logo-img"></a></h1>
+                        <h1 class="main__logo--title"><a class="main__logo--link" href="/"><img class="main__logo--img"
+                                    src="/public/userasset/img/logo/nav-log.png" alt="logo-img"></a></h1>
                     </div>
 
                     <div class="header__search--widget header__sticky--none d-none d-lg-block">
@@ -180,9 +283,13 @@
                     <div class="header__account header__sticky--none">
                         <ul class="d-flex">
                             <% if (!locals.session.isAuth) { %>
-                                <div style="display: flex; gap: 10px;">
-                                    <button><a href="/login">Login</a></button>
-                                    <button><a href="/signup">Signup</a></button>
+                                <div class="auth-buttons">
+                                    <% if (typeof currentPage==='undefined' || currentPage !=='login' ) { %>
+                                        <a href="/login" class="btn-auth">Login</a>
+                                        <% } %>
+                                            <% if (typeof currentPage==='undefined' || currentPage !=='signUp' ) { %>
+                                                <a href="/signup" class="btn-auth">Signup</a>
+                                                <% } %>
                                 </div>
                                 <% }else {%>
                                     <li class="header__account--items">
@@ -255,7 +362,6 @@
                         </ul>
                     </div>
 
-
                     <div class="header__menu d-none header__sticky--block d-lg-block">
                         <nav class="header__menu--navigation">
                             <ul class="d-flex">
@@ -265,12 +371,12 @@
                                 <li class="header__menu--items style2">
                                     <a class="header__menu--link" href="/shop">Shop</a>
                                 </li>
-                                <!-- <li class="header__menu--items style2 d-none d-xl-block">
-                                    <a class="header__menu--link" href="shop.html">Categories </a>
-                                </li> -->
+                                <li class="header__menu--items style2">
+                                    <a class="header__menu--link" href="/about">About US</a>
+                                </li>
 
                                 <li class="header__menu--items style2">
-                                    <a class="header__menu--link " href="contact.html">Contact </a>
+                                    <a class="header__menu--link " href="/contact">Contact</a>
                                 </li>
                             </ul>
                         </nav>
@@ -278,9 +384,13 @@
                     <div class="header__account header__account2 header__sticky--block">
                         <ul class="d-flex">
                             <% if (!locals.session.isAuth) { %>
-                                <div style="display: flex; gap: 10px;">
-                                    <button><a href="/login">Login</a></button>
-                                    <button><a href="/signup">Signup</a></button>
+                                <div class="auth-buttons">
+                                    <% if (typeof currentPage==='undefined' || currentPage !=='login' ) { %>
+                                        <a href="/login" class="btn-auth">Login</a>
+                                        <% } %>
+                                            <% if (typeof currentPage==='undefined' || currentPage !=='signUp' ) { %>
+                                                <a href="/signup" class="btn-auth">Signup</a>
+                                                <% } %>
                                 </div>
                                 <% }else {%>
                                     <li
@@ -369,15 +479,16 @@
                         <nav class="header__menu--navigation">
                             <ul class="d-flex">
                                 <li class="header__menu--items">
-                                    <a class="header__menu--link" href="/">Home
-                                    </a>
-
+                                    <a class="header__menu--link" href="/">Home</a>
                                 </li>
                                 <li class="header__menu--items">
                                     <a class="header__menu--link" href="/shop">Shop </a>
                                 </li>
                                 <li class="header__menu--items">
-                                    <a class="header__menu--link" href="contact.html">Contact </a>
+                                    <a class="header__menu--link" href="/about">About Us</a>
+                                </li>
+                                <li class="header__menu--items">
+                                    <a class="header__menu--link" href="/contact">Contact </a>
                                 </li>
                             </ul>
                         </nav>

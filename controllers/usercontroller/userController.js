@@ -249,7 +249,8 @@ const signup = async (req, res) => {
       emailError: req.flash('emailError'),
       passwordError: req.flash('passwordError'),
       referralError: req.flash('referralError'),
-      success: req.flash('success')
+      success: req.flash('success'),
+      currentPage:'signUp'
     });
   } catch (error) {
     console.log('Error while loading the signup page', error);
@@ -445,10 +446,11 @@ const login = async (req, res) => {
           invaliduser: req.flash('invaliduser'),
           invalidpassword: req.flash('invalidpassword'),
           userSuccess: req.flash('userSuccess')
-        }
-      })
+        },
+        currentPage:'login'
+      });
   } catch (error) {
-    console.log('Error while loading the login page: ', error);
+    console.log('Error while loading the login page:', error);
     res.render('user/error');
   }
 };
@@ -546,7 +548,7 @@ const newpassword = async (req, res) => {
     passwordError = req.flash('passwordError')
     res.render('user/newpassword', { passwordError });
   } catch (error) {
-    console.log('error while rendering the new password page');
+    console.log('error while rendering the new password page', error);
     res.render('user/error');
   }
 }
@@ -569,6 +571,28 @@ const newPasswordPost = async (req, res) => {
     }
   } catch (error) {
     console.log('error while setting the new password');
+    res.render('user/error');
+  }
+}
+
+// rendering the about page
+const about = async (req, res) => {
+  try {
+    console.log("rendering the about page for the user side");
+    res.render('user/about');
+  } catch (error) {
+    console.log('error while rendering the about page', error);
+    res.render('user/error');
+  }
+}
+
+// rendering the contact page
+const contact = async (req, res) => {
+  try {
+    console.log("rendering the contact page for the user");
+    res.render('user/contact');
+  } catch (error) {
+    console.log('error while rendering the contact page', error);
     res.render('user/error');
   }
 }
@@ -609,5 +633,7 @@ module.exports = {
   forgotPasswordPost,
   newpassword,
   newPasswordPost,
+  about,
+  contact,
   logout
 };
