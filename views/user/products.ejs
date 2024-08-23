@@ -1,0 +1,328 @@
+<%- include('navbar') -%>
+<style>
+    .swal2-popup {
+        font-size: 1.2em !important;
+        width: 400px !important;
+    }
+
+    .swal2-title {
+        font-size: 1.5em !important;
+    }
+
+    .swal2-content {
+        font-size: 1.2em !important;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+    }
+
+    .page-item {
+        margin: 0 5px;
+    }
+
+    .page-link {
+        color: #333;
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+
+    .page-item.active .page-link {
+        background-color: #717fe0;
+        color: #fff;
+        border-color: #717fe0;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        cursor: auto;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+</style>
+
+<main class="main__content_wrapper">
+    <!-- Start breadcrumb section -->
+    <section class="breadcrumb__section breadcrumb__bg">
+        <div class="container">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <div class="breadcrumb__content text-center">
+                        <h1 class="breadcrumb__content--title text-white mb-25">Products</h1>
+                        <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a></li>
+                            <li class="breadcrumb__content--menu__items"><span class="text-white"><%= categoryData.name %> Collection</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End breadcrumb section -->
+
+    <!-- Start product based on category section -->
+    <section class="shop__section section--padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="shop__product--wrapper">
+                        <div class="tab_content">
+                            <div id="product_grid" class="tab_pane active show">
+                                <div class="product__section--inner product__grid--inner">
+                                    <div class="row row-cols-lg-4 row-cols-md-3 row-cols-2 mb--n30">
+                                        <% if (productData.length > 0) { %>
+                                            <% productData.forEach(product => { %>
+                                                <div class="col mb-30">
+                                                    <div class="product__items ">
+                                                        <div class="product__items--thumbnail">
+                                                            <a class="product__items--link" href="/shopSingle?productId=<%= product._id %>">
+                                                                <img class="product__items--img product__primary--img" src="<%= product.image[0] %>" alt="<%= product.name %>">
+                                                            </a>
+                                                            <% if (product.appliedOffer) { %>
+                                                                <div class="product__badge">
+                                                                    <span class="product__badge--items sale"><%= product.offerText %></span>
+                                                                </div>
+                                                            <% } %>
+                                                        </div>
+                                                        <div class="product__items--content">
+                                                            <h3 class="product__items--content__title h4"><a href="/shopSingle?productId=<%= product._id %>"><%= product.name %></a></h3>
+                                                            <div class="product__items--price">
+                                                                <% if (product.appliedOffer) { %>
+                                                                    <span style="color: black; font-weight: bold;" class="current__price">₹<%= product.discountedPrice %></span>
+                                                                    <span class="price__divided"></span>
+                                                                    <span class="old__price">₹<%= product.originalPrice%></span>
+                                                                    <div class="product__discount">
+                                                                        <span style="color: brown;" class="product__discount--percent">(<%= product.appliedOffer.discount %> %)</span>
+                                                                    </div>
+                                                                <% } else { %>
+                                                                    <span class="current__price">₹<%= product.originalPrice %></span>
+                                                                <% } %>
+                                                            </div>
+                                                            <% if (product.totalstock === 0) { %>
+                                                                <span style="color: red;"><strong>Out of stock</strong></span>
+                                                            <% } %>
+                                                            <ul class="rating product__rating d-flex">
+                                                                <li class="rating__list">
+                                                                    <span class="rating__list--icon">
+                                                                        <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
+                                                                            <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </li>
+                                                                <li class="rating__list">
+                                                                    <span class="rating__list--icon">
+                                                                        <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
+                                                                            <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </li>
+                                                                <li class="rating__list">
+                                                                    <span class="rating__list--icon">
+                                                                        <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
+                                                                            <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </li>
+                                                                <li class="rating__list">
+                                                                    <span class="rating__list--icon">
+                                                                        <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
+                                                                            <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </li>
+                                                                <li class="rating__list">
+                                                                    <span class="rating__list--icon">
+                                                                        <svg class="rating__list--icon__svg" xmlns="http://www.w3.org/2000/svg" width="14.105" height="14.732" viewBox="0 0 10.105 9.732">
+                                                                            <path data-name="star - Copy" d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z" transform="translate(0 -0.018)" fill="currentColor"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </li>
+                                                                <!-- Repeat for other rating stars -->
+                                                            </ul>
+                                                            <ul class="product__items--action d-flex">
+                                                                <li class="product__items--action__list">
+                                                                    <a class="product__items--action__btn add-to-wishlist" href="/wishlist" data-product-id="<%= product._id  %>">
+                                                                        <svg class="product__items--action__btn--svg" xmlns="http://www.w3.org/2000/svg" width="25.51" height="23.443" viewBox="0 0 512 512">
+                                                                            <path d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"></path>
+                                                                        </svg>
+                                                                        <span class="visually-hidden">Wishlist</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li class="product__items--action__list">
+                                                                    <a class="product__items--action__btn" data-open="modal1" href="/shopSingle?productId=<%= product._id %>">
+                                                                        <svg class="product__items--action__btn--svg" xmlns="http://www.w3.org/2000/svg" width="25.51" height="23.443" viewBox="0 0 512 512">
+                                                                            <path d="M255.66 112c-77.94 0-157.89 45.11-220.83 135.33a16 16 0 00-.27 17.77C82.92 340.8 161.8 400 255.66 400c92.84 0 173.34-59.38 221.79-135.25a16.14 16.14 0 000-17.47C428.89 172.28 347.8 112 255.66 112z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" />
+                                                                            <circle cx="256" cy="256" r="80" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" />
+                                                                        </svg>
+                                                                        <span class="visually-hidden">Quick View</span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <div class="alert alert-warning" role="alert">
+                                                No products found.
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination starts -->
+            <nav aria-label="Product navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <% if(hasPreviousPage) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="First">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= previousPage %>" aria-label="Previous">Previous</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-hidden="true">First</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-hidden="true">Previous</span>
+                        </li>
+                    <% } %>
+
+                    <% for(let i=1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+
+                    <% if(hasNextPage) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= nextPage %>" aria-label="Next">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= lastPage %>" aria-label="Last">Last</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-hidden="true">Next</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-hidden="true">Last</span>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+            <!-- Pagination Ends -->
+        </div>
+    </section>
+    <!-- End product based on category section -->
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+
+        wishlistButtons.forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                addToWishlist(productId);
+            });
+        });
+
+        function addToWishlist(productId) {
+            fetch('/wishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId: productId }),
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        swal.fire({
+                            icon: 'warning',
+                            title: 'Oops..',
+                            text: 'You need to login to add items to your wishlist.',
+                            customClass: {
+                                popup: 'swal2-popup',
+                                title: 'swal2-title',
+                                content: 'swal2-content',
+                            },
+                            showConfirmButton: true,
+                            confirmButtonText: 'Login'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/login';
+                            }
+                        });
+                        return Promise.reject('redirect');
+                    } else if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        swal.fire({
+                            icon: 'success',
+                            title: 'Added to wishlist!',
+                            text: 'The product has been added to your wishlist.',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'swal2-popup',
+                                title: 'swal2-title',
+                                content: 'swal2-content',
+                            }
+                        }).then(() => {
+                            window.location.href = '/wishlist';
+                        });
+                    } else {
+                        swal.fire({
+                            icon: 'info',
+                            title: 'Already in wishlist',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'swal2-popup',
+                                title: 'swal2-title',
+                                content: 'swal2-content',
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    if (error === 'redirect') {
+                        // Do nothing, as we've already handled the redirect case
+                        return;
+                    }
+                    console.error('Error:', error);
+                    swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'An error occurred. Please try again.',
+                        customClass: {
+                            popup: 'swal2-popup',
+                            title: 'swal2-title',
+                            content: 'swal2-content',
+                        }
+                    });
+                });
+        }
+    });
+</script>
+
+<%- include('footer') -%>
