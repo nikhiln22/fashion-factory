@@ -126,8 +126,8 @@
                             </li>
                             <li class="breadcrumb__content--menu__items"><a class="text-white" href="/orders">Orders</a>
                             </li>
-                            <li class="breadcrumb__content--menu__items"><span class="text-white">Order #<%=
-                                        orderDetails.orderId %></span></li>
+                            <li class="breadcrumb__content--menu__items"><span class="text-white"><%= orderDetails._id %></span> 
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -171,11 +171,11 @@
                         <!-- Ordered Product Details -->
 
                         <!-- Product Details -->
-                        <% orderDetails.orderedItem.forEach(function(product) { %>
+                        <% orderDetails.orderedItem.forEach(function(item) { %>
                             <div class="row mb-4">
-                                <% if(product.productStatus=="delivered" || product.productStatus=="returned" ) { %>
+                                <% if(item.productStatus=="delivered" || item.productStatus=="returned" ) { %>
                                     <div class="col-12 d-flex justify-content-end mb-3">
-                                        <a href="/invoice?orderId=<%= orderDetails._id %>&productId=<%= product.productId._id %>"
+                                        <a href="/invoice?orderId=<%= orderDetails._id %>&productId=<%= item.productId._id %>"
                                             class="invoice-button">
                                             <i class="fas fa-file-invoice-dollar"></i> Invoice
                                         </a>
@@ -184,16 +184,18 @@
 
                                         <div class="col-md-6">
                                             <div class="d-flex align-items-center">
-                                                <img src="<%= product.productId.image[0] %>" alt="Product Image"
+                                                <img src="<%= item.productId.image[0] %>" alt="Product Image"
                                                     class="order-image me-3">
                                                 <div>
                                                     <h6 class="m-0">
-                                                        <%= product.productId.name %>
+                                                        <%= item.productId.name %>
                                                     </h6>
-                                                    <small class="text-muted">Size: <%= product.size %></small>
-                                                    <div>Quantity: <%= product.quantity %>
+                                                    <small class="text-muted">Size: <%= item.size %></small>
+                                                    <div>Quantity: <%= item.quantity %>
                                                     </div>
-                                                    <div>Price: ₹<%= product.totalProductPrice %>
+                                                    <div>Price: ₹<%= item.productPrice %>
+                                                    </div>
+                                                    <div>Total: ₹<%= item.totalProductPrice %>
                                                     </div>
                                                 </div>
                                             </div>
@@ -203,15 +205,15 @@
                                             orderDetails.paymentMethod==="COD" ) { %>
                                             <div class="col-md-6 d-flex justify-content-end align-items-start">
                                                 <input type="hidden" class="productId"
-                                                    value="<%= product.productId._id %>">
+                                                    value="<%= item.productId._id %>">
                                                 <input type="hidden" class="status"
-                                                    value="<%= product.productStatus %>">
-                                                <% if (product.productStatus==="delivered" ) { %>
+                                                    value="<%= item.productStatus %>">
+                                                <% if (item.productStatus==="delivered" ) { %>
                                                     <button class="btn btn-outline-primary">Return</button>
-                                                    <% } else if (product.productStatus !=="cancelled" &&
-                                                        product.productStatus !=="returned" && product.productStatus !== "return rejected" ) { %>
+                                                    <% } else if (item.productStatus !=="cancelled" &&
+                                                        item.productStatus !=="returned" && item.productStatus !== "return rejected" ) { %>
                                                         <a href="#" class="btn btn-outline-primary me-2 cancel-order"
-                                                            data-product-id="<%= product.productId._id %>">
+                                                            data-product-id="<%= item.productId._id %>">
                                                             <i class="fa-solid fa-xmark"></i> Cancel
                                                         </a>
                                                         <% } %>
@@ -223,11 +225,11 @@
                             <% if(orderDetails.paymentStatus !=="pending" || orderDetails.paymentMethod==="COD" ) { %>
                                 <span
                                     class="status-text 
-                                        <%= product.productStatus === 'cancelled' ? 'text-danger' : 
-                                           product.productStatus === 'delivered' ? 'text-success' : 
-                                           product.productStatus === 'Shipped' ? 'text-warning' : 'text-primary' %> fw-bold">
-                                    Status: <%= product.productStatus==='Shipped' ? 'Shipped' :
-                                        (product.productStatus.charAt(0).toUpperCase() + product.productStatus.slice(1))
+                                        <%= item.productStatus === 'cancelled' ? 'text-danger' : 
+                                           item.productStatus === 'delivered' ? 'text-success' : 
+                                           item.productStatus === 'Shipped' ? 'text-warning' : 'text-primary' %> fw-bold">
+                                    Status: <%= item.productStatus==='Shipped' ? 'Shipped' :
+                                        (item.productStatus.charAt(0).toUpperCase() + item.productStatus.slice(1))
                                         %>
                                 </span>
                                 <% } %>

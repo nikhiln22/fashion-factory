@@ -87,9 +87,11 @@
                                         </tr>
                                         <% }) %>
                                 </tbody>
-                            </table>
-                           
-                                    <!----Pagination------->
+                            </table>     
+                                    <% } else { %>
+                                        <h1 class="text-center text-secondary mt-5">No catagories found in the database</h1>
+                                        <% } %>
+                                        <!----Pagination starts------->
                                     <nav aria-label="Product navigation" class="mt-4">
                                         <ul class="pagination justify-content-centre">
                                             <% if(hasPreviousPage) { %>
@@ -141,9 +143,8 @@
                                                                         <% } %>
                                         </ul>
                                     </nav>
-                                    <% } else { %>
-                                        <h1 class="text-center text-secondary mt-5">No catagories found in the database</h1>
-                                        <% } %>
+                                        <!----Pagination Ends------->
+
     </section>
 
     <script>

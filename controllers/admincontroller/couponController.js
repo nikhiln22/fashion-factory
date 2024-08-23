@@ -167,4 +167,11 @@ const updateCoupon = async (req, res) => {
 }
 
 
-module.exports = { coupons, addCoupon, newCoupon, unlistCoupon, updateCouponPage, updateCoupon }
+module.exports = {
+    coupons,
+    addCoupon,
+    newCoupon,
+    unlistCoupon,
+    updateCouponPage,
+    updateCoupon
+}

@@ -23,7 +23,6 @@
         <div class="col-lg-12 mt-4">
             <div class="table-responsive">
                 <% if (orderDetails!='' ) { %>
-
                     <table class="table table-bordered mt-2 text-center"">
                             <thead>
                                 <tr class=" table-primary">
@@ -95,40 +94,42 @@
                     </table>
             </div>
         </div>
-        <!---Pagination starts here-->
-        <nav aria-label="Page navigation example" class="d-flex justify-content-centre my-4">
-            <ul class="pagination">
-                <% if (hasPreviousPage) { %>
-                    <li class="page-item"><a class="page-link" href="/admin/orders?page=1">First</a></li>
-                    <li class="page-item"><a class="page-link"
-                            href="/admin/orders?page=<%= previousPage %>">Previous</a></li>
-                    <% } else { %>
-                        <li class="page-item disabled"><span class="page-link">First</span></li>
-                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                        <% } %>
-
-                            <% for (let i=1; i <=totalPages; i++) { %>
-                                <li class="page-item <%= currentPage === i ? 'active' : '' %>"><a class="page-link"
-                                        href="/admin/orders?page=<%= i %>">
-                                        <%= i %>
-                                    </a></li>
-                                <% } %>
-
-                                    <% if (hasNextPage) { %>
-                                        <li class="page-item"><a class="page-link"
-                                                href="/admin/orders?page=<%= nextPage %>">Next</a></li>
-                                        <li class="page-item"><a class="page-link"
-                                                href="/admin/orders?page=<%= lastPage %>">Last</a></li>
-                                        <% } else { %>
-                                            <li class="page-item disabled"><span class="page-link">Next</span></li>
-                                            <li class="page-item disabled"><span class="page-link">Last</span></li>
-                                            <% } %>
-            </ul>
-        </nav>
-        <!---Pagination ends here-->
         <% } else { %>
             <h1 class="text-center text-secondary mt-5">No Orders has been placed so far....!
             </h1>
             <% } %>
+                <!---Pagination starts here-->
+                <nav aria-label="Page navigation example" class="d-flex justify-content-centre my-4">
+                    <ul class="pagination">
+                        <% if (hasPreviousPage) { %>
+                            <li class="page-item"><a class="page-link" href="/admin/orders?page=1">First</a></li>
+                            <li class="page-item"><a class="page-link"
+                                    href="/admin/orders?page=<%= previousPage %>">Previous</a></li>
+                            <% } else { %>
+                                <li class="page-item disabled"><span class="page-link">First</span></li>
+                                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                                <% } %>
+
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <li class="page-item <%= currentPage === i ? 'active' : '' %>"><a
+                                                class="page-link" href="/admin/orders?page=<%= i %>">
+                                                <%= i %>
+                                            </a></li>
+                                        <% } %>
+
+                                            <% if (hasNextPage) { %>
+                                                <li class="page-item"><a class="page-link"
+                                                        href="/admin/orders?page=<%= nextPage %>">Next</a></li>
+                                                <li class="page-item"><a class="page-link"
+                                                        href="/admin/orders?page=<%= lastPage %>">Last</a></li>
+                                                <% } else { %>
+                                                    <li class="page-item disabled"><span class="page-link">Next</span>
+                                                    </li>
+                                                    <li class="page-item disabled"><span class="page-link">Last</span>
+                                                    </li>
+                                                    <% } %>
+                    </ul>
+                </nav>
+                <!---Pagination ends here-->
     </section>
     <%- include('adminfooter') %>

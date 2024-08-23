@@ -4,7 +4,6 @@ const productModel = require('../../model/productModel');
 
 
 // rendering the offers displaying page for the admin
-
 const offer = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
@@ -225,4 +224,13 @@ const deleteOffer = async (req, res) => {
 
 
 
-module.exports = { offer, addOffer, offerType, editOfferPage, offerProdIdSave, offercatIdSave, editoffer, deleteOffer }
+module.exports = {
+    offer,
+    addOffer,
+    offerType,
+    editOfferPage,
+    offerProdIdSave,
+    offercatIdSave,
+    editoffer,
+    deleteOffer
+}

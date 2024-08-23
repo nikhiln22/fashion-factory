@@ -172,7 +172,7 @@ const updateImage = async (req, res) => {
         console.log(id, '###########8###########');
         const imageNotFound = req.flash('imageNotFound');
         const product = await productModel.findById(id);
-        console.log('product:',product);
+        console.log('product:', product);
         console.log(product.image, '111111111111111111');
         res.render('admin/updateimage', { product: product, imageNotFound });
     } catch (error) {
@@ -229,4 +229,14 @@ const deleteImage = async (req, res) => {
 
 
 
-module.exports = { product, addProduct, addProductPost, unlist, updateProduct, updateProductPost, updateImage, updateImagePost, deleteImage }
+module.exports = {
+    product,
+    addProduct,
+    addProductPost,
+    unlist,
+    updateProduct,
+    updateProductPost,
+    updateImage,
+    updateImagePost,
+    deleteImage
+}

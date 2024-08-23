@@ -165,4 +165,11 @@ const updateCatagoryPost = async (req, res) => {
 }
 
 
-module.exports = { addCategory, addCatagoryPost, catagory, unlist, updateCatagory, updateCatagoryPost };
+module.exports = {
+    addCategory,
+    addCatagoryPost,
+    catagory,
+    unlist,
+    updateCatagory,
+    updateCatagoryPost
+};

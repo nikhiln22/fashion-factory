@@ -86,9 +86,9 @@
                                                         <%= row.name %>
                                                     </td>
                                                     <td>
-                                                        <!-- <marquee behavior="scroll" direction="left"> -->
+                                                        <marquee behavior="scroll" direction="left">
                                                         <%= row.description%>
-                                                            <!-- </marquee> -->
+                                                            </marquee>
                                                     </td>
                                                     <td>
                                                         <%= row.category?.name%>
@@ -121,37 +121,40 @@
                                     </table>
                             </div>
         </div>
-
-        <!---Pagination starts here-->
-        <nav aria-label="Product navigation" class="mt-4">
-            <ul class="pagination justify-content-centre">
-                <% if(hasPreviousPage) { %>
-                    <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
-                    <li class="page-item"><a class="page-link" href="?page=<%= previousPage %>">Previous</a></li>
-                    <% } %>
-
-                        <% for(let i=startPage; i <=endPage; i++) { %>
-                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                <a class="page-link" href="?page=<%= i %>">
-                                    <%= i %>
-                                </a>
-                            </li>
-                            <% } %>
-
-                                <% if(hasNextPage) { %>
-                                    <li class="page-item"><a class="page-link" href="?page=<%= nextPage %>">Next</a>
-                                    </li>
-                                    <li class="page-item"><a class="page-link" href="?page=<%= lastPage %>">Last</a>
-                                    </li>
-                                    <% } %>
-            </ul>
-        </nav>
-        <!---Pagination ends here-->
         <% } else { %>
             <h1 class="text-center text-secondary mt-5">No Product found in the
                 database
             </h1>
             <% } %>
+
+                <!---Pagination starts here-->
+                <nav aria-label="Product navigation" class="mt-4">
+                    <ul class="pagination justify-content-centre">
+                        <% if(hasPreviousPage) { %>
+                            <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                            <li class="page-item"><a class="page-link" href="?page=<%= previousPage %>">Previous</a>
+                            </li>
+                            <% } %>
+
+                                <% for(let i=startPage; i <=endPage; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                    <% } %>
+
+                                        <% if(hasNextPage) { %>
+                                            <li class="page-item"><a class="page-link"
+                                                    href="?page=<%= nextPage %>">Next</a>
+                                            </li>
+                                            <li class="page-item"><a class="page-link"
+                                                    href="?page=<%= lastPage %>">Last</a>
+                                            </li>
+                                            <% } %>
+                    </ul>
+                </nav>
+                <!---Pagination ends here-->
     </section>
 
     <script>

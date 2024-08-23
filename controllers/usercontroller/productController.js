@@ -89,9 +89,12 @@ const shop = async (req, res) => {
 // rendering the user side single shopping product page...
 const shopSingle = async (req, res) => {
     try {
+        console.log('rendering the shop single page for the user');
         const productId = req.query.productId;
+        console.log('productId:', productId);
         let userId = req.session.userId;
         const productData = await productModel.findOne({ _id: productId });
+        console.log('productData:', productData);
         let categoryData = await productModel.find({ category: productData.category, _id: { $ne: productId } });
 
         const userData = userId ? await userModel.findOne({ _id: userId }) : null;
@@ -163,7 +166,6 @@ const shopSingle = async (req, res) => {
         res.render('user/error');
     }
 }
-
 
 
 // products sorting from price high to low

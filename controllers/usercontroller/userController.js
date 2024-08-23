@@ -11,6 +11,8 @@ const otpGenerator = require('otp-generator');
 const passport = require('passport');
 require('dotenv').config();
 const walletModel = require('../../model/WalletModel');
+const offerModel = require('../../model/offerModel');
+const cartModel = require('../../model/cartModel');
 
 
 const mail = process.env.EMAIL;
@@ -69,22 +71,173 @@ const sendMail = async (email, otp, username) => {
   }
 };
 
-
-// Rendering the home page
+// rendering the home page for the user
 const index = async (req, res) => {
   try {
     console.log('rendering the user home page');
-    const id = req.session.userId;
-    const categories = await categoryModel.find({ status: true });
-    const products = await productModel.find().limit(5)
-    if (req.user) {
-      req.session.isAuth = true;
-      req.session.userId = req.user._id;
+    let userId = req.session.userId;
+    let userData = await userModel.findOne({ _id: userId, status: true });
+    let categoryData = await categoryModel.find({});
+    console.log('categoryData:', categoryData);
+    let offerData = await offerModel.find({
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() }
+    });
+    const limit = 5;
+    let productData = await productModel.find({ status: true }).sort({ _id: -1 }).limit(limit).populate('category');
+    productData = productData.map((product) => {
+      let productDiscountedPrice = product.price;
+      let categoryDiscountedPrice = product.price;
+      let appliedOffer = null;
+      offerData.forEach((offer) => {
+        if (offer.offerType === 'product' && offer.productId.includes(product._id.toString())) {
+          productDiscountedPrice = product.price - (product.price * offer.discount) / 100;
+        }
+      });
+      offerData.forEach((offer) => {
+        if (offer.offerType === 'category' && offer.categoryId.includes(product.category._id.toString())) {
+          categoryDiscountedPrice = product.price - (product.price * offer.discount) / 100;
+        }
+      });
+      if (productDiscountedPrice <= categoryDiscountedPrice) {
+        appliedOffer = offerData.find(
+          (offer) =>
+            offer.offerType === "product" &&
+            offer.productId.includes(product._id.toString())
+        );
+        discountedPrice = Math.round(productDiscountedPrice);
+      } else {
+        appliedOffer = offerData.find(
+          (offer) =>
+            offer.offerType === "category" &&
+            offer.categoryId.includes(product.category._id.toString())
+        );
+        discountedPrice = Math.round(categoryDiscountedPrice);
+      }
+
+      return {
+        ...product.toObject(),
+        originalPrice: product.price,
+        discountedPrice,
+        appliedOffer: appliedOffer
+          ? {
+            offerName: appliedOffer.offerName,
+            discount: appliedOffer.discount,
+          }
+          : null,
+        offerText: appliedOffer ? `${appliedOffer.discount}% Off` : "",
+      };
+    });
+
+
+    const cartCount = userData ? await cartModel.countDocuments({ userId: userId }) : 0;
+    const wishlistCount = userData ? userData.wishlist.length : 0;
+
+    if (userData) {
+      res.render('user/home', {
+        productData: productData,
+        userData: userData,
+        categoryData,
+        offerData,
+        cartCount,
+        wishlistCount,
+      })
+    } else {
+      res.render('user/home', {
+        productData: productData,
+        userData: null,
+        categoryData,
+        offerData,
+        cartCount,
+        wishlistCount,
+      })
     }
-    res.render('user/home', { categories, products });
   } catch (error) {
-    console.log('Error while loading the index page', error);
+    console.log('error occured while rendering the home page');
     res.render('user/error');
+  }
+}
+
+// finding the products basis on the category
+const findByCategory = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 8;
+    const skip = (page - 1) * limit;
+    const { categoryId } = req.query;
+    const userData = await userModel.findOne({ _id: req.session.userId });
+    const offerData = await offerModel.find({
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() }
+    });
+    let productData = await productModel.find({ category: categoryId, status: true })
+      .sort({ _id: -1 })
+      .limit(limit)
+      .skip(skip)
+      .populate('category');
+
+    const totalProducts = await productModel.countDocuments({
+      category: categoryId,
+      status: true
+    });
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    productData = productData.map((product) => {
+      let productDiscountedPrice = product.price;
+      let categoryDiscountedPrice = product.price;
+      let appliedOffer = null;
+
+      offerData.forEach((offer) => {
+        if (offer.offerType === 'product' && offer.productId.includes(product._id.toString())) {
+          productDiscountedPrice = product.price - (product.price * offer.discount) / 100;
+        }
+      });
+
+      offerData.forEach((offer) => {
+        if (offer.offerType === 'category' && offer.categoryId.includes(product.category._id.toString())) {
+          categoryDiscountedPrice = product.price - (product.price * offer.discount) / 100;
+        }
+      });
+
+      if (productDiscountedPrice <= categoryDiscountedPrice) {
+        appliedOffer = offerData.find((offer) => offer.offerType === 'product' && offer.productId.includes(product._id.toString()))
+        discountedPrice = Math.round(productDiscountedPrice);
+      } else {
+        appliedOffer = offerData.find((offer) => offer.offerType === 'category' && offer.categoryId.includes(product.category._id.toString()));
+        discountedPrice = Math.round(categoryDiscountedPrice);
+      }
+      return {
+        ...product.toObject(),
+        originalPrice: product.price,
+        discountedPrice,
+        appliedOffer: appliedOffer
+          ? {
+            offerName: appliedOffer.offerName,
+            discount: appliedOffer.discount,
+          }
+          : null,
+        offerText: appliedOffer ? `${appliedOffer.discount}% off` : ''
+      }
+    });
+
+    const categoryData = await categoryModel.findById(categoryId);
+    console.log('categoryData:', categoryData);
+
+    res.render('user/products', {
+      productData,
+      userData,
+      categoryData,
+      currentPage: page,
+      totalPages: totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: totalPages,
+    });
+  } catch (error) {
+    console.error('Error while rendering the filtered products pages:', error);
+    res.status(500).render('user/error', { error: 'An error occurred while fetching the products.' });
   }
 };
 
@@ -105,7 +258,6 @@ const signup = async (req, res) => {
 };
 
 // function to generate unique refferal code
-
 const generateuniqueRefferalCode = async () => {
   let code;
   let isUnique = false;
@@ -267,7 +419,7 @@ const verifyOtp = async (req, res) => {
 // veryfying the resend otp
 const resendOtp = async (req, res) => {
   try {
-    console.log('***********entered the veryfying resended otp****************');
+    console.log('veryfying the resended otp to the user');
     const email = req.session.user.email;
     const otp = generateOtp();
     console.log('otp:', otp);
@@ -286,7 +438,7 @@ const resendOtp = async (req, res) => {
 // Rendering the login page
 const login = async (req, res) => {
   try {
-    console.log('eneterd login page----------->');
+    console.log('rendering the login page');
     res.render('user/login',
       {
         expressFlash: {
@@ -301,10 +453,10 @@ const login = async (req, res) => {
   }
 };
 
-// user login post
+// validaing the user credentials
 const loginPost = async (req, res) => {
   try {
-    console.log('entered login post');
+    console.log('validating the user credentials');
     const email = req.body.email;
     const password = req.body.password;
     const user = await userModel.findOne({ email: email });
@@ -356,9 +508,10 @@ const forgotPassword = async (req, res) => {
   }
 }
 
-// forgot password post
+// validating the forgotten password
 const forgotPasswordPost = async (req, res) => {
   try {
+    console.log('validating the password');
     const email = req.body.email;
     const emailExist = await userModel.findOne({ email: email });
     console.log('user entered email:', email);
@@ -398,7 +551,7 @@ const newpassword = async (req, res) => {
   }
 }
 
-// new password post
+// validating the newly created password by the user
 const newPasswordPost = async (req, res) => {
   try {
     console.log('entered the new password post method');
@@ -441,6 +594,7 @@ const logout = async (req, res) => {
 
 module.exports = {
   index,
+  findByCategory,
   signup,
   signUpPost,
   login,

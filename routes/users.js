@@ -12,6 +12,7 @@ const passport = require('passport');
 
 
 userRoute.get('/', userController.index);
+userRoute.get('/productcat', userController.findByCategory);
 userRoute.get('/login', ifLogged, userController.login);
 userRoute.post('/login', userController.loginPost);
 userRoute.get('/signup', ifLogged, userController.signup);

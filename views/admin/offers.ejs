@@ -100,6 +100,39 @@
             </div>
         </div>
 
+        <!-------Pagination starts------->
+        <nav aria-label="Page navigation example" class="d-flex justify-content-centre  my-4">
+            <ul class="pagination">
+                <% if(hasPreviousPage) { %>
+                    <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                    <li class="page-item"><a class="page-link" href="?page=<%= previousPage %>">Previous</a>
+                    </li>
+                    <% } else { %>
+                        <li class="page-item disabled"><span class="page-link">First</span></li>
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                        <% } %>
+
+                            <% for(let i=1; i <=totalPages; i++) { %>
+                                <li class="page-item <%= i === currentPage? 'active' : '' %>"><a class="page-link"
+                                        href="?page=<%= i %>">
+                                        <%= i %>
+                                    </a></li>
+                                <% } %>
+
+                                    <% if(hasNextPage) { %>
+                                        <li class="page-item"><a class="page-link" href="?page=<%= nextPage %>">Next</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="?page=<%= lastPage %>">Last</a>
+                                        </li>
+                                        <% } else { %>
+                                            <li class="page-item disabled"><span class="page-link">Next</span>
+                                            </li>
+                                            <li class="page-item disabled"><span class="page-link">Last</span>
+                                            </li>
+                                            <% } %>
+            </ul>
+        </nav>
+        <!-------Pagination Ends------->
 
         <!-- Add Offer Form (Initially Hidden) -->
         <div id="addOfferForm" style="display: none;">
@@ -254,12 +287,12 @@
                             if (res.data.productDetails) {
                                 // Handle product selection
                                 const products = res.data.productDetails;
-                                console.log('products:',products);
+                                console.log('products:', products);
                                 const modalProductList = document.getElementById('modalProductList');
                                 modalProductList.innerHTML = '';
                                 products.forEach(product => {
                                     const imageUrl = `/${product.image[0]}`;
-                                    console.log('imageUrl:',imageUrl);
+                                    console.log('imageUrl:', imageUrl);
                                     const productItem = document.createElement('div');
                                     productItem.className = 'product-item d-flex align-items-center justify-content-between p-2';
                                     productItem.innerHTML = `
