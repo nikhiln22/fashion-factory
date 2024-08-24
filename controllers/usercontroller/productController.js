@@ -169,443 +169,206 @@ const shopSingle = async (req, res) => {
 }
 
 
-// products sorting from price high to low
+// Utility function to apply offers
+const applyOffers = async (products, offerdata) => {
+    return products.map(product => {
+        let discountedPrice = product.price;
+        let appliedOffer = null;
+        offerdata.forEach(offer => {
+            const productMatchesOffer = offer.offerType === 'product' && offer.productId.some(id => id.toString() === product._id.toString());
+            const categoryMatchesOffer = offer.offerType === 'category' && product.category && offer.categoryId.some(id => id.toString() === product.category._id.toString());
+
+            if (productMatchesOffer || categoryMatchesOffer) {
+                let newDiscountedPrice = product.price - (product.price * offer.discount / 100);
+                if (newDiscountedPrice < discountedPrice) {
+                    discountedPrice = Math.round(newDiscountedPrice);
+                    appliedOffer = offer;
+                }
+            }
+        });
+        return {
+            ...product._doc,
+            originalPrice: product.price,
+            discountedPrice,
+            appliedOffer: appliedOffer ? {
+                offerName: appliedOffer.offerName,
+                discount: appliedOffer.discount
+            } : null,
+            offerText: appliedOffer ? `${appliedOffer.discount}% off` : ''
+        };
+    });
+};
+
+// Utility function to get common data
+const getCommonData = async (userId, page, limit, categoryId) => {
+    const skip = (page - 1) * limit;
+    const userdata = userId ? await userModel.findOne({ _id: userId }) : null;
+    const categories = await catagoryModel.find();
+    const matchStage = categoryId ? { status: true, category: categoryId } : { status: true };
+    const totalProducts = await productModel.countDocuments(matchStage);
+    const totalPages = Math.ceil(totalProducts / limit);
+    const cartCount = userId ? await cartModel.countDocuments({ userId: userId }) : 0;
+    const wishlistCount = userdata ? userdata.wishlist.length : 0;
+    const offerdata = await offerModel.find({
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() }
+    });
+
+    return {
+        userdata, categories, totalProducts, totalPages, cartCount, wishlistCount, offerdata, skip, matchStage
+    };
+};
+
+// Utility function to render the shop page
+const renderShopPage = (res, products, commonData, page, totalPages, categoryId) => {
+    res.render('user/shop', {
+        product: products,
+        categories: commonData.categories,
+        userdata: commonData.userdata,
+        wishlistCount: commonData.wishlistCount,
+        cartCount: commonData.cartCount,
+        currentPage: page,
+        totalPages: totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: totalPages,
+        selectedCategory: categoryId
+    });
+};
+
+// sorting the product price on the basis of high to low
 const highLow = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 8;
-    const skip = (page - 1) * limit;
-    const categoryId = req.query.categoryId;
     try {
-        console.log('rendering the page where the price sorts from the highest value to the lowest');
-        const userId = req.session.userId;
-        const userdata = userId ? await userModel.findOne({ _id: userId }) : null;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+        const categoryId = req.query.category;
+        const commonData = await getCommonData(req.session.userId, page, limit, categoryId);
 
-        let productsQuery = categoryId ? productModel.find({ category: categoryId }) : productModel.find();
+        let products = await productModel.find(commonData.matchStage)
+            .populate('category')
+            .sort({ price: -1 })
+            .skip(commonData.skip)
+            .limit(limit);
 
-        let products = await productModel.find().populate('category');
-        const categories = await catagoryModel.find();
+        products = await applyOffers(products, commonData.offerdata);
+        products.sort((a, b) => b.discountedPrice - a.discountedPrice);
 
-        const totalProductsQuery = categoryId ? productModel.countDocuments({ status: true, category: categoryId }) : productModel.countDocuments({ status: true });
-        const totalProducts = await totalProductsQuery;
-
-        // const totalProducts = await productModel.countDocuments({ status: true });
-        const totalPages = Math.ceil(totalProducts / limit);
-
-        let offerdata = await offerModel.find({
-            startDate: { $lte: new Date() },
-            endDate: { $gte: new Date() }
-        });
-        const applyOffer = (product) => {
-            let discountedPrice = product.price;
-            let appliedOffer = null;
-            offerdata.forEach(offer => {
-                const productMatchesOffer = offer.offerType === 'product' && offer.productId.some(id => id.toString() === product._id.toString());
-                const categoryMatchesOffer = offer.offerType === 'category' && product.category && offer.categoryId.some(id => id.toString() === product.category._id.toString());
-
-                if (productMatchesOffer || categoryMatchesOffer) {
-                    let newDiscountedPrice = product.price - (product.price * offer.discount / 100);
-                    if (newDiscountedPrice < discountedPrice) {
-                        discountedPrice = Math.round(newDiscountedPrice);
-                        appliedOffer = offer;
-                    }
-                }
-            });
-            return { discountedPrice, appliedOffer };
-        };
-
-        products = products.map(product => {
-            const { discountedPrice, appliedOffer } = applyOffer(product);
-            return {
-                ...product._doc,
-                originalPrice: product.price,
-                discountedPrice,
-                appliedOffer: appliedOffer ? {
-                    offerName: appliedOffer.offerName,
-                    discount: appliedOffer.discount
-                } : null,
-                offerText: appliedOffer ? `${appliedOffer.discount}% off` : ''
-            };
-        });
-
-        products = products.sort((a, b) => b.discountedPrice - a.discountedPrice);
-        products = products.slice(skip, skip + limit);
-
-        const cartCount = userId ? await cartModel.countDocuments({ userId: userId }) : 0;
-        const wishlistCount = userdata ? userdata.wishlist.length : 0;
-
-        res.render('user/shop', {
-            product: products,
-            categories,
-            userdata,
-            wishlistCount,
-            cartCount,
-            currentPage: page,
-            totalPages: totalPages,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            lastPage: totalPages,
-            selectedCategory: categoryId
-        })
+        renderShopPage(res, products, commonData, page, commonData.totalPages, categoryId);
     } catch (error) {
-        console.log('error while displaying the sorted products', error);
-        res.render('user/error');
+        console.error('Error in highLow:', error);
+        res.render('user/error', { error: 'An error occurred while sorting products.' });
     }
-}
+};
 
-// products sorting form price low to high
+// sorting the products price starting from low to high
 const lowHigh = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 8;
-    const skip = (page - 1) * limit;
-    const categoryId = req.query.categoryId;
     try {
-        console.log('rendering the page where the price sorts from the lowest value to the highest');
-        const userId = req.session.userId;
-        const userdata = userId ? await userModel.findOne({ _id: userId }) : null;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+        const categoryId = req.query.category;
+        const commonData = await getCommonData(req.session.userId, page, limit, categoryId);
 
-        let productsQuery = categoryId ? productModel.find({ category: categoryId }) : productModel.find();
+        let products = await productModel.find(commonData.matchStage)
+            .populate('category')
+            .sort({ price: 1 })
+            .skip(commonData.skip)
+            .limit(limit);
 
+        products = await applyOffers(products, commonData.offerdata);
+        products.sort((a, b) => a.discountedPrice - b.discountedPrice);
 
-        let products = await productModel.find().populate('category');
-        const categories = await catagoryModel.find();
-
-        const totalProductsQuery = categoryId ? productModel.countDocuments({ status: true, category: categoryId }) : productModel.countDocuments({ status: true });
-        const totalProducts = await totalProductsQuery;
-
-        // const totalProducts = await productModel.countDocuments({ status: true });
-        const totalPages = Math.ceil(totalProducts / limit);
-        let offerdata = await offerModel.find({
-            startDate: { $lte: new Date() },
-            endDate: { $gte: new Date() }
-        });
-        const applyOffer = (product) => {
-            let discountedPrice = product.price;
-            let appliedOffer = null;
-            offerdata.forEach(offer => {
-                const productMatchesOffer = offer.offerType === 'product' && offer.productId.some(id => id.toString() === product._id.toString());
-                const categoryMatchesOffer = offer.offerType === 'category' && product.category && offer.categoryId.some(id => id.toString() === product.category._id.toString());
-
-                if (productMatchesOffer || categoryMatchesOffer) {
-                    let newDiscountedPrice = product.price - (product.price * offer.discount / 100);
-                    if (newDiscountedPrice < discountedPrice) {
-                        discountedPrice = Math.round(newDiscountedPrice);
-                        appliedOffer = offer;
-                    }
-                }
-            });
-            return { discountedPrice, appliedOffer };
-        };
-
-        products = products.map(product => {
-            const { discountedPrice, appliedOffer } = applyOffer(product);
-            return {
-                ...product._doc,
-                originalPrice: product.price,
-                discountedPrice: discountedPrice || product.price,
-                appliedOffer: appliedOffer ? {
-                    offerName: appliedOffer.offerName,
-                    discount: appliedOffer.discount
-                } : null,
-                offerText: appliedOffer ? `${appliedOffer.discount}% off` : ''
-            };
-        });
-
-        products = products.sort((a, b) => a.discountedPrice - b.discountedPrice);
-        products = products.slice(skip, skip + limit);
-
-        const cartCount = userId ? await cartModel.countDocuments({ userId: userId }) : 0;
-        const wishlistCount = userdata ? userdata.wishlist.length : 0;
-
-        res.render('user/shop', {
-            product: products,
-            categories,
-            userdata,
-            wishlistCount,
-            cartCount,
-            currentPage: page,
-            totalPages: totalPages,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            lastPage: totalPages,
-            selectedCategory: categoryId
-        })
+        renderShopPage(res, products, commonData, page, commonData.totalPages, categoryId);
     } catch (error) {
-        console.log('error while displaying the sorted products', error);
-        res.render('user/error');
+        console.error('Error in lowHigh:', error);
+        res.render('user/error', { error: 'An error occurred while sorting products.' });
     }
-}
+};
 
-// sorting the products from the a To Z
+// sorting the products in the ascending order of alphabets
 const aToZ = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 8;
-    const skip = (page - 1) * limit;
-    const selectedCategory = req.query.category;
     try {
-        console.log('rendering the page where the product name sorts from a to Z');
-        const userId = req.session.userId;
-        const userdata = userId ? await userModel.findOne({ _id: userId }) : null;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+        const categoryId = req.query.category;
+        const commonData = await getCommonData(req.session.userId, page, limit, categoryId);
 
-        let matchStage = { status: true };
-        if (selectedCategory) {
-            matchStage.category = selectedCategory;
-        }
+        let products = await productModel.find(commonData.matchStage)
+            .populate('category')
+            .sort({ name: 1 })
+            .skip(commonData.skip)
+            .limit(limit)
 
-        const totalProducts = await productModel.countDocuments({ matchStage });
-        const totalPages = Math.ceil(totalProducts / limit);
-        let aggregationPipeline = [
-            { $match: matchStage },
-            {
-                $addFields: {
-                    lowerCaseName: { $toLower: "$name" }
-                }
-            },
-            {
-                $sort: {
-                    lowerCaseName: 1
-                }
-            },
-            {
-                $skip: skip
-            },
-            {
-                $limit: limit
-            },
-            {
-                $project: {
-                    lowerCaseName: 0
-                }
-            }
-        ];
+        // let products = await productModel.aggregate([
+        //     { $match: commonData.matchStage },
+        //     {
+        //         $addFields: {
+        //             lowercaseName: { $toLower: "$name" }
+        //         }
+        //     },
+        //     { $sort: { lowercaseName: 1 } },
+        //     { $skip: commonData.skip },
+        //     { $limit: limit },
+        //     { $project: { lowercaseName: 0 } }
+        // ]);
+        console.log('Products without lookup:', products);
 
-        let products = await productModel.aggregate(aggregationPipeline)
+        products = await applyOffers(products, commonData.offerdata);
+        console.log('products:', products);
 
-        products.forEach((item => {
-            console.log(item.name);
-        }))
-        const categories = await catagoryModel.find();
-
-        const cartCount = userId ? await cartModel.countDocuments({ userId: userId }) : 0;
-        const wishlistCount = userdata ? userdata.wishlist.length : 0;
-
-        res.render('user/shop', {
-            product: products,
-            categories,
-            cartCount,
-            wishlistCount,
-            userdata,
-            currentPage: page,
-            totalPages: totalPages,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            lastPage: totalPages,
-            selectedCategory: selectedCategory
-        })
+        renderShopPage(res, products, commonData, page, commonData.totalPages, categoryId);
     } catch (error) {
-        console.log('error happened while displaying the sorted products', error);
-        res.render('user/error');
+        console.log('Error in aToZ:', error);
+        res.render('user/error', { error: 'An error occurred while sorting products.' });
     }
-}
+};
 
-// sorting the products from the z to a
+// sorting the products in the descending order of starting alphabets
 const zToa = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 8;
-    const skip = (page - 1) * limit;
     try {
-        console.log('rendering the page where the product name sorts from a to Z');
-        const userId = req.session.userId;
-        const userdata = userId ? await userModel.findOne({ _id: userId }) : null;
-        const totalProducts = await productModel.countDocuments({ status: true });
-        const totalPages = Math.ceil(totalProducts / limit);
-        let products = await productModel.aggregate([
-            {
-                $addFields: {
-                    lowerCaseName: { $toLower: "$name" }
-                }
-            },
-            {
-                $sort: {
-                    lowerCaseName: -1
-                }
-            },
-            {
-                $skip: skip
-            },
-            {
-                $limit: limit
-            },
-            {
-                $project: {
-                    lowerCaseName: 0
-                }
-            }
-        ]);
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+        const categoryId = req.query.category;
+        const commonData = await getCommonData(req.session.userId, page, limit, categoryId);
 
-        products = await productModel.populate(products, { path: 'category' });
-        const categories = await catagoryModel.find();
+        let products = await productModel.find(commonData.matchStage)
+            .populate('category')
+            .sort({ name: -1 })
+            .skip(commonData.skip)
+            .limit(limit)
 
-        const cartCount = userId ? await cart.countDocuments({ userId: userId }) : 0;
-        const wishlistCount = userId ? userdata.wishlist.length : 0;
+        products = await applyOffers(products, commonData.offerdata);
 
-        res.render('user/shop', {
-            product: products,
-            categories,
-            cartCount,
-            wishlistCount,
-            userdata,
-            currentPage: page,
-            totalPages: totalPages,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            lastPage: totalPages
-        })
+        renderShopPage(res, products, commonData, page, commonData.totalPages, categoryId);
     } catch (error) {
-        console.log('error happened while displaying the sorted products', error);
-        res.render('user/error');
+        console.error('Error in zToa:', error);
+        res.render('user/error', { error: 'An error occurred while sorting products.' });
     }
-}
+};
 
-// filtering the products based on the category
+// filtering the products on the basis of the category
 const catfilter = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 8;
-    const skip = (page - 1) * limit;
-    const categoryId = req.query.category;
     try {
-        console.log('filtering the products based on the category');
-        const userId = req.session.userId;
-        const { id } = req.query;
-        const userdata = userId ? await userModel.findOne({ _id: userId }) : null;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+        const categoryId = req.query.category;
+        const commonData = await getCommonData(req.session.userId, page, limit, categoryId);
 
-        let products = await productModel.find({ category: id, status: true }).sort({ _id: -1 }).limit(limit).skip(skip);
+        let products = await productModel.find(commonData.matchStage)
+            .populate('category')
+            .sort({ _id: -1 })
+            .skip(commonData.skip)
+            .limit(limit);
 
-        // console.log('products:', products);
-        const categories = await catagoryModel.find();
-        // console.log('categories:', categories);
+        products = await applyOffers(products, commonData.offerdata);
 
-        let offerdata = await offerModel.find({
-            startDate: { $lte: new Date() },
-            endDate: { $gte: new Date() }
-        });
-
-        products = products.map(product => {
-            let discountedPrice = product.price;
-            let appliedOffer = null;
-
-            offerdata.forEach(offer => {
-                if (offer.offerType === 'product' && offer.productId.includes(product._id.toString())) {
-                    let newDiscountedPrice = product.price - (product.price * offer.discount / 100);
-                    if (newDiscountedPrice < discountedPrice) {
-                        discountedPrice = Math.round(newDiscountedPrice);
-                        appliedOffer = offer;
-                    }
-                }
-            });
-
-            offerdata.forEach(offer => {
-                if (offer.offerType === 'category' && offer.categoryId.includes(id)) {
-                    let newDiscountedPrice = product.price - (productprice * offer.discountPrice / 100);
-                    if (newDiscountedPrice < discountedPrice) {
-                        discountedPrice = Math.round(newDiscountedPrice);
-                        appliedOffer = offer;
-                    }
-                }
-            });
-
-            return {
-                ...product.toObject(),
-                originalPrice: product.price,
-                discountedPrice,
-                appliedOffer: appliedOffer ? {
-                    offerName: appliedOffer.offerName,
-                    discount: appliedOffer.discount
-                } : null,
-                offerText: appliedOffer ? `${appliedOffer.discount}% Off` : ''
-            };
-        });
-
-        const totalProducts = await productModel.countDocuments({ category: id, status: true });
-        const totalPages = Math.ceil(totalProducts / limit);
-        console.log('totalPages:', totalPages);
-        const cartCount = userId ? await cartModel.countDocuments({ userId: userId }) : 0;
-        const wishlistCount = userdata ? userdata.wishlist.length : 0;
-
-        res.render('user/shop', {
-            product: products,
-            categories,
-            cartCount,
-            wishlistCount,
-            userdata,
-            currentPage: page,
-            totalPages: totalPages,
-            hasNextPage: page < totalPages,
-            hasPreviousPage: page > 1,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            lastPage: totalPages,
-            selectedCategoryId: categoryId
-        })
+        renderShopPage(res, products, commonData, page, commonData.totalPages, categoryId);
     } catch (error) {
-        console.log('error while filter the category products', error);
-        res.render('user/error');
+        console.error('Error in catfilter:', error);
+        res.render('user/error', { error: 'An error occurred while filtering products.' });
     }
-}
-
-// searching a particular product
-const search = async (req, res) => {
-    try {
-        console.log('entering into the searching of products');
-        const { words } = req.body;
-        const userId = req.session.userId;
-        console.log('words:', words);
-        let product = await productModel.find({ name: { $regex: words, $options: 'i' } });
-        console.log('products found:', product);
-
-        let categories = null;
-        let selectedCategory = null;
-        if (product.length === 0) {
-            categories = await catagoryModel.findOne({ name: { $regex: words, $options: 'i' } });
-            console.log('categories:', categories);
-            if (categories) {
-                product = await productModel.find({ category: categories._id });
-                console.log('products by category:', product);
-            }
-        }
-
-        console.log('Final Product Data:', product);
-        const cartCount = userId ? await cartModel.countDocuments({ userId: userId }) : 0;
-        const userData = userId ? await userModel.findOne({ _id: userId }) : null;
-        const wishlistCount = userData ? userData.wishlist.length : 0;
-        res.render('user/shop', {
-            product,
-            cartCount,
-            categories,
-            selectedCategory,
-            userData,
-            wishlistCount,
-            currentPage: 1,
-            totalPages: 1,
-            hasNextPage: false,
-            hasPreviousPage: false,
-            nextPage: 1,
-            previousPage: 1,
-            lastPage: 1
-        });
-    } catch (error) {
-        console.log('error while searching an product', error);
-        res.render('user/error');
-    }
-}
-
+};
 
 
 // adding a desired product to wishlist
@@ -659,6 +422,65 @@ const removeFromWishlist = async (req, res) => {
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 }
+
+// searching some products
+const search = async (req, res) => {
+    try {
+        console.log('Entering into the searching of products');
+        const { words, category } = req.query;
+        const userId = req.session.userId;
+        console.log('Search words:', words);
+        console.log('Selected category:', category);
+
+        let matchStage = {};
+        
+        if (words) {
+            matchStage.name = { $regex: words, $options: 'i' };
+        }
+        
+        if (category) {
+            matchStage.category = category;
+        }
+
+        let products = await productModel.find(matchStage).populate('category');
+        console.log('Products found:', products);
+
+        let categories = null;
+        let selectedCategory = category;
+
+        if (products.length === 0 && !category) {
+            categories = await catagoryModel.findOne({ name: { $regex: words, $options: 'i' } });
+            console.log('Categories:', categories);
+            if (categories) {
+                products = await productModel.find({ category: categories._id }).populate('category');
+                console.log('Products by category:', products);
+                selectedCategory = categories._id;
+            }
+        }
+
+        console.log('Final Product Data:', products);
+
+        // Use the getCommonData utility function
+        const commonData = await getCommonData(userId, 1, products.length || 1, selectedCategory);
+
+        console.log('commonData:', commonData);
+
+        // Apply offers to the products
+        products = await applyOffers(products, commonData.offerdata);
+
+        res.render('user/search', {
+            productData: products,
+            cartCount: commonData.cartCount,
+            categories: categories ? [categories] : commonData.categories,
+            selectedCategory: selectedCategory,
+            searchWords: words
+        });
+
+    } catch (error) {
+        console.error('Error while searching for a product:', error);
+        res.render('user/error', { error: 'An error occurred while searching for products.' });
+    }
+};
 
 
 

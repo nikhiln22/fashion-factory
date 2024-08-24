@@ -65,7 +65,8 @@ userRoute.get('/lowhigh', productController.lowHigh);
 userRoute.get('/atoz', productController.aToZ);
 userRoute.get('/ztoa', productController.zToa);
 userRoute.get('/catsort', productController.catfilter);
-userRoute.post('/search', productController.search);
+
+userRoute.get('/search', productController.search);
 
 userRoute.get('/wishlist', logged, productController.wishlist);
 userRoute.post('/wishlist', logged, productController.addWishlist);

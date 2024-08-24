@@ -12,7 +12,7 @@ const multer = require('multer');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const { adAuth } = require('./middlewares/adminAuth');
-const orderModel = require('./model/orderModel');
+
 
 const PORT = process.env.PORT || 5000;
 

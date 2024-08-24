@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>Fashion factory-admin</title>
@@ -21,29 +22,44 @@
 <body>
     <style>
         .btn-logout {
-          background-color: #343a40; 
-          color: #ffffff;
-          border: none;
-          border-radius: 20px; 
-          padding: 8px 16px;
-          font-size: 14px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
+            background-color: #343a40;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+
         .btn-logout:hover {
-          background-color: #23272b; 
+            background-color: #23272b;
         }
-      </style>
+        
+
+        .menu-aside .menu-link .text {
+            font-weight: bold;
+        }
+
+        .menu-aside .menu-link i.icon {
+            font-weight: bold;
+            /* Increase the size slightly */
+            font-size: 1.6rem;
+            text-shadow: 0 0 1px currentColor;
+        }
+
+        .menu-aside .menu-link i.icon svg {
+            stroke-width: 2;
+            transform: scale(1.2);
+        }
+    </style>
 
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
-            <a href="index.html" class="brand-wrap">
+            <a href="/admin/dashboard" class="brand-wrap">
                 <img src="/public/adminasset/imgs/theme/logo.svg" class="logo" alt="Evara Dashboard">
             </a>
-            <div>
-                <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
-            </div>
         </div>
         <nav>
             <ul class="menu-aside">
@@ -79,19 +95,19 @@
                 </li>
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/offers"> <i class="icon material-icons md-local_offer"></i>
-                        <span class="text">offers</span>
+                        <span class="text">Offers</span>
                     </a>
-                </li>      
+                </li>
             </ul>
         </nav>
     </aside>
     <main class="main-wrap">
         <header class="main-header navbar">
             <div class="col-nav ms-auto">
-                  <div class="nav-item text-nowrap">
+                <div class="nav-item text-nowrap">
                     <form action="/admin/logout">
-                      <button type="submit" class="btn-logout">Log out</button>
+                        <button type="submit" class="btn-logout">Log out</button>
                     </form>
-                  </div>
+                </div>
             </div>
         </header>

@@ -77,6 +77,65 @@
         .wrap-pic-w:hover .block1-txt {
             background-color: rgba(220, 219, 219, 0.95);
         }
+
+        .hero__slider--section {
+            position: relative;
+        }
+
+        .hero__slider--inner {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero__slider--wrapper {
+            display: flex;
+        }
+
+        .swiper-slide {
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .hero__slider--items {
+            background-size: cover;
+            background-position: center;
+            height: 800px;
+            display: flex;
+            align-items: center;
+        }
+
+        .slider__content {
+            max-width: 600px;
+        }
+
+        .slider__content--desc {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .slider__content--maintitle {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .slider__content--btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .slider__content--btn:hover {
+            background-color: #333;
+        }
+
+        .sec-banner {
+            padding-top: 80px;
+        }
     </style>
 
     <main class="main__content_wrapper">
@@ -125,11 +184,8 @@
                                                         src="/public/userasset/img/icon/text-shape-icon.png"
                                                         alt="text-shape-icon"> New Collection</p>
                                                 <h2 class="slider__content--maintitle h1">The Great Fashion <br>
-                                                    Collection 2022</h2>
-                                                <p class="slider__content--desc desc2 d-sm-2-none mb-40 ">Up To 40% Off
-                                                    Final Sale Items. <br>
-                                                    Caught in the Moment!</p>
-                                                <a class="primary__btn slider__btn" href="shop.html">Show Collection
+                                                    Collection 2024</h2>
+                                                <a class="primary__btn slider__btn" href="/">Show Collection
                                                     <svg class="slider__btn--arrow__icon"
                                                         xmlns="http://www.w3.org/2000/svg" width="20.2" height="12.2"
                                                         viewBox="0 0 6.2 6.2">
@@ -157,11 +213,8 @@
                                                         src="/public/userasset/img/icon/text-shape-icon.png"
                                                         alt="text-shape-icon"> New Collection</p>
                                                 <h2 class="slider__content--maintitle h1">The Great Fashion <br>
-                                                    Collection 2022</h2>
-                                                <p class="slider__content--desc desc2 d-sm-2-none mb-40">Up To 40% Off
-                                                    Final Sale Items. <br>
-                                                    Caught in the Moment!</p>
-                                                <a class="primary__btn slider__btn" href="shop.html">Show Collection
+                                                    Collection 2024</h2>
+                                                <a class="primary__btn slider__btn" href="/">Show Collection
                                                     <svg class="slider__btn--arrow__icon"
                                                         xmlns="http://www.w3.org/2000/svg" width="20.2" height="12.2"
                                                         viewBox="0 0 6.2 6.2">
@@ -178,15 +231,15 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="swiper__nav--btn swiper-button-next"></div>
-                <div class="swiper__nav--btn swiper-button-prev"></div> -->
+                <div class="swiper__nav--btn swiper-button-next"></div>
+                <div class="swiper__nav--btn swiper-button-prev"></div>
             </div>
         </section>
         <!-- End slider section -->
 
 
         <!-- Start banner section -->
-        <<div class="sec-banner bg0 p-t-80 p-b-50" style="padding-bottom: 80px;">
+        <div class="sec-banner bg0 p-t-80 p-b-50" style="padding-bottom: 50px;">
             <div class="container-fluid">
                 <div class="row">
                     <% categoryData.forEach(category=> { %>
@@ -222,195 +275,189 @@
                         <% }) %>
                 </div>
             </div>
-            </div>
-            <!-- End banner section -->
+        </div>
+        <!-- End banner section -->
 
-            <!-- Start product section -->
-            <section class="product__section section--padding pt-0" style="margin-top: 50px;">
-                <div class="container-fluid">
-                    <div class="section__heading text-center mb-35">
-                        <h2 class="section__heading--maintitle">New Products</h2>
-                    </div>
-                    <ul class="product__tab--one product__tab--primary__btn d-flex justify-content-center mb-50">
-                        <li class="product__tab--primary__btn__list" data-toggle="tab" data-target="#trending">Trending
-                        </li>
-                    </ul>
-                    <div class="tab_content">
-                        <div id="featured" class="tab_pane active show">
-                            <div class="product__section--inner">
-                                <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 mb--n30">
-                                    <% productData.forEach(product=> { %>
-                                        <div class="col mb-30">
-                                            <div class="product__items ">
-                                                <div class="product__items--thumbnail">
-                                                    <a class="product__items--link"
-                                                        href="/shopSingle?productId=<%= product._id %>">
-                                                        <img class="product__items--img product__primary--img"
-                                                            src="<%= product.image[0] %>" alt="<%= product.name %>">
-                                                    </a>
-                                                    <% if (product.appliedOffer) { %>
-                                                        <div class="product__badge">
-                                                            <span class="product__badge--items sale">
-                                                                <%= product.offerText %>
-                                                            </span>
-                                                        </div>
-                                                        <% } %>
-                                                </div>
-                                                <div class="product__items--content">
-                                                    <h3 class="product__items--content__title h4"><a
-                                                            href="/shopSingle?productId=<%= product._id %>">
-                                                            <%= product.name %>
-                                                        </a></h3>
-                                                    <div class="product__items--price">
-
-                                                        <% if (product.appliedOffer) { %>
-                                                            <span style="color: black; font-weight: bold;"
-                                                                class="current__price">₹<%= product.discountedPrice %>
-                                                            </span>
-                                                            <span class="price__divided"></span>
-                                                            <span class="old__price">₹<%= product.originalPrice%></span>
-                                                            <div class="product__discount">
-                                                                <span style="color: brown;"
-                                                                    class="product__discount--percent">(<%=
-                                                                        product.appliedOffer.discount %>
-                                                                        %)</span>
-                                                            </div>
-                                                            <% } else { %>
-                                                                <span class="current__price">₹<%= product.originalPrice
-                                                                        %>
-                                                                </span>
-                                                                <% } %>
+        <!-- Start product section -->
+        <section class="product__section section--padding pt-0" style="margin-top: 50px;">
+            <div class="container-fluid">
+                <div class="section__heading text-center mb-35">
+                    <h2 class="section__heading--maintitle">New Products</h2>
+                </div>
+                <ul class="product__tab--one product__tab--primary__btn d-flex justify-content-center mb-50">
+                    <li class="product__tab--primary__btn__list" data-toggle="tab" data-target="#trending">Trending
+                    </li>
+                </ul>
+                <div class="tab_content">
+                    <div id="featured" class="tab_pane active show">
+                        <div class="product__section--inner">
+                            <div class="row row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 mb--n30">
+                                <% productData.forEach(product=> { %>
+                                    <div class="col mb-30">
+                                        <div class="product__items ">
+                                            <div class="product__items--thumbnail">
+                                                <a class="product__items--link"
+                                                    href="/shopSingle?productId=<%= product._id %>">
+                                                    <img class="product__items--img product__primary--img"
+                                                        src="<%= product.image[0] %>" alt="<%= product.name %>">
+                                                </a>
+                                                <% if (product.appliedOffer) { %>
+                                                    <div class="product__badge">
+                                                        <span class="product__badge--items sale">
+                                                            <%= product.offerText %>
+                                                        </span>
                                                     </div>
-                                                    <% if (product.totalstock===0) { %>
-                                                        <span style="color: red;"><strong>Out of
-                                                                stock</strong></span>
-                                                        <% } %>
-                                                            <ul class="rating product__rating d-flex">
-                                                                <li class="rating__list">
-                                                                    <span class="rating__list--icon">
-                                                                        <svg class="rating__list--icon__svg"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="14.105" height="14.732"
-                                                                            viewBox="0 0 10.105 9.732">
-                                                                            <path data-name="star - Copy"
-                                                                                d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
-                                                                                transform="translate(0 -0.018)"
-                                                                                fill="currentColor">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </span>
-                                                                </li>
-                                                                <li class="rating__list">
-                                                                    <span class="rating__list--icon">
-                                                                        <svg class="rating__list--icon__svg"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="14.105" height="14.732"
-                                                                            viewBox="0 0 10.105 9.732">
-                                                                            <path data-name="star - Copy"
-                                                                                d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
-                                                                                transform="translate(0 -0.018)"
-                                                                                fill="currentColor">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </span>
-                                                                </li>
-                                                                <li class="rating__list">
-                                                                    <span class="rating__list--icon">
-                                                                        <svg class="rating__list--icon__svg"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="14.105" height="14.732"
-                                                                            viewBox="0 0 10.105 9.732">
-                                                                            <path data-name="star - Copy"
-                                                                                d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
-                                                                                transform="translate(0 -0.018)"
-                                                                                fill="currentColor">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </span>
-                                                                </li>
-                                                                <li class="rating__list">
-                                                                    <span class="rating__list--icon">
-                                                                        <svg class="rating__list--icon__svg"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="14.105" height="14.732"
-                                                                            viewBox="0 0 10.105 9.732">
-                                                                            <path data-name="star - Copy"
-                                                                                d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
-                                                                                transform="translate(0 -0.018)"
-                                                                                fill="currentColor">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </span>
-                                                                </li>
-                                                                <li class="rating__list">
-                                                                    <span class="rating__list--icon">
-                                                                        <svg class="rating__list--icon__svg"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="14.105" height="14.732"
-                                                                            viewBox="0 0 10.105 9.732">
-                                                                            <path data-name="star - Copy"
-                                                                                d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
-                                                                                transform="translate(0 -0.018)"
-                                                                                fill="currentColor">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </span>
-                                                                </li>
-                                                            </ul>
-                                                            <ul class="product__items--action d-flex">
-                                                                <li class="product__items--action__list">
-                                                                    <a class="product__items--action__btn add-to-wishlist"
-                                                                        href="#" data-product-id="<%= product._id  %>">
-                                                                        <svg class="product__items--action__btn--svg"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="25.51" height="23.443"
-                                                                            viewBox="0 0 512 512">
-                                                                            <path
-                                                                                d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z"
-                                                                                fill="none" stroke="currentColor"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="32">
-                                                                            </path>
-                                                                        </svg>
-                                                                        <span class="visually-hidden">Wishlist</span>
-                                                                    </a>
-                                                                </li>
-                                                                <li class="product__items--action__list">
-                                                                    <a class="product__items--action__btn"
-                                                                        data-open="modal1"
-                                                                        href="/shopSingle?productId=<%= product._id %>">
-                                                                        <svg class="product__items--action__btn--svg"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                            width="25.51" height="23.443"
-                                                                            viewBox="0 0 512 512">
-                                                                            <path
-                                                                                d="M255.66 112c-77.94 0-157.89 45.11-220.83 135.33a16 16 0 00-.27 17.77C82.92 340.8 161.8 400 255.66 400c92.84 0 173.34-59.38 221.79-135.25a16.14 16.14 0 000-17.47C428.89 172.28 347.8 112 255.66 112z"
-                                                                                fill="none" stroke="currentColor"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                stroke-width="32" />
-                                                                            <circle cx="256" cy="256" r="80" fill="none"
-                                                                                stroke="currentColor"
-                                                                                stroke-miterlimit="10"
-                                                                                stroke-width="32" />
-                                                                        </svg>
-                                                                        <span class="visually-hidden">Quick
-                                                                            View</span>
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
+                                                    <% } %>
+                                            </div>
+                                            <div class="product__items--content">
+                                                <h3 class="product__items--content__title h4"><a
+                                                        href="/shopSingle?productId=<%= product._id %>">
+                                                        <%= product.name %>
+                                                    </a></h3>
+                                                <div class="product__items--price">
+
+                                                    <% if (product.appliedOffer) { %>
+                                                        <span style="color: black; font-weight: bold;"
+                                                            class="current__price">₹<%= product.discountedPrice %>
+                                                        </span>
+                                                        <span class="price__divided"></span>
+                                                        <span class="old__price">₹<%= product.originalPrice%></span>
+                                                        <div class="product__discount">
+                                                            <span style="color: brown;"
+                                                                class="product__discount--percent">(<%=
+                                                                    product.appliedOffer.discount %>
+                                                                    %)</span>
+                                                        </div>
+                                                        <% } else { %>
+                                                            <span class="current__price">₹<%= product.originalPrice %>
+                                                            </span>
+                                                            <% } %>
                                                 </div>
+                                                <% if (product.totalstock===0) { %>
+                                                    <span style="color: red;"><strong>Out of
+                                                            stock</strong></span>
+                                                    <% } %>
+                                                        <ul class="rating product__rating d-flex">
+                                                            <li class="rating__list">
+                                                                <span class="rating__list--icon">
+                                                                    <svg class="rating__list--icon__svg"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        width="14.105" height="14.732"
+                                                                        viewBox="0 0 10.105 9.732">
+                                                                        <path data-name="star - Copy"
+                                                                            d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
+                                                                            transform="translate(0 -0.018)"
+                                                                            fill="currentColor">
+                                                                        </path>
+                                                                    </svg>
+                                                                </span>
+                                                            </li>
+                                                            <li class="rating__list">
+                                                                <span class="rating__list--icon">
+                                                                    <svg class="rating__list--icon__svg"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        width="14.105" height="14.732"
+                                                                        viewBox="0 0 10.105 9.732">
+                                                                        <path data-name="star - Copy"
+                                                                            d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
+                                                                            transform="translate(0 -0.018)"
+                                                                            fill="currentColor">
+                                                                        </path>
+                                                                    </svg>
+                                                                </span>
+                                                            </li>
+                                                            <li class="rating__list">
+                                                                <span class="rating__list--icon">
+                                                                    <svg class="rating__list--icon__svg"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        width="14.105" height="14.732"
+                                                                        viewBox="0 0 10.105 9.732">
+                                                                        <path data-name="star - Copy"
+                                                                            d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
+                                                                            transform="translate(0 -0.018)"
+                                                                            fill="currentColor">
+                                                                        </path>
+                                                                    </svg>
+                                                                </span>
+                                                            </li>
+                                                            <li class="rating__list">
+                                                                <span class="rating__list--icon">
+                                                                    <svg class="rating__list--icon__svg"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        width="14.105" height="14.732"
+                                                                        viewBox="0 0 10.105 9.732">
+                                                                        <path data-name="star - Copy"
+                                                                            d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
+                                                                            transform="translate(0 -0.018)"
+                                                                            fill="currentColor">
+                                                                        </path>
+                                                                    </svg>
+                                                                </span>
+                                                            </li>
+                                                            <li class="rating__list">
+                                                                <span class="rating__list--icon">
+                                                                    <svg class="rating__list--icon__svg"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        width="14.105" height="14.732"
+                                                                        viewBox="0 0 10.105 9.732">
+                                                                        <path data-name="star - Copy"
+                                                                            d="M9.837,3.5,6.73,3.039,5.338.179a.335.335,0,0,0-.571,0L3.375,3.039.268,3.5a.3.3,0,0,0-.178.514L2.347,6.242,1.813,9.4a.314.314,0,0,0,.464.316L5.052,8.232,7.827,9.712A.314.314,0,0,0,8.292,9.4L7.758,6.242l2.257-2.231A.3.3,0,0,0,9.837,3.5Z"
+                                                                            transform="translate(0 -0.018)"
+                                                                            fill="currentColor">
+                                                                        </path>
+                                                                    </svg>
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                        <ul class="product__items--action d-flex">
+                                                            <li class="product__items--action__list">
+                                                                <a class="product__items--action__btn add-to-wishlist"
+                                                                    href="#" data-product-id="<%= product._id  %>">
+                                                                    <svg class="product__items--action__btn--svg"
+                                                                        xmlns="http://www.w3.org/2000/svg" width="25.51"
+                                                                        height="23.443" viewBox="0 0 512 512">
+                                                                        <path
+                                                                            d="M352.92 80C288 80 256 144 256 144s-32-64-96.92-64c-52.76 0-94.54 44.14-95.08 96.81-1.1 109.33 86.73 187.08 183 252.42a16 16 0 0018 0c96.26-65.34 184.09-143.09 183-252.42-.54-52.67-42.32-96.81-95.08-96.81z"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="32">
+                                                                        </path>
+                                                                    </svg>
+                                                                    <span class="visually-hidden">Wishlist</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="product__items--action__list">
+                                                                <a class="product__items--action__btn"
+                                                                    data-open="modal1"
+                                                                    href="/shopSingle?productId=<%= product._id %>">
+                                                                    <svg class="product__items--action__btn--svg"
+                                                                        xmlns="http://www.w3.org/2000/svg" width="25.51"
+                                                                        height="23.443" viewBox="0 0 512 512">
+                                                                        <path
+                                                                            d="M255.66 112c-77.94 0-157.89 45.11-220.83 135.33a16 16 0 00-.27 17.77C82.92 340.8 161.8 400 255.66 400c92.84 0 173.34-59.38 221.79-135.25a16.14 16.14 0 000-17.47C428.89 172.28 347.8 112 255.66 112z"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="32" />
+                                                                        <circle cx="256" cy="256" r="80" fill="none"
+                                                                            stroke="currentColor" stroke-miterlimit="10"
+                                                                            stroke-width="32" />
+                                                                    </svg>
+                                                                    <span class="visually-hidden">Quick
+                                                                        View</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
                                             </div>
                                         </div>
-                                        <% }); %>
-                                </div>
+                                    </div>
+                                    <% }); %>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
-            <!-- End product section -->
+            </div>
+        </section>
+        <!-- End product section -->
     </main>
 
 
@@ -507,6 +554,17 @@
                         });
                     });
             }
+        });
+    </script>
+
+    <script>
+        var swiper = new Swiper('.hero__slider--activation', {
+            slidesPerView: 1,
+            loop: true,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
         });
     </script>
     <%- include('footer') -%>

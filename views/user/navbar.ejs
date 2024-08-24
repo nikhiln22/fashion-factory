@@ -11,6 +11,8 @@
     <!-- ======= All CSS Plugins here ======== -->
     <link rel="stylesheet" href="/public/userasset/css/plugins/swiper-bundle.min.css">
 
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
@@ -259,10 +261,11 @@
                     </div>
 
                     <div class="header__search--widget header__sticky--none d-none d-lg-block">
-                        <form id="searchForm" class="d-flex header__search--form" action="#">
+                        <form id="searchForm" class="d-flex header__search--form" action="/search" method="post">
                             <div class="header__search--box">
                                 <input class="header__search--input" id="searchInput" placeholder="Search here..."
-                                    type="text" aria-label="Search">
+                                    type="text" aria-label="Search" name="words">
+                                    <input type="hidden" id="selectedCategory" name="category" value="">
                                 <button class="header__search--button bg__secondary text-white" type="submit"
                                     aria-label="search button">
                                     <svg class="header__search--button__svg" xmlns="http://www.w3.org/2000/svg"
@@ -277,8 +280,6 @@
                             </div>
                         </form>
                     </div>
-
-                    <div id="searchResults"></div>
 
                     <div class="header__account header__sticky--none">
                         <ul class="d-flex">
@@ -496,35 +497,5 @@
                 </div>
             </div>
         </div>
-
-
-        <!-- Start serch box area -->
-        <div class="predictive__search--box ">
-            <div class="predictive__search--box__inner">
-                <h2 class="predictive__search--title">Search Products</h2>
-                <form class="predictive__search--form" action="#">
-                    <label>
-                        <input class="predictive__search--input" placeholder="Search Here" type="text">
-                    </label>
-                    <button class="predictive__search--button" aria-label="search button" type="submit"><svg
-                            class="header__search--button__svg" xmlns="http://www.w3.org/2000/svg" width="30.51"
-                            height="25.443" viewBox="0 0 512 512">
-                            <path d="M221.09 64a157.09 157.09 0 10157.09 157.09A157.1 157.1 0 00221.09 64z" fill="none"
-                                stroke="currentColor" stroke-miterlimit="10" stroke-width="32" />
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10"
-                                stroke-width="32" d="M338.29 338.29L448 448" />
-                        </svg> </button>
-                </form>
-            </div>
-            <button class="predictive__search--close__btn" aria-label="search close button" data-offcanvas>
-                <svg class="predictive__search--close__icon" xmlns="http://www.w3.org/2000/svg" width="40.51"
-                    height="30.443" viewBox="0 0 512 512">
-                    <path fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="32" d="M368 368L144 144M368 144L144 368" />
-                </svg>
-            </button>
-        </div>
-        <!-- End serch box area -->
-
     </header>
     <!-- End header area -->

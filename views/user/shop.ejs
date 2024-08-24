@@ -202,16 +202,13 @@
                     <div class="container">
                         <div class="flex-w flex-sb-m p-b-52">
                             <div class="flex-w flex-l-m filter-tope-group m-tb-10">
-                                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 category-btn"
-                                    data-filter="*" data-category-id="">
+                                <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 category-btn" data-filter="*" data-category-id="">
                                     <a href="/shop" class="text-dark">All Products</a>
                                 </button>
                                 <% if(categories && categories.length) { %>
                                     <% categories.forEach(item => { %>
                                         <a class="text-dark" href="/catsort?category=<%= item._id %>">
-                                            <button
-                                                class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 category-btn <%= selectedCategoryId && item._id.toString() === selectedCategoryId.toString() ? 'how-active1' : '' %>"
-                                                data-category-id="<%= item._id %>">
+                                            <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 category-btn <%= selectedCategory && item._id.toString() === selectedCategory.toString() ? 'how-active1' : '' %>" data-category-id="<%= item._id %>">
                                                 <%= item.name %>
                                             </button>
                                         </a>
@@ -226,14 +223,10 @@
                                         Sort By:
                                     </button>
                                     <div id="filterDropdown" class="dropdown-content">
-                                        <a href="/highlow<%= selectedCategory ? '?category=' + selectedCategory : '' %>"
-                                            class="filter-link stext-106 trans-04">Price: High to Low</a>
-                                        <a href="/lowhigh<%= selectedCategory ? '?category=' + selectedCategory : '' %>"
-                                            class="filter-link stext-106 trans-04">Price: Low to High</a>
-                                        <a href="/atoz<%= selectedCategory ? '?category=' + selectedCategory : '' %>"
-                                            class="filter-link stext-106 trans-04">A-Z</a>
-                                        <a href="/ztoa<%= selectedCategory ? '?category=' + selectedCategory : '' %>"
-                                            class="filter-link stext-106 trans-04">Z-A</a>
+                                        <a href="/highlow<%= selectedCategory ? '?category=' + selectedCategory : '' %>" class="filter-link stext-106 trans-04">Price: High to Low</a>
+                                        <a href="/lowhigh<%= selectedCategory ? '?category=' + selectedCategory : '' %>" class="filter-link stext-106 trans-04">Price: Low to High</a>
+                                        <a href="/atoz<%= selectedCategory ? '?category=' + selectedCategory : '' %>" class="filter-link stext-106 trans-04">A-Z</a>
+                                        <a href="/ztoa<%= selectedCategory ? '?category=' + selectedCategory : '' %>" class="filter-link stext-106 trans-04">Z-A</a>
                                     </div>
                                 </div>
                             </div>
@@ -430,58 +423,38 @@
                     <ul class="pagination justify-content-centre">
                         <% if (hasPreviousPage) { %>
                             <li class="page-item">
-                                <a class="page-link"
-                                    href="?page=1<%= selectedCategory ? '&category=' + selectedCategory : '' %>"
-                                    aria-label="First">First</a>
+                                <a class="page-link" href="?page=1<%= selectedCategory ? '&category=' + selectedCategory : '' %>" aria-label="First">First</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link"
-                                    href="?page=<%= previousPage %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
-                                    aria-label="Previous">Previous</a>
+                                <a class="page-link" href="?page=<%= previousPage %><%= selectedCategory ? '&category=' + selectedCategory : '' %>" aria-label="Previous">Previous</a>
                             </li>
-                            <% } else { %>
-                                <li class="page-item disabled">
-                                    <span class="page-link" aria-hidden="true">First</span>
-                                </li>
-                                <li class="page-item disabled">
-                                    <span class="page-link" aria-hidden="true">Previous</span>
-                                </li>
-                                <% } %>
-
-                                    <% for (let i=1; i <=totalPages; i++) { %>
-                                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                            <a class="page-link"
-                                                href="?page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %>">
-                                                <%= i %>
-                                            </a>
-                                        </li>
-                                        <% } %>
-
-                                            <% if (hasNextPage) { %>
-                                                <li class="page-item">
-                                                    <a class="page-link"
-                                                        href="?page=<%= nextPage %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
-                                                        aria-label="Next">Next</a>
-                                                </li>
-                                                <li class="page-item">
-                                                    <a class="page-link"
-                                                        href="?page=<%= lastPage %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
-                                                        aria-label="Last">Last</a>
-                                                </li>
-                                                <% } else { %>
-                                                    <li class="page-item disabled">
-                                                        <span class="page-link" aria-hidden="true">Next</span>
-                                                    </li>
-                                                    <li class="page-item disabled">
-                                                        <span class="page-link" aria-hidden="true">Last</span>
-                                                    </li>
-                                                    <% } %>
+                        <% } else { %>
+                            <!-- Disabled pagination items -->
+                        <% } %>
+                
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                
+                        <% if (hasNextPage) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<%= nextPage %><%= selectedCategory ? '&category=' + selectedCategory : '' %>" aria-label="Next">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<%= lastPage %><%= selectedCategory ? '&category=' + selectedCategory : '' %>" aria-label="Last">Last</a>
+                            </li>
+                        <% } else { %>
+                            <!-- Disabled pagination items -->
+                        <% } %>
                     </ul>
-                </nav>
-                <!-----pagination Ends------->
+                </nav>               
+                 <!-----pagination Ends------->
         </section>
         <!-- End shop section -->
     </main>
+
     <script>
         function toggleDropdown() {
             document.getElementById('filterDropdown').classList.toggle("show");

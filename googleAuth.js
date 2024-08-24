@@ -26,7 +26,7 @@ passport.use(new GoogleStrategy({
         },
         { upsert: true, new: true }
       );
-
+      console.log(user,'google user is here heh');
       return done(null, user);
     } catch (err) {
       console.error("Error while updating/inserting an user:", err);

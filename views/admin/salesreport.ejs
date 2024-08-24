@@ -112,6 +112,42 @@
             background-color: #0056b3;
             border-color: #0056b3;
         }
+
+        .row.mt-3.mb-4 {
+            margin-bottom: 2rem !important;
+        }
+
+        .revenueShowBtn {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .revenueShowBtn h1 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        #example th,
+        #example td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        #example td {
+            padding: 0.75rem;
+        }
+
+        #example tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        @media (max-width: 991px) {
+            .col-lg-4.mb-3 {
+                margin-bottom: 1rem !important;
+            }
+        }
     </style>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -161,33 +197,33 @@
                             </div>
                         </div>
                         <div class="col-lg-2 col-md-4">
-                            <button type="submit" class="btn btn-primary" id="saleDateFilterBtn">Filter</button>
+                            <button type="submit" class="btn btn-dark btn-sm rounded" id="saleDateFilterBtn">Filter</button>
                         </div>
                     </form>
                 </div>
 
-                <button id="downloadPdfBtn" class="btn btn-primary">Download PDF</button>
+                <button id="downloadPdfBtn" class="btn btn-dark btn-sm rounded">Download PDF</button>
 
                 <div class="row">
                     <div class="col-12">
                         <input type="hidden" name="" id="pageValue" value="">
                         <div class="pageTrue" id="pageMain">
                             <table id="example" class="table table-striped table-bordered" style="width:100%">
-                                <div class="row mt-3">
-                                    <div class="col-lg-3 d-flex justify-content-between">
-                                        <button type="button" class="btn btn-warning revenueShowBtn">
-                                            <h1 class="text-primary">Total Revenue: <span class="text-dark"
-                                                    id="totalAmount">₹ <%=TotalAmount%></span></h1>
+                                <div class="row mt-3 mb-4">
+                                    <div class="col-lg-4 mb-3">
+                                        <button type="button" class="btn btn-success revenueShowBtn">
+                                            <h1 class="text-white">Total Revenue: <span class="text-white"
+                                                    id="totalAmount">₹ <%=TotalAmount.toFixed(2)%></span></h1>
                                         </button>
                                     </div>
-                                    <div class="col-lg-3 d-flex justify-content-between">
+                                    <div class="col-lg-4 mb-3">
                                         <button type="button" class="btn btn-success revenueShowBtn">
                                             <h1 class="text-white">Total discount: <span class="text-white"
-                                                    id="totaldiscount">₹ <%=TotalCouponAmount%></span></h1>
+                                                    id="totaldiscount">₹ <%=TotalCouponAmount.toFixed(2)%></span></h1>
                                         </button>
                                     </div>
-                                    <div class="col-lg-3 d-flex justify-content-between">
-                                        <button type="button" class="btn btn-primary revenueShowBtn">
+                                    <div class="col-lg-4 mb-3">
+                                        <button type="button" class="btn btn-success revenueShowBtn">
                                             <h1 class="text-white">Total sales count: <span class="text-white"
                                                     id="totalSalesCount">
                                                     <%=TotalSaleCount%>
@@ -223,7 +259,7 @@
                                                 <td>
                                                     <%=reportData[i].offeredProductsSold%>
                                                 </td>
-                                                <td>₹ <%=reportData[i].couponsUsed%>
+                                                <td>₹ <%=reportData[i].couponsUsed.toFixed(2)%>
                                                 </td>
                                                 <td>
                                                     <%=reportData[i].totalProducts%>
@@ -266,7 +302,7 @@
                                                         <td>
                                                             <%=reportData[i].offeredProductsSold%>
                                                         </td>
-                                                        <td>₹<%=reportData[i].couponsUsed%>
+                                                        <td>₹<%=reportData[i].couponsUsed.toFixed(2)%>
                                                         </td>
                                                         <td>
                                                             <%=reportData[i].totalProducts%>
@@ -305,7 +341,7 @@
                                                                 <td>
                                                                     <%=reportData[i].offeredProductsSold%>
                                                                 </td>
-                                                                <td>₹<%=reportData[i].couponsUsed%>
+                                                                <td>₹<%=reportData[i].couponsUsed.toFixed(2)%>
                                                                 </td>
                                                                 <td>
                                                                     <%=reportData[i].totalProducts%>
@@ -344,7 +380,7 @@
                                                                         <td>
                                                                             <%=reportData[i].offeredProductsSold%>
                                                                         </td>
-                                                                        <td>₹ <%=reportData[i].couponsUsed%>
+                                                                        <td>₹ <%=reportData[i].couponsUsed.toFixed(2)%>
                                                                         </td>
                                                                         <td>
                                                                             <%=reportData[i].totalProducts%>

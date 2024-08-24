@@ -648,51 +648,58 @@
 
 <!-- All Script JS Plugins here  -->
 
+
 <script>
-    document.getElementById('searchForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
-        const searchInput = document.getElementById('searchInput').value;
+    document.addEventListener('DOMContentLoaded', function () {
+        // Function to get URL parameter
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        };
 
-        try {
-            const response = await fetch('/search', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ words: searchInput })
+        // Set the category value if it exists in the URL
+        var category = getUrlParameter('category');
+        if (category) {
+            document.getElementById('selectedCategory').value = category;
+        }
+
+        // Update form action to include category as a query parameter
+        var form = document.getElementById('searchForm');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var category = document.getElementById('selectedCategory').value;
+            var searchInput = document.getElementById('searchInput').value;
+            var action = '/search?category=' + encodeURIComponent(category);
+            form.action = action;
+            form.method = 'get';
+            form.submit();
+        });
+
+        // scrolling function for the sticky header search
+        var stickySearchBtn = document.querySelector('.header__account2--items .search__open--btn');
+        var mainSearchInput = document.querySelector('.header__search--input');
+
+        if (stickySearchBtn && mainSearchInput) {
+            stickySearchBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Scroll to the main search input
+                mainSearchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Wait for the scroll to complete, then focus on the input
+                setTimeout(() => {
+                    mainSearchInput.focus();
+                }, 500); // Adjust this delay if needed
             });
-
-            const result = await response.json();
-            console.log('result:',result);
-            displayResults(result.productData, result.cartCount);
-        } catch (error) {
-            console.error('Error during search:', error);
         }
     });
 
-    function displayResults(products, cartCount) {
-        const searchResults = document.getElementById('searchResults');
-        searchResults.innerHTML = '';
-
-        if (products.length === 0) {
-            searchResults.innerHTML = '<p>No products found</p>';
-            return;
-        }
-
-        products.forEach(product => {
-            const productElement = document.createElement('div');
-            productElement.innerHTML = `
-        <h3>${product.name}</h3>
-        <p>${product.description}</p>
-        <p>Price: ${product.price}</p>
-    `;
-            searchResults.appendChild(productElement);
-        });
-    }
 
 </script>
 
-
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script src="/public/userasset/js/vendor/popper.js" defer="defer"></script>
 <script src="/public/userasset/js/vendor/bootstrap.min.js" defer="defer"></script>
 <script src="/public/userasset/js/plugins/swiper-bundle.min.js"></script>
