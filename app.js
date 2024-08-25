@@ -14,7 +14,7 @@ const cookieParser = require('cookie-parser');
 const { adAuth } = require('./middlewares/adminAuth');
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Connect to the database
 dbConnect().catch(err => {
