@@ -63,6 +63,8 @@ const checkout = async (req, res) => {
 
     console.log('validCoupons:', validCoupons);
 
+    req.session.checkoutSave = true;
+
     if (!couponData) {
       res.render('user/checkout', { address, data, validCoupons, couponData: "" });
     } else {

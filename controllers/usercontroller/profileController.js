@@ -306,6 +306,7 @@ const addAddressPost = async (req, res) => {
             })
             if (existingAddress.length) {
                 if (req.session.checkoutSave) {
+                    delete req.session.checkoutSave;
                     return res.redirect('/checkout');
                 }
                 return res.redirect('/address');
@@ -324,6 +325,7 @@ const addAddressPost = async (req, res) => {
             });
             await existingUser.save();
             if (req.session.checkoutSave) {
+                delete req.session.checkoutSave;
                 return res.redirect('/checkout');
             }
             return res.redirect('/address');
@@ -344,6 +346,7 @@ const addAddressPost = async (req, res) => {
             }
         });
         if (req.session.checkoutSave) {
+            delete req.session.checkoutSave;
             return res.redirect('/checkout')
         }
         res.redirect('/address');
