@@ -185,7 +185,7 @@ const placeOrder = async (req, res) => {
     console.log('couponData:', couponData);
 
     if (couponData) {
-      couponDiscount = totalAmount - Amount;
+      couponDiscount = Number((totalAmount - Amount).toFixed(2));
       await userModel.findByIdAndUpdate(userId, { $addToSet: { usedCoupons: coupon } });
     }
 
@@ -304,7 +304,7 @@ const placeOrderWallet = async (req, res) => {
     console.log('couponData:', couponData);
 
     if (couponData) {
-      couponDiscount = totalAmount - Amount;
+      couponDiscount = Number((totalAmount - Amount).toFixed(2));
       await userModel.findByIdAndUpdate(userId, { $addToSet: { usedCoupons: coupon } });
     }
 

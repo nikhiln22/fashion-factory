@@ -101,7 +101,7 @@
         </div>
 
         <!-------Pagination starts------->
-        <nav aria-label="Page navigation example" class="d-flex justify-content-centre  my-4">
+        <nav id="paginationContainer"  class="pagination-container" aria-label="Page navigation example" class="d-flex justify-content-centre  my-4">
             <ul class="pagination">
                 <% if(hasPreviousPage) { %>
                     <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
@@ -224,60 +224,63 @@
         </div>
     </div>
 
-
-
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Add Offer button click handle
-        document.getElementById('addOffer').addEventListener('click', function () {
-            document.getElementById('offerList').style.display = 'none';
-            document.getElementById('addOfferForm').style.display = 'block';
-        });
-    </script>
-
-    <script>
-
-        // Save button click handler
-        document.getElementById('offerForm').addEventListener('submit', function (e) {
-            console.log('Save Button Clicked');
-            e.preventDefault();
-            const offerName = document.getElementById('offerName').value;
-            const discountRate = document.getElementById('discountRate').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const offerType = document.getElementById('offerType').value;
-            const selectedElem = document.getElementById('selectedProductNames');
-            const selectedValues = Array.from(selectedElem.options).map(option => option.value);
-
-            console.log('offerName:', offerName);
-            console.log('discountRate:', discountRate);
-            console.log('startDate:', startDate);
-            console.log('endDate:', endDate);
-            console.log('offerType:', offerType);
-            console.log('selectedElem:', selectedElem);
-            console.log('selectedValues:', selectedValues);
-
-            axios.post('/admin/addoffer', { offerName, discountRate, startDate, endDate, offerType, selectedValues })
-
-                .then(res => {
-                    console.log('inside the addoffer sending form');
-                    if (res.data.success) {
-                        window.location.href = "/admin/offers";
-                    } else {
-                        document.getElementById('errorAddoffer').innerHTML = res.data.message;
-                        setTimeout(() => {
-                            document.getElementById('errorAddoffer').innerHTML = "";
-                        }, 2000);
-                    }
-                }).catch(err => {
-                    console.log('error', err);
-                });
-        });
-
         document.addEventListener('DOMContentLoaded', function () {
+            const offerList = document.getElementById('offerList');
+            const paginationContainer = document.querySelector('.pagination-container');
+            const addOfferForm = document.getElementById('addOfferForm');
+            const addOfferBtn = document.getElementById('addOffer');
+
+            // Add Offer button click handler
+            addOfferBtn.addEventListener('click', function () {
+                if (addOfferForm.style.display === 'none' || addOfferForm.style.display === '') {
+                    offerList.style.display = 'none';
+                    paginationContainer.style.display = 'none';
+                    addOfferForm.style.display = 'block';
+                    addOfferBtn.textContent = 'Back to Offer List';
+                } else {
+                    offerList.style.display = 'block';
+                    paginationContainer.style.display = 'flex';
+                    addOfferForm.style.display = 'none';
+                    addOfferBtn.textContent = 'Add New Offer';
+                }
+            });
+
+            // Save button click handler
+            document.getElementById('offerForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const offerName = document.getElementById('offerName').value;
+                const discountRate = document.getElementById('discountRate').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const offerType = document.getElementById('offerType').value;
+                const selectedElem = document.getElementById('selectedProductNames');
+                const selectedValues = Array.from(selectedElem.options).map(option => option.value);
+
+                axios.post('/admin/addoffer', { offerName, discountRate, startDate, endDate, offerType, selectedValues })
+                    .then(res => {
+                        if (res.data.success) {
+                            // Show offer list and pagination after successful submission
+                            offerList.style.display = 'block';
+                            paginationContainer.style.display = 'flex';
+                            addOfferForm.style.display = 'none';
+                            addOfferBtn.textContent = 'Add New Offer';
+
+                            // Reload the page to show the updated offer list
+                            window.location.href = "/admin/offers";
+                        } else {
+                            document.getElementById('errorAddoffer').innerHTML = res.data.message;
+                            setTimeout(() => {
+                                document.getElementById('errorAddoffer').innerHTML = "";
+                            }, 2000);
+                        }
+                    }).catch(err => {
+                        console.log('error', err);
+                    });
+            });
+
             // Offer type change handler
             document.getElementById('offerType').addEventListener('change', function () {
                 const offerType = this.value;
@@ -287,23 +290,21 @@
                             if (res.data.productDetails) {
                                 // Handle product selection
                                 const products = res.data.productDetails;
-                                console.log('products:', products);
                                 const modalProductList = document.getElementById('modalProductList');
                                 modalProductList.innerHTML = '';
                                 products.forEach(product => {
                                     const imageUrl = `/${product.image[0]}`;
-                                    console.log('imageUrl:', imageUrl);
                                     const productItem = document.createElement('div');
                                     productItem.className = 'product-item d-flex align-items-center justify-content-between p-2';
                                     productItem.innerHTML = `
-                                    <div class="form-check">
-                                        <input class="form-check-input product-checkbox" type="checkbox" name="productSelect" id="product-${product._id}" value="${product._id}">
-                                        <label class="form-check-label" for="product-${product._id}">
-                                            ${product.name} - Price: ${product.price}
-                                        </label>
-                                    </div>
-                                    <img src="${imageUrl}" alt="${product.name}" style="width: 50px; height: 50px;">
-                                `;
+                                        <div class="form-check">
+                                            <input class="form-check-input product-checkbox" type="checkbox" name="productSelect" id="product-${product._id}" value="${product._id}">
+                                            <label class="form-check-label" for="product-${product._id}">
+                                                ${product.name} - Price: ${product.price}
+                                            </label>
+                                        </div>
+                                        <img src="${imageUrl}" alt="${product.name}" style="width: 50px; height: 50px;">
+                                    `;
                                     modalProductList.appendChild(productItem);
                                 });
                                 new bootstrap.Modal(document.getElementById('productModal')).show();
@@ -316,9 +317,9 @@
                                     const categoryElement = document.createElement('div');
                                     categoryElement.className = 'form-check';
                                     categoryElement.innerHTML = `
-                                    <input class="form-check-input category-checkbox" type="checkbox" id="category-${category._id}" name="category" value="${category._id}">
-                                    <label class="form-check-label" for="category-${category._id}">${category.name}</label>
-                                `;
+                                        <input class="form-check-input category-checkbox" type="checkbox" id="category-${category._id}" name="category" value="${category._id}">
+                                        <label class="form-check-label" for="category-${category._id}">${category.name}</label>
+                                    `;
                                     modalCategoryList.appendChild(categoryElement);
                                 });
                                 new bootstrap.Modal(document.getElementById('categoryModal')).show();

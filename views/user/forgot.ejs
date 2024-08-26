@@ -1,61 +1,65 @@
 <%- include('navbar') -%>
 
+<style>
+    .alert-danger {
+        font-weight: bold;
+        font-size: 1.2em;
+        text-align: center;
+    }
+</style>
+
 <main class="main__content_wrapper">
-        <!-- Start breadcrumb section -->
-        <section class="breadcrumb__section breadcrumb__bg">
-            <div class="container">
-                <div class="row row-cols-1">
-                    <div class="col">
-                        <div class="breadcrumb__content text-center">
-                            <h1 class="breadcrumb__content--title text-white mb-25">Log in</h1>
-                            <ul class="breadcrumb__content--menu d-flex justify-content-center">
-                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a></li>
-                                <li class="breadcrumb__content--menu__items"><a class="text-white" href="/login">Log in</a></li>
-                                <li class="breadcrumb__content--menu__items"><span class="text-white">Forgot Password</span></li>
-                            </ul>
-                        </div>
+    <!-- Start breadcrumb section -->
+    <section class="breadcrumb__section breadcrumb__bg">
+        <div class="container">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <div class="breadcrumb__content text-center">
+                        <h1 class="breadcrumb__content--title text-white mb-25">Forgot Password</h1>
+                        <ul class="breadcrumb__content--menu d-flex justify-content-center">
+                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="/">Home</a></li>
+                            <li class="breadcrumb__content--menu__items"><a class="text-white" href="/login">Log in</a></li>
+                            <li class="breadcrumb__content--menu__items"><span class="text-white">Forgot Password</span></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </section>
-        <!-- End breadcrumb section -->
-
-
-<!-- Start forgot password section  -->
-<div class="login__section section--padding">
-    <div class="container">
-        <div class="mt-3">
-        <% if(emailExist&&emailExist.length>0){ %>
-            <div class="mt-3">
-                <div class="alert alert-danger" role="alert">
-                    <%= emailExist %>
-                </div>
-            </div>
-            <% } %>
         </div>
-        <form action="/forgot" method="post">
-            <div class="login__section--inner">
-                <div class="row row-cols-md-2 row-cols-1">
-                    <div class="col">
-                        <div class="account__login">
-                            <div class="account__login--header mb-25">
-                                <h2 class="account__login--header__title h3 mb-10 text-center">Forgot Password</h2>
+    </section>
+    <!-- End breadcrumb section -->
+
+    <!-- Start forgot password section  -->
+    <div class="login__section section--padding">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="mt-3">
+                        <% if(emailExist && emailExist.length>0){ %>
+                            <div class="alert alert-danger" role="alert">
+                                <%= emailExist %>
                             </div>
-                            <div class="account__login--inner">
-                                <input class="account__login--input" name="email" id="email" placeholder="Email Address" type="email" required>
-                                <span id="emailerror"></span>
-                                <button class="account__login--btn primary__btn" type="submit">Submit</button>
+                        <% } %>
+                    </div>
+                    <form action="/forgot" method="post">
+                        <div class="login__section--inner">
+                            <div class="account__login">
+                                <div class="account__login--header mb-25">
+                                    <h2 class="account__login--header__title h3 mb-10 text-center">Forgot Password</h2>
+                                </div>
+                                <div class="account__login--inner">
+                                    <input class="account__login--input" name="email" id="email" placeholder="Please enter your email address..." type="email" required>
+                                    <span id="emailerror"></span>
+                                    <button class="account__login--btn primary__btn" type="submit">Submit</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Other content can be placed in the right column here -->
+                    </form>
                 </div>
             </div>
-        </form>
-    </div>     
-</div>
-
+        </div>     
+    </div>
 </main>
 <!-- End Forgot password section  -->
-    
-<%- include('footer') -%> 
+
+<%- include('footer') -%>
+

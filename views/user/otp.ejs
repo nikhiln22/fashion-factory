@@ -3,20 +3,42 @@
     <style>
         .otp__input--container {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .otp__input {
-            width: 50px;
+            width: 60px;
+            height: 60px;
             text-align: center;
-            font-size: 18px;
+            font-size: 24px;
+        }
+
+        .account__login.otp {
+            max-width: 400px;
+            margin: 0 auto;
         }
 
         .full-width-btn {
             width: 100%;
             max-width: 100%;
+            display: block;
+        }
+
+        #resend-form {
+            margin-top: 10px;
+        }
+
+        .otp-error-message {
+            color: red;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
         }
     </style>
+
     <main class="main__content_wrapper">
         <!-- Start breadcrumb section -->
         <section class="breadcrumb__section breadcrumb__bg">
@@ -41,52 +63,55 @@
         <!-- Start otp section -->
         <div class="login__section section--padding">
             <div class="container">
-                <form id="otp-form" action="/verifyotp" method="post">
-                    <div class="login__section--inner">
-                        <div class="row row-cols-md-2 row-cols-1">
-                            <div class="col">
-                                <div class="account__login otp">
-                                    <div class="account__login--header mb-25">
-                                        <h2 class="account__login--header__title h3 mb-10 text-center">Verify OTP</h2>
-                                        <p class="account__login--header__desc">Enter the OTP sent to your email</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="account__login otp">
+                            <div class="account__login--header mb-25">
+                                <% if (expressFlash.otperror) { %>
+                                    <p class="otp-error-message">
+                                        <%= expressFlash.otperror %>
+                                    </p>
+                                    <% } %>
+                                        <h2 class="account__login--header__title h3 mb-10 text-center">Verify
+                                            OTP</h2>
+                                        <p class="account__login--header__desc text-center">Enter the OTP sent
+                                            to your email</p>
+                            </div>
+                            <div class="account__login--inner">
+                                <form id="otp-form" action="/verifyotp" method="post">
+                                    <div class="otp__input--container">
+                                        <input class="account__login--input otp__input" name="otp" type="number"
+                                            maxlength="1" id="digit1"
+                                            onkeydown="handleKeyDown(event, this, null, 'digit2')">
+                                        <input class="account__login--input otp__input" name="otp" type="number"
+                                            maxlength="1" id="digit2"
+                                            onkeydown="handleKeyDown(event, this, 'digit1', 'digit3')">
+                                        <input class="account__login--input otp__input" name="otp" type="number"
+                                            maxlength="1" id="digit3"
+                                            onkeydown="handleKeyDown(event, this, 'digit2', 'digit4')">
+                                        <input class="account__login--input otp__input" name="otp" type="number"
+                                            maxlength="1" id="digit4"
+                                            onkeydown="handleKeyDown(event, this, 'digit3', null)">
                                     </div>
-                                    <div class="account__login--inner">
-                                        <div class="otp__input--container">
-                                            <input class="account__login--input otp__input" name="otp" type="number"
-                                                maxlength="1" id="digit1" onkeyup="moveToNext (this,'digit2')">
-                                            <input class="account__login--input otp__input" name="otp" type="number"
-                                                maxlength="1" id="digit2" onkeyup="moveToNext (this,'digit3')">
-                                            <input class="account__login--input otp__input" name="otp" type="number"
-                                                maxlength="1" id="digit3" onkeyup="moveToNext (this,'digit4')">
-                                            <input class="account__login--input otp__input" name="otp" type="number"
-                                                maxlength="1" id="digit4">
-                                        </div>
-                                        <button class="account__login--btn primary__btn mb-10 full-width-btn"
-                                            type="submit">Submit
-                                            OTP</button>
-                                        <% if (expressFlash.otperror) { %>
-                                            <p style="color: red;">
-                                                <%= expressFlash.otperror %>
-                                            </p>
-                                            <% } %>
-                                                <div id="timer" class="text-center text-danger"></div>
-                                    </div>
-                                </div>
+                                    <button class="account__login--btn primary__btn mb-10 full-width-btn"
+                                        type="submit">Submit OTP</button>
+                                </form>
+                                <div id="timer" class="text-center text-danger"></div>
+                                <form action="/resendotp" method="post" id="resend-form">
+                                    <button id="resend-btn" style="display:none;"
+                                        class="account__login--btn primary__btn mb-10 full-width-btn"
+                                        type="submit">Resend OTP</button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </form>
-                <form action="/resendotp" method="post" id="resend-form">
-                    <button id="resend-btn" style="display:none;"
-                        class="account__login--btn primary__btn mb-10 full-width-btn" type="submit">Resend OTP</button>
-                </form>
+                </div>
             </div>
         </div>
     </main>
     <!-- End otp section -->
 
     <%- include('footer') -%>
-
 
         <script>
             (function startTimer() {
@@ -104,9 +129,20 @@
                 }, 1000)
             })()
 
-            function moveToNext(currInput, nextInputId) {
-                if (currInput.value.length >= 1) {
-                    document.getElementById(nextInputId).focus();
+            function handleKeyDown(event, currentInput, prevInputId, nextInputId) {
+                if (event.key === 'Backspace') {
+                    if (currentInput.value.length === 0 && prevInputId) {
+                        event.preventDefault();
+                        document.getElementById(prevInputId).focus();
+                    }
+                } else if (event.key >= '0' && event.key <= '9') {
+                    event.preventDefault();
+                    currentInput.value = event.key;
+                    if (nextInputId) {
+                        document.getElementById(nextInputId).focus();
+                    }
+                } else {
+                    event.preventDefault();
                 }
             }
         </script>

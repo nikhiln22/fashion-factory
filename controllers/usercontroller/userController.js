@@ -153,7 +153,7 @@ const index = async (req, res) => {
       })
     }
   } catch (error) {
-    console.log('error occured while rendering the home page');
+    console.log('error occured while rendering the home page',error);
     res.render('user/error');
   }
 }
@@ -250,7 +250,7 @@ const signup = async (req, res) => {
       passwordError: req.flash('passwordError'),
       referralError: req.flash('referralError'),
       success: req.flash('success'),
-      currentPage:'signUp'
+      currentPage: 'signUp'
     });
   } catch (error) {
     console.log('Error while loading the signup page', error);
@@ -344,6 +344,8 @@ const otp = async (req, res) => {
       },
       otp: otp
     })
+
+    req.flash('otperror', null);
   } catch (error) {
     console.log('error while rendering the otp page........');
     res.render('user/error');
@@ -405,17 +407,16 @@ const verifyOtp = async (req, res) => {
         req.session.signup = false;
         req.flash('success', 'Logged in successfully');
         res.redirect('/');
-      } else {
-        req.flash('otperror', 'invalid otp!..please enter correct otp');
-        res.redirect('/otp');
       }
+    } else {
+      req.flash('otperror', 'Invalid OTP. Please enter the correct OTP.');
+      res.redirect('/otp');
     }
   } catch (error) {
     console.log('error occured while veryfing the otp', error);
     res.render('user/error');
   }
 }
-
 
 // veryfying the resend otp
 const resendOtp = async (req, res) => {
@@ -440,15 +441,22 @@ const resendOtp = async (req, res) => {
 const login = async (req, res) => {
   try {
     console.log('rendering the login page');
-    res.render('user/login',
-      {
-        expressFlash: {
-          invaliduser: req.flash('invaliduser'),
-          invalidpassword: req.flash('invalidpassword'),
-          userSuccess: req.flash('userSuccess')
-        },
-        currentPage:'login'
-      });
+    res.render('user/login', {
+      expressFlash: {
+        invalidaction: req.flash('invalidaction'),
+        invaliduser: req.flash('invaliduser'),
+        invalidpassword: req.flash('invalidpassword'),
+        userblocked: req.flash('userblocked'),
+        error: req.flash('error'),
+        userSuccess: req.flash('userSuccess')
+      },
+      currentPage: 'login'
+    });
+
+    // Clear all flash messages
+    ['invalidaction', 'invaliduser', 'invalidpassword', 'userblocked', 'error', 'userSuccess'].forEach(key => {
+      req.flash(key, null);
+    });
   } catch (error) {
     console.log('Error while loading the login page:', error);
     res.render('user/error');
@@ -463,23 +471,31 @@ const loginPost = async (req, res) => {
     const password = req.body.password;
     const user = await userModel.findOne({ email: email });
 
-    if (user && user.status && await bcrypt.compare(password, user.password)) {
-      req.session.userId = user._id;
-      req.session.username = user.name;
-      req.session.user = user;
-      req.session.isAuth = true;
-      req.flash('success', 'logged in successfully');
-      return res.redirect('/');
-    } else {
-      console.log('Invalid login attempt');
-      req.flash('invalidpassword', 'Invalid password or username');
-      console.log('Redirecting to /login');
+    if (!user) {
+      req.flash('invaliduser', 'User not found');
       return res.redirect('/login');
     }
+
+    if (!user.status) {
+      req.flash('userblocked', 'Your account has been suspended. Please contact customer support for assistance.');
+      return res.redirect('/login');
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      req.flash('invalidpassword', 'Invalid password');
+      return res.redirect('/login');
+    }
+
+    req.session.userId = user._id;
+    req.session.username = user.name;
+    req.session.user = user;
+    req.session.isAuth = true;
+    req.flash('success', 'Logged in successfully');
+    return res.redirect('/');
+
   } catch (error) {
     console.error('Error in loginPost:', error);
-    req.flash('invaliduser', 'Invalid username or password');
-    console.log('Redirecting to /login');
+    req.flash('error', 'An unexpected error occurred');
     return res.redirect('/login');
   }
 }

@@ -17,7 +17,6 @@
 
         .account__login--input {
             padding-right: 30px;
-            /* Add padding to accommodate the eye button */
         }
 
         .button-container {
@@ -30,11 +29,48 @@
             max-width: 200px;
             width: 100%;
         }
+
+        .login__section--inner {
+            display: flex;
+            justify-content: center;
+        }
+
+        .account__login.register {
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .account__login--inner input {
+            margin-bottom: 15px;
+        }
+
+        .text-danger p {
+            color: #ff0000;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .account__login--inner span {
+            color: #ff0000;
+            font-weight: bold;
+            font-size: 0.9em;
+            display: block;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 576px) {
+            .account__login.register {
+                max-width: 100%;
+                padding: 20px;
+            }
+        }
     </style>
 
-
     <main class="main__content_wrapper">
-
         <!-- Start breadcrumb section -->
         <section class="breadcrumb__section breadcrumb__bg">
             <div class="container">
@@ -81,58 +117,54 @@
                 </div>
 
                 <form action="/signup" method="post">
-
                     <div class="login__section--inner">
-                        <div class="row row-cols-md-2 row-cols-1">
+                        <div class="account__login register">
+                            <div class="account__login--header mb-25">
+                                <h2 class="account__login--header__title h3 mb-10 text-center">Create an Account</h2>
+                                <p class="account__login--header__desc text-center">Register here if you are a new
+                                    customer</p>
+                            </div>
+                            <div class="account__login--inner">
+                                <!-- Form inputs remain the same -->
+                                <input class="account__login--input" name="username" id="username"
+                                    placeholder="Username" type="text" onblur="validateUsername()" required>
+                                <span id="usernameerror"></span>
 
-                            <div class="col">
-                                <div class="account__login register">
-                                    <div class="account__login--header mb-25">
-                                        <h2 class="account__login--header__title h3 mb-10 text-center">Create an Account
-                                        </h2>
-                                        <p class="account__login--header__desc text-center">Register here if you are a
-                                            new customer</p>
-                                    </div>
-                                    <div class="account__login--inner">
-                                        <input class="account__login--input" name="username" id="username"
-                                            placeholder="Username" type="text" onblur="validateUsername()" required>
-                                        <span id="usernameerror"></span>
-                                        <input class="account__login--input" name="email" id="email"
-                                            placeholder="Email Addres" type="email" onblur="validateEmail()" required>
-                                        <span id="emailerror"></span>
-                                        <input class="account__login--input" name="phone" id="phone"
-                                            placeholder="Mobile Number" type="text" onblur="validateNumber()" required>
-                                        <span id="numbererror"></span>
-                                        <div class="account__login--password">
-                                            <input class="account__login--input" name="password" id="password"
-                                                placeholder="Password" type="password" onblur="validatePassword()"
-                                                required>
-                                            <span class="account__login--password__icon"
-                                                onclick="togglePasswordVisibility('password')">&#128065;</span>
-                                        </div>
-                                        <span id="passworderror"></span>
-                                        <div class="account__login--password">
-                                            <input class="account__login--input" name="confirmPassword"
-                                                id="confirmPassword" placeholder="Confirm Password" type="password"
-                                                onblur="validateConfirmPassword()" required>
-                                            <span class="account__login--password__icon"
-                                                onclick="togglePasswordVisibility('confirmPassword')">&#128065;</span>
-                                        </div>
-                                        <span id="ConfirmPassworderror"></span>
+                                <input class="account__login--input" name="email" id="email" placeholder="Email Address"
+                                    type="email" onblur="validateEmail()" required>
+                                <span id="emailerror"></span>
 
-                                        <input class="account__login--input" name="referralCode" id="referralCode"
-                                            placeholder="Referral Code (Optional)" type="text"
-                                            onblur="validateReferralCode()">
+                                <input class="account__login--input" name="phone" id="phone" placeholder="Mobile Number"
+                                    type="text" onblur="validateNumber()" required>
+                                <span id="numbererror"></span>
 
-                                        <span id="referralCodeError"></span>
-                                        <div class="button-container">
-                                            <button class="account__login--btn primary__btn mb-10" type="submit">Submit
-                                                & Register</button>
-                                        </div>
-                                        <p class="account__login--signup__text">Already an existing user?<a
-                                                href="/login">login</a></p>
-                                    </div>
+                                <div class="account__login--password">
+                                    <input class="account__login--input" name="password" id="password"
+                                        placeholder="Password" type="password" onblur="validatePassword()" required>
+                                    <span class="account__login--password__icon"
+                                        onclick="togglePasswordVisibility('password')">&#128065;</span>
                                 </div>
+                                <span id="passworderror"></span>
+
+                                <div class="account__login--password">
+                                    <input class="account__login--input" name="confirmPassword" id="confirmPassword"
+                                        placeholder="Confirm Password" type="password"
+                                        onblur="validateConfirmPassword()" required>
+                                    <span class="account__login--password__icon"
+                                        onclick="togglePasswordVisibility('confirmPassword')">&#128065;</span>
+                                </div>
+                                <span id="ConfirmPassworderror"></span>
+
+                                <input class="account__login--input" name="referralCode" id="referralCode"
+                                    placeholder="Referral Code (Optional)" type="text" onblur="validateReferralCode()">
+                                <span id="referralCodeError"></span>
+
+                                <div class="button-container">
+                                    <button class="account__login--btn primary__btn mb-10" type="submit">Submit &
+                                        Register</button>
+                                </div>
+                                <p class="account__login--signup__text">Already an existing user? <a
+                                        href="/login">Login</a></p>
                             </div>
                         </div>
                     </div>

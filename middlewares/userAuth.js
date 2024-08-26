@@ -1,11 +1,14 @@
 const userModel = require('../model/userModel');
+const flash = require('express-flash');
 
 const logged = async (req, res, next) => {
     try {
-        const user = await userModel.findOne({ _id: req.session.userId })
+        const user = await userModel.findOne({ _id: req.session.userId });
         if (req.session.isAuth && user && user.status === true) {
             next();
         } else {
+            req.session.isAuth = false;
+            req.flash('invalidaction','Your account has been suspended. Please contact customer support for assistance.');
             res.redirect('/login');
         }
     } catch (error) {

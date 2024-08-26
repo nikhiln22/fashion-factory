@@ -1,6 +1,6 @@
- <%- include('navbar',{ currentPage: 'login' }) -%>
+<%- include('navbar',{ currentPage: 'login' }) -%>
 
-        <style>
+    <style>
         .account__login--password {
             position: relative;
         }
@@ -17,7 +17,6 @@
 
         .account__login--input {
             padding-right: 30px;
-            /* Add padding to accommodate the eye button */
         }
 
         .login-wrapper {
@@ -25,14 +24,23 @@
             justify-content: center;
             align-items: center;
             min-height: calc(100vh - 200px);
-            /* Adjust the height based on your header and footer height */
             padding: 2rem 0;
         }
 
         .login__section {
-            max-width: 1000px;
-            /* Adjust the max-width as needed */
+            max-width: 500px;
+            /* Adjust this value to match your desired width */
             width: 100%;
+        }
+
+        .text-danger {
+            color: #dc3545;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            transition: opacity 0.5s ease;
         }
     </style>
 
@@ -54,113 +62,130 @@
                     </div>
                 </div>
             </div>
-        </section> 
-     </main>
-     
+        </section>
+        <!-- End breadcrumb section -->
+    </main>
+
     <!-- Start login section  -->
     <div class="login-wrapper">
         <div class="login__section section--padding">
             <div class="container">
-                <div class="mt-3">
-                    <% if(expressFlash.invalidpassword && expressFlash.invalidpassword.length> 0) { %>
-                        <div class="alert alert-danger" role="alert">
-                            <%= expressFlash.invalidpassword %>
-                        </div>
-                        <% } %>
-                            <% if(expressFlash.invaliduser && expressFlash.invaliduser.length> 0) { %>
-                                <div class="alert alert-danger" role="alert">
-                                    <%= expressFlash.invaliduser %>
-                                </div>
-                                <% } %>
+                <div id="message-container" class="mt-3">
+                    <% ['invaliduser', 'invalidpassword' , 'userblocked' , 'error' , 'invalidaction'
+                        ].forEach(function(key) { %>
+                        <% if(expressFlash[key] && expressFlash[key].length> 0) { %>
+                            <p class="text-center text-danger message"><strong>
+                                    <%= expressFlash[key] %>
+                                </strong></p>
+                            <% } %>
+                                <% }); %>
+
+                                    <% if(expressFlash.userSuccess && expressFlash.userSuccess.length> 0) { %>
+                                        <p class="text-center text-success message"><strong>
+                                                <%= expressFlash.userSuccess %>
+                                            </strong></p>
+                                        <% } %>
                 </div>
+
                 <form action="/login" method="post">
                     <div class="login__section--inner">
-                        <div class="row row-cols-md-2 row-cols-1">
-                            <div class="col">
-                                <div class="account__login">
-                                    <div class="account__login--header mb-25">
-                                        <h2 class="account__login--header__title h3 mb-10 text-center">Login</h2>
-                                    </div>
-                                    <div class="account__login--inner">
-                                        <input class="account__login--input" name="email" id="email"
-                                            placeholder="Email Address" type="text" onblur="validateEmail()">
-                                        <span id="emailerror"></span>
-                                        <div class="account__login--password">
-                                            <input class="account__login--input" name="password" id="Password"
-                                                placeholder="Password" type="password" onblur="validatePassword()">
-                                            <span class="account__login--password__icon"
-                                                onclick="togglePasswordVisibility()">&#128065;</span>
-                                        </div>
-                                        <span id="passwordError"></span>
-                                        <div
-                                            class="account__login--remember__forgot mb-15 d-flex justify-content-between align-items-center">
-                                            <a class="account__login--forgot btn-link" href="/forgot">Forgot Your
-                                                Password?</a>
-                                        </div>
-                                        <button class="account__login--btn primary__btn" type="submit">Login</button>
-                                        <div class="account__login--divide">
-                                            <span class="account__login--divide__text">OR</span>
-                                        </div>
-                                        <div class="account__social d-flex justify-content-center mb-15">
-                                            <a class="account__social--link google" href="/googlesignin">Google</a>
-                                        </div>
-                                        <p class="account__login--signup__text">Don't Have an Account?<a
-                                                href="/signup">Signup</a></p>
-                                    </div>
-                                </div>
+                        <div class="account__login">
+                            <div class="account__login--header mb-25">
+                                <h2 class="account__login--header__title h3 mb-10 text-center">Login</h2>
                             </div>
-                            <!-- Other content can be placed in the right column here -->
+                            <div class="account__login--inner">
+                                <input class="account__login--input" name="email" id="email" placeholder="Email Address"
+                                    type="text" onblur="validateEmail()">
+                                <span id="emailerror"></span>
+                                <div class="account__login--password">
+                                    <input class="account__login--input" name="password" id="Password"
+                                        placeholder="Password" type="password" onblur="validatePassword()">
+                                    <span class="account__login--password__icon"
+                                        onclick="togglePasswordVisibility()">&#128065;</span>
+                                </div>
+                                <span id="passwordError"></span>
+                                <div
+                                    class="account__login--remember__forgot mb-15 d-flex justify-content-between align-items-center">
+                                    <a class="account__login--forgot btn-link" href="/forgot">Forgot Your Password?</a>
+                                </div>
+                                <button class="account__login--btn primary__btn" type="submit">Login</button>
+                                <div class="account__login--divide">
+                                    <span class="account__login--divide__text">OR</span>
+                                </div>
+                                <div class="account__social d-flex justify-content-center mb-15">
+                                    <a class="account__social--link google" href="/googlesignin">Google</a>
+                                </div>
+                                <p class="account__login--signup__text">Don't Have an Account?<a
+                                        href="/signup">Signup</a></p>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-<!-- End login section  -->
+    <!-- End login section  -->
 
     <!-- <%- include('footer') -%> -->
 
-        <script>
-            function validateEmail() {
-                var emailError = document.getElementById('emailerror');
-                var email = document.getElementById('email').value.trim();
-                if (!email.match(/^[A-Za-z\._\-[0-9]+@[A-Za-z]+\.[a-z]{2,}$/)) {
-                    emailError.innerHTML = 'Email is invalid';
-                    return false;
-                } else {
-                    emailError.innerHTML = '';
-                    return true;
-                }
+    <script>
+        function validateEmail() {
+            var emailError = document.getElementById('emailerror');
+            var email = document.getElementById('email').value.trim();
+            if (!email.match(/^[A-Za-z\._\-[0-9]+@[A-Za-z]+\.[a-z]{2,}$/)) {
+                emailError.innerHTML = 'Email is invalid';
+                return false;
+            } else {
+                emailError.innerHTML = '';
+                return true;
             }
-            function validatePassword() {
-                var passwordError = document.getElementById('passwordError');
-                var password = document.getElementById('password').value.trim();
+        }
 
-                if (!password.match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()-_+=<>?])[A-Za-z\d\S]{8,}$/)) {
-                    passwordError.innerHTML = 'Password must meet the following criteria:<br>' +
-                        '- At least 8 characters in length<br>' +
-                        '- At least one letter (uppercase or lowercase)<br>' +
-                        '- At least one digit<br>' +
-                        '- At least one symbol';
-                    return false;
-                } else {
-                    passwordError.innerHTML = '';
-                    return true;
-                }
-            } 
-        </script>
+        function validatePassword() {
+            var passwordError = document.getElementById('passwordError');
+            var password = document.getElementById('Password').value.trim();
 
-        <script>
-            function togglePasswordVisibility() {
-                var passwordInput = document.getElementById("Password");
-                var eyeIcon = document.querySelector(".account__login--password__icon");
-                if (passwordInput.type === "password") {
-                    passwordInput.type = "text";
-                    eyeIcon.innerHTML = "&#128064;"; // Change to open eye icon
-                } else {
-                    passwordInput.type = "password";
-                    eyeIcon.innerHTML = "&#128065;"; // Change to closed eye icon
-                }
+            if (!password.match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()-_+=<>?])[A-Za-z\d\S]{8,}$/)) {
+                passwordError.innerHTML = 'Password must meet the following criteria:<br>' +
+                    '- At least 8 characters in length<br>' +
+                    '- At least one letter (uppercase or lowercase)<br>' +
+                    '- At least one digit<br>' +
+                    '- At least one symbol';
+                return false;
+            } else {
+                passwordError.innerHTML = '';
+                return true;
             }
-        </script>
+        }
+
+        function togglePasswordVisibility() {
+            var passwordInput = document.getElementById("Password");
+            var eyeIcon = document.querySelector(".account__login--password__icon");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.innerHTML = "&#128064;"; // Change to open eye icon
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.innerHTML = "&#128065;"; // Change to closed eye icon
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const messages = document.querySelectorAll('.message');
+
+            if (messages.length > 0) {
+                setTimeout(function () {
+                    messages.forEach(function (message) {
+                        message.style.transition = 'opacity 0.5s ease';
+                        message.style.opacity = '0';
+                    });
+
+                    setTimeout(function () {
+                        messages.forEach(function (message) {
+                            message.remove();  // This removes only the message elements
+                        });
+                    }, 500);
+                }, 5000);  // Messages will start fading out after 5 seconds
+            }
+        });
+    </script>
