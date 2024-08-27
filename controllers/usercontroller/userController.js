@@ -501,7 +501,10 @@ const loginPost = async (req, res) => {
 }
 
 // google authentication
-const googleSignIn = passport.authenticate('google', { scope: ['email', 'profile'] });
+const googleSignIn = passport.authenticate('google',
+   { scope: ['email', 'profile'] }
+  );
+  
 const googleCallback = passport.authenticate('google', {
   successRedirect: '/',
   failureRedirect: '/auth/failure'
@@ -509,7 +512,7 @@ const googleCallback = passport.authenticate('google', {
 
 
 const authFailure = (req, res) => {
-  res.send('Something went wrong..');
+  res.send('Something went wrong during authentication.');
 };
 
 

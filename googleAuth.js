@@ -11,12 +11,13 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 passport.use(new GoogleStrategy({
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:5000/auth/google/callback",
+  callbackURL: "https://fashionfactory.in.net/google/callback",
   passReqToCallback: true
 },
   async function (request, accessToken, refreshToken, profile, done) {
 
     try {
+      console.log("Google profile fetched successfully: ------->", profile);
       let user = await userModel.findOneAndUpdate(
         { email: profile.emails[0].value },
         {
@@ -26,7 +27,7 @@ passport.use(new GoogleStrategy({
         },
         { upsert: true, new: true }
       );
-      console.log(user,'google user is here heh');
+      console.log(user,'Google user authenticated----------->');
       return done(null, user);
     } catch (err) {
       console.error("Error while updating/inserting an user:", err);
@@ -35,11 +36,17 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-//serializing and deserializing the user
+// Serializing and deserializing the user
 passport.serializeUser(function (user, done) {
-  done(null, user);
-})
-passport.deserializeUser(function (user, done) {
-  done(null, user);
-})
+  done(null, user._id); // Store user ID in session
+});
+
+passport.deserializeUser(async function (id, done) {
+  try {
+    const user = await userModel.findById(id); // Find user by ID from session
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
 

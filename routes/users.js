@@ -11,6 +11,11 @@ require('../googleAuth');
 const passport = require('passport');
 
 
+userRoute.get('/googlesignin', userController.googleSignIn);
+userRoute.get('/google/callback', userController.googleCallback);
+userRoute.get('/auth/failure', userController.authFailure);
+
+
 userRoute.get('/', userController.index);
 userRoute.get('/productcat', userController.findByCategory);
 userRoute.get('/login', ifLogged, userController.login);
@@ -20,10 +25,6 @@ userRoute.post('/signup', userController.signUpPost);
 userRoute.get('/about', userController.about);
 userRoute.get('/contact', userController.contact);
 
-
-userRoute.get('/googlesignin', userController.googleSignIn);
-userRoute.get('/auth/google/callback', userController.googleCallback);
-userRoute.get('/auth/failure', userController.authFailure);
 
 userRoute.get('/otp', signed, userController.otp);
 userRoute.post('/verifyotp', userController.verifyOtp);

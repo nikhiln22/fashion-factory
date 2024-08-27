@@ -10,18 +10,18 @@ const adminRouter = require('./routes/admin');
 const flash = require('express-flash');
 const multer = require('multer');
 const passport = require('passport');
-const cookieParser = require('cookie-parser');
-const { adAuth } = require('./middlewares/adminAuth');
 
 
+// Set the port for the server, using the environment variable if available, otherwise default to 3000
 const PORT = process.env.PORT || 3000;
 
 // Connect to the database
 dbConnect().catch(err => {
-  console.error('Database connection error:', err);
+  console.log('Database connection error:',err);
   process.exit(1);
 });
 
+// Create Express application instance
 const app = express();
 
 // Middleware setup
@@ -31,7 +31,6 @@ app.use(session({
   saveUninitialized: true
 }));
 
-app.use(cookieParser());
 
 // Initialize passport
 app.use(passport.initialize());
