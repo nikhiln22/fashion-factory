@@ -140,6 +140,9 @@
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
         }
 
         .coupon-code {
@@ -158,6 +161,9 @@
 
         .copyBtn {
             margin-top: 10px;
+            width: 120px;
+            padding: 8px 12px;
+            font-size: 14px;
         }
 
         .cart__table.checkout__product--table.card {
@@ -275,6 +281,16 @@
         .card-radio-input:checked+.payment-option-label {
             border-color: #007bff;
             background-color: #f8f9fa;
+        }
+
+        .coupon-scroll-container {
+            max-height: 300px;
+            /* Adjust this value as needed */
+            overflow-y: auto;
+        }
+
+        #couponDetailsList {
+            height: auto;
         }
     </style>
 
@@ -480,45 +496,43 @@
                             <button id="applyCouponBtn" class="coupon-btn apply-btn">Apply Coupon</button>
                             <button id="removeCouponBtn" class="coupon-btn remove-btn" style="display: none;">Remove
                                 Coupon</button>
-                            <div class="dropdown">
-                                <button class="coupon-btn show-btn" type="button" id="showCouponBtn">Show
-                                    Coupons</button>
-                                <div class="dropdown-content" id="couponDetailsList">
-                                    <% if (validCoupons && validCoupons.length> 0) { %>
-                                        <% validCoupons.forEach(coupon=> { %>
-                                            <div class="coupon-card">
-                                                <div class="coupon-code">Code: <span>
-                                                        <%= coupon.couponCode %>
-                                                    </span></div>
-                                                <div class="coupon-type">Coupon Type: <span>
-                                                        <%= coupon.type %>
-                                                    </span></div>
-                                                <div class="coupon-expire">Expiry: <%= new
-                                                        Date(coupon.expiry).toLocaleDateString('en-US', {
-                                                        year: 'numeric' , month: 'long' , day: 'numeric' }) %>
-                                                </div>
-                                                <div class="coupon-minimum">Minimum Purchase: ₹<%=
-                                                        coupon.minimumPrice.toFixed(2) %>
-                                                </div>
-                                                <div class="coupon-minimum">Maximum Redeemable: ₹<%=
-                                                        coupon.maxRedeem.toFixed(2) %>
-                                                </div>
-                                                <button class="btn btn-sm btn-outline-secondary copyBtn"
-                                                    data-coupon-code="<%= coupon.couponCode %>">Copy</button>
+                            <button class="coupon-btn show-btn" type="button" id="showCouponBtn">Show Coupons</button>
+                        </div>
+                        <div class="coupon-scroll-container" style="display: none;">
+                            <div id="couponDetailsList">
+                                <% if (validCoupons && validCoupons.length> 0) { %>
+                                    <% validCoupons.forEach(coupon=> { %>
+                                        <div class="coupon-card">
+                                            <div class="coupon-code">Code: <span>
+                                                    <%= coupon.couponCode %>
+                                                </span></div>
+                                            <div class="coupon-type">Coupon Type: <span>
+                                                    <%= coupon.type %>
+                                                </span></div>
+                                            <div class="coupon-expire">Expiry: <%= new
+                                                    Date(coupon.expiry).toLocaleDateString('en-US', { year: 'numeric' ,
+                                                    month: 'long' , day: 'numeric' }) %>
                                             </div>
-                                            <% }); %>
-                                                <% } else { %>
-                                                    <div class="dropdown-item">
-                                                        <%= validCoupons.length %>No Valid Coupons Available at this
-                                                            moment
-                                                    </div>
-                                                    <% } %>
-                                </div>
+                                            <div class="coupon-minimum">Minimum Purchase: ₹<%=
+                                                    coupon.minimumPrice.toFixed(2) %>
+                                            </div>
+                                            <div class="coupon-minimum">Maximum Redeemable: ₹<%=
+                                                    coupon.maxRedeem.toFixed(2) %>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-secondary copyBtn"
+                                                data-coupon-code="<%= coupon.couponCode %>">Copy</button>
+                                        </div>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <div class="dropdown-item">No Valid Coupons Available at this moment
+                                                </div>
+                                                <% } %>
                             </div>
-
                         </div>
                         <p id="couponMessage" style="color: red; margin-top: 10px;"></p>
                     </div>
+
+
                 </aside>
             </div>
         </div>
@@ -533,7 +547,7 @@
 
             // coupon handling
             const showCouponBtn = document.getElementById('showCouponBtn');
-            const couponDetailsList = document.getElementById('couponDetailsList');
+            const couponScrollContainer = document.querySelector('.coupon-scroll-container');
             const couponInput = document.getElementById('couponInput');
             const applyCouponBtn = document.getElementById('applyCouponBtn');
             const removeCouponBtn = document.getElementById('removeCouponBtn');
@@ -633,8 +647,15 @@
 
             // coupon dropdown handling
             showCouponBtn.addEventListener('click', function () {
-                couponDetailsList.classList.toggle('show');
+                if (couponScrollContainer.style.display === 'none') {
+                    couponScrollContainer.style.display = 'block';
+                    showCouponBtn.textContent = 'Hide Coupons';
+                } else {
+                    couponScrollContainer.style.display = 'none';
+                    showCouponBtn.textContent = 'Show Coupons';
+                }
             });
+
 
             // copying the selected coupon code
             document.querySelectorAll('.copyBtn').forEach(btn => {
@@ -992,7 +1013,7 @@
                                     }),
                                 });
                                 const result = await response.json();
-                                console.log('result:',result);
+                                console.log('result:', result);
                                 if (!result.success)
                                     Swal.fire({
                                         icon: 'error',
