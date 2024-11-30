@@ -299,19 +299,7 @@ const aToZ = async (req, res) => {
             .sort({ name: 1 })
             .skip(commonData.skip)
             .limit(limit)
-
-        // let products = await productModel.aggregate([
-        //     { $match: commonData.matchStage },
-        //     {
-        //         $addFields: {
-        //             lowercaseName: { $toLower: "$name" }
-        //         }
-        //     },
-        //     { $sort: { lowercaseName: 1 } },
-        //     { $skip: commonData.skip },
-        //     { $limit: limit },
-        //     { $project: { lowercaseName: 0 } }
-        // ]);
+            
         console.log('Products without lookup:', products);
 
         products = await applyOffers(products, commonData.offerdata);
