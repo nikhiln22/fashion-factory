@@ -81,8 +81,6 @@
       }
     });
     function delImage(id) {
-      console.log('im the deleting image function.............');
-      
       Swal.fire({
         title: "Are you sure?",
         text: "Are you sure you want to proceed?",
@@ -101,11 +99,8 @@
         }
       }).catch((error) => {
         console.error("An error occurred:", error);
-        // Handle error or provide feedback to the user
       });
     }
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
   <%- include ('adminfooter') %>

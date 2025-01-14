@@ -4,10 +4,6 @@
             <div class="col-9">
                 <div class="content-header">
                     <h2 class="content-title">Update Product</h2>
-                    <div>
-                        <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
-                        <button class="btn btn-md rounded font-sm hover-up">Publish</button>
-                    </div>
                 </div>
             </div>
             <form id="addProductForm" action="/admin/updateProduct/<%= product._id %>" method="post" enctype="application/x-www-form-urlencoded"
@@ -29,12 +25,6 @@
                             value="<%=product.price%>" required>
                         <div id="priceError" class="text-danger"></div>
                     </div>
-
-                     <!-- <div class="form-group col-md-6">
-                    <label for="discount">Discount: (in Percentage)</label>
-                    <input type="number" class="form-control" id="discount" name="discount" min="0" value="<%=product.discount%>" required>
-                    <div id="discountError" class="text-danger"></div>
-                </div>  -->
 
                 </div>
                 <div class="form-group">
