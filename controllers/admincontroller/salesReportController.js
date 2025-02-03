@@ -1,5 +1,4 @@
 const orderModel = require('../../model/orderModel');
-const userModel = require('../../model/userModel');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
