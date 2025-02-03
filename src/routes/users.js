@@ -7,7 +7,7 @@ const cartController = require('../controllers/usercontroller/cartController');
 const checkOutController = require('../controllers/usercontroller/checkOutController');
 const paymentController = require('../controllers/usercontroller/paymentController');
 const { ifLogged, logged, signed, forgot } = require('../middlewares/userAuth');
-require('../googleAuth');
+require('../../src/config/googleAuth');
 const passport = require('passport');
 
 
