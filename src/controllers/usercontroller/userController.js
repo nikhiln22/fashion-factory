@@ -2,7 +2,6 @@ const userModel = require('../../model/userModel');
 const otpModel = require('../../model/otpModel');
 const productModel = require('../../model/productModel');
 const categoryModel = require('../../model/catagoryModel');
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const flash = require('express-flash');
 const path = require('path');
@@ -619,7 +618,7 @@ const contact = async (req, res) => {
 // logging out by the user
 const logout = async (req, res) => {
   try {
-    console.log("hi")
+    console.log("user is logging out");
     req.session.isAuth = false;
     req.logOut(function (err) {
       if (err) {

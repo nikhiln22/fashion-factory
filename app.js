@@ -42,20 +42,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the public directory
-app.use("/public", express.static(path.join(__dirname, "src", "public")));
+app.use("/public", express.static("public"));
 
 // serve static files from the downloads folder in the home directory
 app.use(express.static(path.join(os.homedir(), "Downloads")));
 
-app.use("/uploads", express.static(path.join(__dirname, "src", "uploads")));
+app.use("/uploads", express.static("uploads"));
 
 // setting up the multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    return cb(null, path.join(__dirname, "src", "uploads"));
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    return cb(null, Date.now() + "-" + file.originalname + ".jpeg");
+    cb(null, Date.now() + "-" + file.originalname + ".jpeg");
   },
 });
 
