@@ -2,9 +2,6 @@
 
 Fashion Factory is a full-stack eCommerce platform designed to deliver a seamless shopping experience for users and a robust management toolkit for admins. Built with Node.js, MongoDB, and EJS templates, Fashion Factory combines security, user-friendly design, and powerful backend capabilities.
 
-## Live Demo
-Access the live demo of this project at https://fashionfactory.in.net/
-
 ## Features
 
 - **User-Side Features:**
