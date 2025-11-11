@@ -453,12 +453,10 @@ const cancelProduct = async (req, res) => {
 
         console.log('item:', item);
 
-        // Check if the item is already cancelled
         if (item.productStatus === 'cancelled') {
             return res.status(400).json({ success: false, message: 'Product is already cancelled' });
         }
 
-        // Update product stock
         const product = await productModel.findById(productId);
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
@@ -668,21 +666,17 @@ const invoicePage = async (req, res) => {
             return res.status(404).json({ error: "product not found in the order" });
         }
 
-        // calculating the product specific discount
         const originalPrice = productData.productId.price * productData.quantity;
         console.log('originalPrice:', originalPrice);
         const productDiscount = originalPrice - productData.totalProductPrice;
         console.log('productDiscount:', productDiscount);
 
-        // getting coupon Discount from order details
         const couponDiscount = orderDetails.couponDiscount || 0;
         console.log('couponDiscount:', couponDiscount);
 
-        // calculate total discount and final price
         const totalDiscount = productDiscount + couponDiscount;
         const finalPrice = productData.totalProductPrice - couponDiscount;
 
-        // add discount information to productData
         productData.originalPrice = originalPrice;
         productData.productDiscount = productDiscount;
         productData.couponDiscount = couponDiscount;
@@ -716,10 +710,9 @@ const invoiceDownload = async (req, res) => {
         const date = new Date(orderDetails.createdAt);
         const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
 
-        // Calculate the required values
         const originalPrice = productData.quantity * productData.productPrice;
         const productDiscount = originalPrice - productData.totalProductPrice;
-        const couponDiscount = 0; // You'll need to calculate this based on your business logic
+        const couponDiscount = 0;
         const totalDiscount = productDiscount + couponDiscount;
         const finalPrice = originalPrice - totalDiscount;
 

@@ -1,55 +1,66 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Defining the Schema of the Mongo model
-var userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
+var userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    status: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "productDetails",
+      },
+    ],
+    referralCode: {
+      type: String,
+      required: true,
+    },
+    googleId: {
+      type: String,
+      unique: true,
+    },
+    referredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "userDetails",
+    },
+    usedCoupons: [
+      {
+        type: String,
+      },
+    ],
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  isAdmin: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  status: {
-    type: Boolean,
-    required: true,
-    default: true
-  },
-  wishlist: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'productDetails'
-  }],
-  referralCode: {
-    type: String,
-    required: true
-  },
-  referredBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'userDetails',
-  },
-  usedCoupons: [{
-    type: String
-  }]
-}, {
-  timestamps: true
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Creating a model
-const userModel = mongoose.model('userDetails', userSchema);
+const userModel = mongoose.model("userDetails", userSchema);
 
 // Export the model
 module.exports = userModel;

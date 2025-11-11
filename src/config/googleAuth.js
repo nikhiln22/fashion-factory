@@ -12,21 +12,30 @@ passport.use(
     {
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://fashionfactory.in.net/google/callback",
-      passReqToCallback: true,
+      callbackURL: "/google/callback",
     },
     async function (request, accessToken, refreshToken, profile, done) {
       try {
         console.log("Google profile fetched successfully: ------->", profile);
-        let user = await userModel.findOneAndUpdate(
-          { email: profile.emails[0].value },
-          {
-            $set: {
-              username: profile.displayName,
-            },
-          },
-          { upsert: true, new: true }
-        );
+
+        let user = await userModel.find({ googleId: profile.id });
+
+        if (!user) {
+          user = await userModel.findOne({ email: profile.emails[0].value });
+        }
+
+        if (user && !user.status) {
+          return done(null, false, { message: "blocked" });
+        }
+
+        if (!user) {
+          user = new userModel({
+            username: profile.displayName,
+            email: profile.emails[0].value,
+            googleId: profile.id,
+          });
+          await user.save();
+        }
         console.log(user, "Google user authenticated----------->");
         return done(null, user);
       } catch (err) {
@@ -39,7 +48,7 @@ passport.use(
 
 // Serializing and deserializing the user
 passport.serializeUser(function (user, done) {
-  done(null, user._id); // Store user ID in session
+  done(null, user.id);
 });
 
 passport.deserializeUser(async function (id, done) {
