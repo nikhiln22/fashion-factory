@@ -1,4 +1,3 @@
-const adminModel = require('../../model/userModel');
 const catModel = require('../../model/catagoryModel');
 const productModel = require('../../model/productModel');
 const flash = require('express-flash');
@@ -36,21 +35,6 @@ const catagory = async (req, res) => {
     }
 }
 
-
-// rendering catagory page
-// const catagory = async (req, res) => {
-//     try {
-//         console.log('entered the main catagory page.............');
-//         const updateSucess = req.flash('updateSuccess');
-//         const catSuccess = req.flash('catSuccess');
-//         const catagories = await catModel.find({});
-//         res.render('admin/catagory', { catagory: catagories, updateSucess, catSuccess });
-//     } catch (error) {
-//         console.log('Error while loading the catagory page..');
-//         res.render('admin/servererror');
-//     }
-// }
-
 // rendering catagory adding page
 const addCategory = async (req, res) => {
     try {
@@ -67,7 +51,6 @@ const addCategory = async (req, res) => {
 
 
 // adding category by admin
-
 const addCatagoryPost = async (req, res) => {
     try {
         console.log('Entered category adding page------------->');

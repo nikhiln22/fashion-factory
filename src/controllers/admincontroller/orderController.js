@@ -1,7 +1,7 @@
-const userModel = require('../../model/userModel');
 const productModel = require('../../model/productModel');
 const orderModel = require('../../model/orderModel');
 const walletModel = require('../../model/WalletModel');
+const HTTP_STATUS = require('../../config/httpStatus')
 
 
 // rendering the order listing page in the admin side
@@ -76,10 +76,10 @@ const updateStatus = async (req, res) => {
 
         console.log('order status:', orderStatus);
 
-        res.status(200).json({ success: true })
+        res.status(HTTP_STATUS.OK).json({ success: true })
 
     } catch (error) {
-        res.status(302).json({ success: false })
+        res.status(500).json({ success: false })
         console.log('error in update status');
     }
 }
@@ -89,7 +89,6 @@ const returnRequest = async (req, res) => {
     try {
         console.log('rendering the order return request page');
 
-        // fetching the orders with atleast one product having the "return initiated" status
         const returnRequests = await orderModel.aggregate([
             { $unwind: "$orderedItem" },
             { $match: { "orderedItem.productStatus": "return initiated" } },
@@ -165,7 +164,7 @@ const approveReturn = async (req, res) => {
         console.log('order:', order);
 
         if (!order) {
-            return res.status(404).send('order not found');
+            return res.status(HTTP_STATUS.NOT_FOUND).send('order not found');
         }
 
         const returnedItem = order.orderedItem.find(item => item.productStatus === "return initiated");
@@ -173,12 +172,11 @@ const approveReturn = async (req, res) => {
             return res.status(400).send("No return item found in this order");
         }
 
-        // update product stock
         const product = await productModel.findById(returnedItem.productId);
         console.log('product:', product);
 
         if (!product) {
-            return res.status(404).send('Product not found');
+            return res.status(HTTP_STATUS.NOT_FOUND).send('Product not found');
         }
 
         const sizeIndex = product.stock.findIndex(stock => stock.size === returnedItem.size);
@@ -190,14 +188,12 @@ const approveReturn = async (req, res) => {
             await product.save();
         }
 
-        // calculate the refund amount
         let refundAmount = returnedItem.totalProductPrice;
         if (order.couponDiscount) {
             const discountPerItem = order.couponDiscount / order.orderedItem.length;
             refundAmount -= discountPerItem;
         }
 
-        // process refund to the user's wallet
         await walletModel.findOneAndUpdate(
             { userId: order.userId },
             {
@@ -213,7 +209,6 @@ const approveReturn = async (req, res) => {
             { upsert: true, new: true }
         );
 
-        // update order status
         returnedItem.productStatus = "returned";
         await order.save();
 
@@ -235,7 +230,7 @@ const rejectReturn = async (req, res) => {
         console.log('order:', order);
 
         if (!order) {
-            return res.status(404).send('order not found');
+            return res.status(HTTP_STATUS.NOT_FOUND).send('order not found');
         }
 
         const returnedItemIndex = order.orderedItem.findIndex(item => item.productStatus === "return initiated");
@@ -243,7 +238,6 @@ const rejectReturn = async (req, res) => {
             return res.status(400).send('No return initiated item found in this order');
         }
 
-        // update the product status
         order.orderedItem[returnedItemIndex].productStatus = "return rejected";
         order.orderedItem[returnedItemIndex].returnReason = "This product cannot be returned";
         await order.save();

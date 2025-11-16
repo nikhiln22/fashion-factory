@@ -1,12 +1,9 @@
 const productModel = require('../../model/productModel');
 const catagoryModel = require('../../model/catagoryModel');
-const path = require('path');
-const fs = require('fs');
-
-
+// const path = require('path');
+// const fs = require('fs');
 
 // rendering the product listing page from the admin side
-
 const product = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;

@@ -11,20 +11,15 @@ const flash = require("express-flash");
 const multer = require("multer");
 const passport = require("passport");
 
-
-// Set the port for the server, using the environment variable if available, otherwise default to 3000
 const PORT = process.env.PORT || 3000;
 
-// Connect to the database
 dbConnect().catch((err) => {
   console.log("Database connection error:", err);
   process.exit(1);
 });
 
-// Create Express application instance
 const app = express();
 
-// Middleware setup
 app.use(
   session({
     secret: "ababababba",
@@ -33,7 +28,6 @@ app.use(
   })
 );
 
-// Initialize passport
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -41,15 +35,12 @@ app.use(nocache());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the public directory
 app.use("/public", express.static("public"));
 
-// serve static files from the downloads folder in the home directory
 app.use(express.static(path.join(os.homedir(), "Downloads")));
 
 app.use("/uploads", express.static("uploads"));
 
-// setting up the multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -67,30 +58,24 @@ app.post("/uploads", upload.array("files"), (req, res) => {
 });
 
 
-// setting flash
 app.use(flash());
 
-//user session validating
 app.use((req, res, next) => {
   res.locals.session = req.session;
   next();
 });
 
-// Set view engine
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "src", "views"));
 
-// User routes & admin routes
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
 });
 
-// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });

@@ -2,10 +2,8 @@ const adminModel = require('../../model/userModel');
 const userModel = require('../../model/userModel');
 const catModel = require('../../model/catagoryModel');
 const orderModel = require('../../model/orderModel');
-const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const path = require('path');
-const flash = require('express-flash');
 
 
 // rendering admin login page....
@@ -48,6 +46,7 @@ const adloginpost = async (req, res) => {
     }
 }
 
+
 // rendering the admin dashboard page......
 const dashboard = async (req, res) => {
     try {
@@ -57,19 +56,14 @@ const dashboard = async (req, res) => {
         const categoryCount = await catModel.countDocuments({});
         console.log('categoryCount:', categoryCount);
 
-        // setting start of year for filtering orders
         const startOfYear = new Date(new Date().getFullYear(), 0, 1);
         console.log('startofYear:', startOfYear);
 
         // aggregating the order data
         const monthlyOrderData = await orderModel.aggregate([
-            // match orders from the start of the year
             { $match: { createdAt: { $gte: startOfYear } } },
-            // unwind ordered items
             { $unwind: "$orderedItem" },
-            // filter out specific order statuses
             { $match: { "orderedItem.productStatus": { $nin: ["cancelled", "returned", "pending", "shipped"] } } },
-            // Group by order,month and year
             {
                 $group: {
                     _id: {
@@ -81,7 +75,6 @@ const dashboard = async (req, res) => {
                     couponDiscount: { $first: "$couponDiscount" }
                 }
             },
-            // Group by month and year, calculate totals
             {
                 $group: {
                     _id: {
@@ -93,13 +86,11 @@ const dashboard = async (req, res) => {
                     orderCount: { $sum: 1 }
                 }
             },
-            // Sort by year and month
             { $sort: { "_id.year": 1, "_id.month": 1 } }
         ]);
 
         console.log('monthlyOrderData:', monthlyOrderData);
 
-        // initialize arrays for the monthly data
         let orderCounts = new Array(12).fill(0);
         console.log('orderCounts:', orderCounts);
         let totalAmounts = new Array(12).fill(0);
@@ -107,7 +98,6 @@ const dashboard = async (req, res) => {
         let couponDiscounts = new Array(12).fill(0);
         console.log('couponDiscounts:', couponDiscounts);
 
-        // populate arrays with aggregated data
         monthlyOrderData.forEach(data => {
             const monthIndex = data._id.month - 1;
             orderCounts[monthIndex] = data.orderCount;
@@ -115,7 +105,6 @@ const dashboard = async (req, res) => {
             couponDiscounts[monthIndex] = data.monthlyCouponDiscount;
         });
 
-        // calculate totals
         const totalAmount = totalAmounts.reduce((acc, curr) => acc + curr, 0);
         console.log('totalAmount:', totalAmount);
         const totalCouponDiscount = couponDiscounts.reduce((acc, curr) => acc + curr, 0);
@@ -204,7 +193,6 @@ const dashboard = async (req, res) => {
 
         console.log('topCategories:', topCategories);
 
-        // rendering the dashboard view with data
         res.render("admin/dashboard", {
             userCount,
             categoryCount,
@@ -259,7 +247,6 @@ const checkUserStatus = async (req, res) => {
         const id = req.params.id;
         const user = await adminModel.findById(id);
         const newValue = !user.status;
-        // req.session.isAuth = false;
         await adminModel.updateOne({ _id: id }, { $set: { status: newValue } });
         res.redirect('/admin/users');
     } catch (error) {

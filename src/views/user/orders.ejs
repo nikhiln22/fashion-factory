@@ -165,7 +165,7 @@
                                 <table class="account__table">
                                     <thead class="account__table--header">
                                         <tr class="account__table--header__child">
-                                            <th class="account__table--header__child--items">Order ID</th>
+                                            <th class="account__table--header__child--items">Order Number</th>
                                             <th class="account__table--header__child--items">Order Date</th>
                                             <th class="account__table--header__child--items">Product</th>
                                             <th class="account__table--header__child--items">Product Status</th>
@@ -183,13 +183,13 @@
                                                     <tr class="account__table--body__child">
                                                         <% if (index===0) { %>
                                                             <td class="account__table--body__child--items"
-                                                                rowspan="<%= order.orderedItem.length %>">#<%= order._id
+                                                                rowspan="<%= order.orderedItem.length %>">#<%= order.orderNumber || "N/A"
                                                                     %>
                                                             </td>
                                                             <td class="account__table--body__child--items"
                                                                 rowspan="<%= order.orderedItem.length %>">
                                                                 <%= new
-                                                                    Date(order.createdAt).toLocaleDateString("en-US") %>
+                                                                    Date(order.createdAt).toLocaleDateString("en-GB") %>
                                                             </td>
                                                             <% } %>
                                                                 <td class="account__table--body__child--items">

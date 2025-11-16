@@ -1,5 +1,4 @@
 const couponModel = require('../../model/couponModel');
-const flash = require('express-flash');
 
 
 // rendering the couponlisting page from the admin side

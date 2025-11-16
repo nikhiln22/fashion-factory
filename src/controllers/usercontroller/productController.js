@@ -4,8 +4,6 @@ const cartModel = require('../../model/cartModel');
 const offerModel = require('../../model/offerModel');
 const userModel = require('../../model/userModel');
 
-
-
 // rendering the user side shoplisting page...
 const shop = async (req, res) => {
     const page = parseInt(req.query.page) || 1;

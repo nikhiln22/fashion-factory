@@ -12,6 +12,7 @@ require("dotenv").config();
 const walletModel = require("../../model/WalletModel");
 const offerModel = require("../../model/offerModel");
 const cartModel = require("../../model/cartModel");
+const HTTP_STATUS = require("../../config/httpStatus");
 
 const mail = process.env.EMAIL;
 const pass = process.env.PASS;
@@ -34,7 +35,6 @@ const generateOtp = () => {
 // sending mail for the users throught the nodemailer
 const sendMail = async (email, otp, username) => {
   try {
-    // create reusable transporter object using the default smtp transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
       host: "smtp.gmail.com",
@@ -46,14 +46,13 @@ const sendMail = async (email, otp, username) => {
       },
     });
 
-    // send mail with defined transport object
     let message = {
       from: {
         name: "Fashion Factory",
         address: "no-reply@fashionfactory.com",
       },
-      to: email, // list of receivers
-      subject: "Email Verification", // Subject line
+      to: email,
+      subject: "Email Verification",
       html: `<p>Hey ${username}, Fashion Enthusiast!</p>
     <p>Welcome to Fashion Factory! We're excited to have you on board. To complete your registration, please use the following One-Time Password (OTP):</p>
     <p style="font-size: 20px; font-weight: bold;">${otp}</p>
@@ -265,7 +264,7 @@ const findByCategory = async (req, res) => {
   } catch (error) {
     console.error("Error while rendering the filtered products pages:", error);
     res
-      .status(500)
+      .status(HTTP_STATUS.SERVER_ERROR)
       .render("user/error", {
         error: "An error occurred while fetching the products.",
       });
@@ -419,7 +418,6 @@ const verifyOtp = async (req, res) => {
         if (newUser.referredBy) {
           const referrer = await userModel.findById(newUser.referredBy);
 
-          // referral reward for the refferrer
           await walletModel.findOneAndUpdate(
             { userId: referrer._id },
             {
@@ -430,7 +428,7 @@ const verifyOtp = async (req, res) => {
             },
             { upsert: true }
           );
-          // referral award for new user
+
           await walletModel.findOneAndUpdate(
             { userId: newUser._id },
             {
@@ -495,7 +493,6 @@ const login = async (req, res) => {
       currentPage: "login",
     });
 
-    // Clear all flash messages
     [
       "invalidaction",
       "invaliduser",

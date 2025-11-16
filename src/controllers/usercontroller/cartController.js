@@ -2,8 +2,7 @@ const productModel = require("../../model/productModel");
 const catModel = require("../../model/catagoryModel");
 const cartModel = require("../../model/cartModel");
 const offerModel = require("../../model/offerModel");
-const mongoose = require("mongoose");
-const flash = require("express-flash");
+const HTTP_STATUS = require("../../config/httpStatus");
 
 // rendering the user side cart page
 const showCart = async (req, res) => {
@@ -12,7 +11,6 @@ const showCart = async (req, res) => {
     const id = req.session.userId;
     const categories = await catModel.find();
 
-    // fetching the user's cart
     let cart = await cartModel.findOne({ userId: id }).populate({
       path: "item.productId",
       select: "name stock image category price",
@@ -29,7 +27,6 @@ const showCart = async (req, res) => {
       });
     }
 
-    // fetching active offers
     const offerData = await offerModel.find({
       startDate: { $lte: new Date() },
       endDate: { $gte: new Date() },
@@ -38,7 +35,6 @@ const showCart = async (req, res) => {
     let totalActualAmount = 0;
     let totalDiscountedAmount = 0;
 
-    // process each cart items with offers
     const cartItemsWithOffers = cart.item.map((cartItem) => {
       const product = cartItem.productId;
       console.log("product:", product);
@@ -57,7 +53,6 @@ const showCart = async (req, res) => {
           offer.offerType === "product" &&
           offer.productId.includes(product._id.toString())
         ) {
-          // productDiscountedPrice = cartItem.price - (cartItem.price * offer.discount / 100);
           productDiscountedPrice =
             originalPrice - (originalPrice * offer.discount) / 100;
 
@@ -68,7 +63,6 @@ const showCart = async (req, res) => {
           offer.offerType === "category" &&
           offer.categoryId.includes(product.category._id.toString())
         ) {
-          // categoryDiscountedPrice = cartItem.price - (cartItem.price * offer.discount / 100);
           categoryDiscountedPrice =
             originalPrice - (originalPrice * offer.discount) / 100;
 
@@ -105,7 +99,6 @@ const showCart = async (req, res) => {
         }
       }
 
-      // totalActualAmount += cartItem.price * cartItem.quantity;
       totalActualAmount += originalPrice * cartItem.quantity;
 
       console.log("totalActualAmount:", totalActualAmount);
@@ -134,7 +127,6 @@ const showCart = async (req, res) => {
     console.log("Total Discounted Amount:", totalDiscountedAmount);
     console.log("Total Savings:", totalSavings);
 
-    // check for insufficient stock
     const insufficientStock = cartItemsWithOffers
       .filter((cartItem) => {
         const product = cartItem.productId;
@@ -182,27 +174,21 @@ const addCart = async (req, res) => {
     const userId = req.session.userId;
 
     const product = await productModel.findOne({ _id: pid });
-    // console.log('product:', product);
 
     if (!product) {
       return res
-        .status(404)
+        .status(HTTP_STATUS.NOT_FOUND)
         .json({ success: false, message: "Product not found." });
     }
 
-    // fetching the active offers
     const activeOffers = await offerModel.find({
       startDate: { $lte: new Date() },
       endDate: { $gte: new Date() },
     });
 
-    // console.log('activeOffers:', activeOffers);
-
     let discountedPrice = product.price;
-    // console.log('discountedPrice:', discountedPrice);
     let appliedOffer = null;
 
-    // checking for the product specific orders
     activeOffers.forEach((offer) => {
       if (offer.offerType === "product" && offer.productId.includes(pid)) {
         console.log(
@@ -219,7 +205,6 @@ const addCart = async (req, res) => {
       }
     });
 
-    // if no product-specific offer, check for category offers
     if (!appliedOffer) {
       activeOffers.forEach((offer) => {
         if (
@@ -282,7 +267,6 @@ const addCart = async (req, res) => {
     );
 
     if (productExist !== -1) {
-      // Checking if adding one more product would exceed the existing stock limit
       if (cart.item[productExist].quantity + 1 > selectedStock.quantity) {
         return res.json({
           success: false,
@@ -345,7 +329,9 @@ const updateCart = async (req, res) => {
     });
 
     if (!cart) {
-      return res.status(404).json({ success: false, error: "Cart not found" });
+      return res
+        .status(httpStatus)
+        .json({ success: false, error: "Cart not found" });
     }
     const itemIndex = cart.item.findIndex(
       (item) =>
@@ -356,7 +342,7 @@ const updateCart = async (req, res) => {
 
     if (itemIndex === -1) {
       return res
-        .status(404)
+        .status(HTTP_STATUS.NOT_FOUND)
         .json({ success: false, error: "Item not found in cart" });
     }
 
@@ -383,20 +369,22 @@ const updateCart = async (req, res) => {
     } else if (action == "-1") {
       updatedQuantity = currentQuantity - 1;
     } else {
-      return res.status(400).json({ success: false, error: "Invalid action" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, error: "Invalid action" });
     }
 
     if (updatedQuantity > stockLimit2 && action == "1") {
       return res
-        .status(400)
+        .status(HTTP_STATUS.BAD_REQUEST)
         .json({ success: false, error: "Quantity exceeds stock limits" });
     } else if (updatedQuantity == 0) {
       return res
-        .status(400)
+        .status(HTTP_STATUS.BAD_REQUEST)
         .json({ success: false, error: "Quantity cannot be Zero" });
     } else if (updatedQuantity > 5) {
       return res
-        .status(400)
+        .status(HTTP_STATUS.BAD_REQUEST)
         .json({ success: false, error: "Quantity limit reached" });
     }
 
@@ -422,7 +410,6 @@ const updateCart = async (req, res) => {
 
     console.log("savings:", savings);
 
-    // calculating new total and cart count
     const total = cart.item.reduce((acc, item) => acc + item.total, 0);
     console.log("total:", total);
 
@@ -435,15 +422,11 @@ const updateCart = async (req, res) => {
     cart.total = total;
     await cart.save();
 
-    // updating session with new cart count
     req.session.cartCount = newCartCount;
     await req.session.save();
 
-    // update res.locals in immediate use in this request
     res.locals.session = res.locals.session || {};
     res.locals.session.cartCount = newCartCount;
-    // console.log(res.locals.session.cartCount, newCartCount, '>>>>>>>>>>>>>>>>>>>>>>');
-    // console.log(updatedQuantity, newProductTotal, total, '$$$$$$$$$$$$$$');
 
     res.json({
       success: true,
@@ -455,7 +438,7 @@ const updateCart = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating cart quantity:", error);
-    res.status(500).json({
+    res.status(HTTP_STATUS.SERVER_ERROR).json({
       success: false,
       error: "An error occurred while updating the cart",
     });
