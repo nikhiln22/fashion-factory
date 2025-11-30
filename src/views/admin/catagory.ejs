@@ -1,176 +1,218 @@
 <%- include ('adminHeader') %>
 
-    <style>
-        .table-bordered {
-            border: 1px solid #000000;
-        }
+<style>
+  .table-bordered {
+    border: 1px solid #000000;
+  }
 
-        .table-bordered th,
-        .table-bordered td {
-            border: 1px solid #000000;
-        }
-    </style>
+  .table-bordered th,
+  .table-bordered td {
+    border: 1px solid #000000;
+  }
 
-    <section class="content-main">
-        <div class="content-header">
-            <div>
-                <h1 class="content-title card-title">Catagory List</h1>
-                <p class="text-bold">List of categories:</p>
-            </div>
-            <div>
-                <a href="/admin/Addcategories" class="btn btn-dark btn-sm rounded">Add new catagory</a>
-            </div>
-        </div>
+  #categorySearch {
+    border: 1.5px solid #d1d1d1 !important;
+    border-radius: 6px;
+    background-color: #ffffff;
+    padding: 10px 14px;
+  }
 
+  #categorySearch:focus {
+    border-color: #000000 !important;
+    box-shadow: none !important;
+  }
+</style>
 
-        <% if (updateSucess.length> 0) { %>
-            <script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '<%= updateSucess %>',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            </script>
-            <% } %>
+<section class="content-main">
+  <div class="content-header">
+    <div>
+      <h1 class="content-title card-title">Catagory List</h1>
+      <p class="text-bold">List of categories:</p>
+    </div>
+    <div>
+      <a href="/admin/Addcategories" class="btn btn-dark btn-sm rounded">
+        Add new catagory
+      </a>
+    </div>
+  </div>
 
-                <% if (catSuccess.length> 0) { %>
-                    <script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: '<%= catSuccess %>',
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
-                    </script>
-                    <% } %>
-                        <% if(catagory !="" ) { %>
-                            <table class="table table-bordered mt-2 text-center">
-                                <thead>
-                                    <tr class="table-primary">
-                                        <th>SL.NO.</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Change Status</th>
-                                        <th>Update</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% catagory.forEach((row,index)=> { %>
-                                        <tr>
-                                            <td>
-                                                <%= index + 1 %>
-                                            </td>
-                                            <td>
-                                                <%= row.name %>
-                                            </td>
-                                            <td>
-                                                <%= row.description %>
-                                            </td>
-                                            <td>
-                                                <%= row.status?'Listed':'Unlisted' %>
-                                            </td>
-                                            <td>
-                                                <a class="btn btn-danger btn-sm rounded"
-                                                    onclick="categoryStatusConfirmation('<%= row._id %>')">
-                                                    <%= row.status ? 'Unlist' : 'List' %>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <a href="/admin/updatecatagory/<%= row._id %>"
-                                                    class="btn btn-dark btn-sm rounded">Update
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                </tbody>
-                            </table>     
-                                    <% } else { %>
-                                        <h1 class="text-center text-secondary mt-5">No catagories found in the database</h1>
-                                        <% } %>
-                                        <!----Pagination starts------->
-                                    <nav aria-label="Product navigation" class="mt-4">
-                                        <ul class="pagination justify-content-centre">
-                                            <% if(hasPreviousPage) { %>
-                                                <li class="page-item">
-                                                    <a class="page-link" href="?page=1" aria-label="First">First</a>
-                                                </li>
-                                                <li class="page-item">
-                                                    <a class="page-link" href="?page=<%= previousPage %>"
-                                                        aria-label="Previous">Previous</a>
-                                                </li>
-                                                <% } else { %>
-                                                    <li class="page-item disabled">
-                                                        <span class="page-link" aria-hidden="true">First</span>
-                                                    </li>
-                                                    <li class="page-item disabled">
-                                                        <span class="page-link" aria-hidden="true">Previous</span>
-                                                    </li>
-                                                    <% } %>
+  <div class="col-lg-4 mb-3">
+    <input
+      type="text"
+      id="categorySearch"
+      class="form-control"
+      placeholder="Search categories..."
+      value="<%= typeof search !== 'undefined' ? search : '' %>"
+    />
+  </div>
 
-                                                        <% for(let i=1; i <=totalPages; i++) { %>
-                                                            <li
-                                                                class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                                                <a class="page-link" href="?page=<%= i %>">
-                                                                    <%= i %>
-                                                                </a>
-                                                            </li>
-                                                            <% } %>
+  <% if (updateSucess.length> 0) { %>
+  <script>
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "<%= updateSucess %>",
+      timer: 3000,
+      showConfirmButton: false,
+    });
+  </script>
+  <% } %> <% if (catSuccess.length> 0) { %>
+  <script>
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "<%= catSuccess %>",
+      timer: 3000,
+      showConfirmButton: false,
+    });
+  </script>
+  <% } %> <% if(catagory !="" ) { %>
+  <table class="table table-bordered mt-2 text-center">
+    <thead>
+      <tr class="table-primary">
+        <th>SL.NO.</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Change Status</th>
+        <th>Update</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% catagory.forEach((row,index)=> { %>
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= row.name %></td>
+        <td><%= row.description %></td>
+        <td><%= row.status?'Listed':'Unlisted' %></td>
+        <td>
+          <a
+            class="btn btn-danger btn-sm rounded"
+            onclick="categoryStatusConfirmation('<%= row._id %>')"
+          >
+            <%= row.status ? 'Unlist' : 'List' %>
+          </a>
+        </td>
+        <td>
+          <a
+            href="/admin/updatecatagory/<%= row._id %>"
+            class="btn btn-dark btn-sm rounded"
+            >Update
+          </a>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } else { %>
+  <h1 class="text-center text-secondary mt-5">No catagories found</h1>
+  <% } %>
 
-                                                                <% if(hasNextPage) { %>
-                                                                    <li class="page-item">
-                                                                        <a class="page-link"
-                                                                            href="?page=<%= nextPage %>"
-                                                                            aria-label="Next">Next</a>
-                                                                    </li>
-                                                                    <li class="page-item">
-                                                                        <a class="page-link"
-                                                                            href="?page=<%= lastPage %>"
-                                                                            aria-label="Last">Last</a>
-                                                                    </li>
-                                                                    <% } else { %>
-                                                                        <li class="page-item disabled">
-                                                                            <span class="page-link"
-                                                                                aria-hidden="true">Next</span>
-                                                                        </li>
-                                                                        <li class="page-item disabled">
-                                                                            <span class="page-link"
-                                                                                aria-hidden="true">Last</span>
-                                                                        </li>
-                                                                        <% } %>
-                                        </ul>
-                                    </nav>
-                                        <!----Pagination Ends------->
+  <!----Pagination starts------->
+  <nav aria-label="Product navigation" class="mt-4">
+    <ul class="pagination justify-content-centre">
+      <% if(hasPreviousPage) { %>
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="?page=1<%= search ? '&search=' + search : '' %>"
+          aria-label="First"
+          >First</a
+        >
+      </li>
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="?page=<%= previousPage %><%= search ? '&search=' + search : '' %>"
+          aria-label="Previous"
+          >Previous</a
+        >
+      </li>
+      <% } else { %>
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">First</span>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">Previous</span>
+      </li>
+      <% } %> <% for(let i=1; i <=totalPages; i++) { %>
+      <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+        <a
+          class="page-link"
+          href="?page=<%= i %><%= search ? '&search=' + search : '' %>"
+        >
+          <%= i %>
+        </a>
+      </li>
+      <% } %> <% if(hasNextPage) { %>
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="?page=<%= nextPage %><%= search ? '&search=' + search : '' %>"
+          aria-label="Next"
+          >Next</a
+        >
+      </li>
+      <li class="page-item">
+        <a
+          class="page-link"
+          href="?page=<%= lastPage %><%= search ? '&search=' + search : '' %>"
+          aria-label="Last"
+          >Last</a
+        >
+      </li>
+      <% } else { %>
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">Next</span>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">Last</span>
+      </li>
+      <% } %>
+    </ul>
+  </nav>
+  <!----Pagination Ends------->
+</section>
 
-    </section>
+<script>
+  function categoryStatusConfirmation(itemId) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Are you sure you want to proceed?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Confirm",
+      cancelButtonText: "Cancel",
+      dangerMode: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "/admin/unlistcat/" + itemId;
+      } else {
+        console.log("User canceled");
+      }
+    });
+  }
 
-    <script>
-        function categoryStatusConfirmation(itemId) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Are you sure you want to proceed?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Confirm",
-                cancelButtonText: "Cancel",
-                dangerMode: true,
-            })
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "/admin/unlistcat/" + itemId;
-                    } else {
-                        console.log("User canceled");
-                    }
-                });
-        }
-    </script>
+  let categoryDebounce;
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+  const categorySearchInput = document.getElementById("categorySearch");
 
+  if (categorySearchInput) {
+    categorySearchInput.addEventListener("input", function () {
+      clearTimeout(categoryDebounce);
 
-    <%- include ('adminfooter') %>
+      categoryDebounce = setTimeout(() => {
+        const searchValue = this.value.trim();
+        window.location.href = `?page=1&search=${encodeURIComponent(
+          searchValue
+        )}`;
+      }, 500);
+    });
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<%- include ('adminfooter') %>
