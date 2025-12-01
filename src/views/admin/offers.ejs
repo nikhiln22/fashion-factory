@@ -9,6 +9,18 @@
         .table-bordered td {
             border: 1px solid #000000;
         }
+
+          #offerSearch {
+    border: 1.5px solid #d1d1d1 !important;
+    border-radius: 6px;
+    background-color: #ffffff;
+    padding: 10px 14px;
+  }
+
+  #offerSearch:focus {
+    border-color: #000000 !important;
+    box-shadow: none !important;
+  }
     </style>
     <section class="content-main">
         <div class="content-header">
@@ -20,6 +32,17 @@
                 <button id="addOffer" class="btn btn-dark d-flex mb-3">Add New Offer</button>
             </div>
         </div>
+
+  <div class="col-lg-4 mb-3">
+    <input
+      type="text"
+      id="offerSearch"
+      class="form-control"
+      placeholder="Search offers..."
+      value="<%= search || '' %>"
+    >
+  </div>
+
         <div class="col-lg-12">
 
             <div id="offerList" class="table-responsive">
@@ -268,7 +291,6 @@
                             addOfferForm.style.display = 'none';
                             addOfferBtn.textContent = 'Add New Offer';
 
-                            // Reload the page to show the updated offer list
                             window.location.href = "/admin/offers";
                         } else {
                             document.getElementById('errorAddoffer').innerHTML = res.data.message;
@@ -400,6 +422,26 @@
                 bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
             });
         });
+
+let offerDebounce;
+
+const offerSearch = document.getElementById("offerSearch");
+
+if (offerSearch) {
+  offerSearch.addEventListener("input", function () {
+    clearTimeout(offerDebounce);
+
+    offerDebounce = setTimeout(() => {
+      const value = this.value.trim();
+      window.location.href = `/admin/offers?page=1&search=${encodeURIComponent(value)}`;
+    }, 500);
+  });
+}
+
+window.addEventListener("load", () => {
+  const input = document.getElementById("offerSearch");
+  if (input) input.focus();
+});
     </script>
 
     <%- include ('adminfooter') %>

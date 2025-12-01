@@ -9,29 +9,57 @@ const orders = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
+
+    const search = req.query.search ? req.query.search.trim() : "";
+
+    const filter = search
+        ? {
+            $or: [
+                { orderNumber: { $regex: search, $options: "i" } },
+                { paymentMethod: { $regex: search, $options: "i" } },
+                {
+                    "deliveryAddress.name": {
+                        $regex: search,
+                        $options: "i"
+                    }
+                },
+                {
+                    "deliveryAddress.mobile": {
+                        $regex: search,
+                        $options: "i"
+                    }
+                }
+            ]
+        }
+        : {};
+    
     try {
-        console.log('rendering the order listing page from the admin side');
-        const orders = await orderModel.find({})
-            .populate('userId')
-            .populate('orderedItem')
+        console.log("Rendering order listing page from admin side");
+
+        const ordersList = await orderModel.find(filter)
+            .populate("userId")
+            .populate("orderedItem")
             .sort({ _id: -1 })
-            .limit(limit)
             .skip(skip)
+            .limit(limit);
 
-        console.log('orders:', orders);
-
-        const formattedOrders = orders.map(order => {
+        const formattedOrders = ordersList.map(order => {
             const date = new Date(order.createdAt);
-            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const year = date.getFullYear();
+
             return {
                 ...order.toObject(),
-                formattedCreatedAt: formattedDate,
+                formattedCreatedAt: `${day}-${month}-${year}`
             };
         });
 
-        const count = await orderModel.countDocuments({});
+        const count = await orderModel.countDocuments(filter);
         const totalPages = Math.ceil(count / limit);
-        res.render('admin/orders', {
+
+        res.render("admin/orders", {
             orderDetails: formattedOrders,
             currentPage: page,
             totalPages: totalPages,
@@ -40,14 +68,17 @@ const orders = async (req, res) => {
             nextPage: page + 1,
             previousPage: page - 1,
             lastPage: totalPages,
-            activePage: 'orders',
-            limit
+            activePage: "orders",
+            limit,
+            search,
         });
+
     } catch (error) {
-        console.log('Error while displaying the orders listing page from the admin side');
-        res.render('admin/servererror');
+        console.log("Error while displaying the orders listing page from the admin side", error);
+        res.render("admin/servererror");
     }
-}
+};
+
 
 
 // single order view rendering from the admin side

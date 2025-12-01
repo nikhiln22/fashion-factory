@@ -8,30 +8,42 @@ const offer = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 5;
   const skip = (page - 1) * limit;
-  try {
-    console.log("displaying the offers page from the admin side");
-    const offers = await offerModel
-      .find()
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(skip);
 
-    const totalOffers = await offerModel.countDocuments({});
-    const totalPages = Math.ceil(totalOffers / limit);
+  const search = req.query.search ? req.query.search.trim() : "";
+
+  const filter = search
+    ? {
+        $or: [
+          { offerName: { $regex: search, $options: "i" } },
+          { offerType: { $regex: search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  try {
+    const offerData = await offerModel
+      .find(filter)
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const count = await offerModel.countDocuments(filter);
+    const totalPages = Math.ceil(count / limit);
 
     res.render("admin/offers", {
-      offers,
+      offers: offerData,
       currentPage: page,
-      totalPages: totalPages,
+      totalPages,
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1,
       nextPage: page + 1,
       previousPage: page - 1,
       lastPage: totalPages,
-      activePage: "offer",
+      activePage: "offers",
+      search,
     });
   } catch (error) {
-    console.log("error displaying the offer page");
+    console.log("Error loading offers page:", error);
     res.render("admin/servererror");
   }
 };
@@ -138,7 +150,6 @@ const addOffer = async (req, res) => {
   }
 };
 
-
 // rendering the offer editing page
 const editOfferPage = async (req, res) => {
   try {
@@ -169,7 +180,6 @@ const editOfferPage = async (req, res) => {
   }
 };
 
-
 // providing an existing offers associated with an particular product for other products
 const offerProdIdSave = async (req, res) => {
   try {
@@ -191,7 +201,6 @@ const offerProdIdSave = async (req, res) => {
   }
 };
 
-
 // providing an existing offers associated with an particular catagory for other categories
 const offercatIdSave = async (req, res) => {
   try {
@@ -212,7 +221,6 @@ const offercatIdSave = async (req, res) => {
     res.status(HTTP_STATUS.SERVER_ERROR).json({ success: false });
   }
 };
-
 
 // editing the existing offer given for an product or category
 const editoffer = async (req, res) => {
