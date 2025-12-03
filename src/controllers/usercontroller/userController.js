@@ -263,11 +263,9 @@ const findByCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error while rendering the filtered products pages:", error);
-    res
-      .status(HTTP_STATUS.SERVER_ERROR)
-      .render("user/error", {
-        error: "An error occurred while fetching the products.",
-      });
+    res.status(HTTP_STATUS.SERVER_ERROR).render("user/error", {
+      error: "An error occurred while fetching the products.",
+    });
   }
 };
 
@@ -540,7 +538,11 @@ const loginPost = async (req, res) => {
     req.session.user = user;
     req.session.isAuth = true;
     req.flash("success", "Logged in successfully");
-    return res.redirect("/");
+
+    const redirectUrl = req.session.returnTo || "/login";
+    req.session.returnTo = null;
+
+    return res.redirect(redirectUrl);
   } catch (error) {
     console.error("Error in loginPost:", error);
     req.flash("error", "An unexpected error occurred");
