@@ -184,10 +184,13 @@
           <!-- Ordered Product Details -->
 
           <!-- Product Details -->
+
           <% orderDetails.orderedItem.forEach(function(item) { %>
-          <div class="row mb-4">
+
+          <div class="row mb-4 align-items-start">
+            <!-- Invoice Button -->
             <% if(item.productStatus=="delivered" ||
-            item.productStatus=="returned" ) { %>
+            item.productStatus=="returned") { %>
             <div class="col-12 d-flex justify-content-end mb-3">
               <a
                 href="/invoice?orderId=<%= orderDetails._id %>&productId=<%= item.productId._id %>"
@@ -198,6 +201,7 @@
             </div>
             <% } %>
 
+            <!-- Product Details -->
             <div class="col-md-6">
               <div class="d-flex align-items-center">
                 <img
@@ -215,9 +219,11 @@
               </div>
             </div>
 
+            <!-- Buttons + LIVE STATUS (Correct placement!) -->
             <% if(orderDetails.paymentStatus !=="pending" ||
-            orderDetails.paymentMethod==="COD" ) { %>
-            <div class="col-md-6 d-flex justify-content-end align-items-start">
+            orderDetails.paymentMethod==="COD") { %>
+            <div class="col-md-6 d-flex flex-column align-items-end">
+              <!-- Hidden fields -->
               <input
                 type="hidden"
                 class="productId"
@@ -228,34 +234,45 @@
                 class="status"
                 value="<%= item.productStatus %>"
               />
-              <% if (item.productStatus==="delivered" ) { %>
-              <button class="btn btn-outline-primary">Return</button>
-              <% } else if (item.productStatus !=="cancelled" &&
-              item.productStatus !=="returned" && item.productStatus !== "return rejected" ) { %>
-              <a
-                href="#"
-                class="btn btn-outline-primary me-2 cancel-order"
-                data-product-id="<%= item.productId._id %>"
+
+              <!-- Buttons -->
+              <div class="mb-2">
+                <% if (item.productStatus === "delivered") { %>
+
+                <!-- Return button -->
+                <button class="btn btn-outline-primary return-btn">
+                  Return
+                </button>
+
+                <% } else if ( item.productStatus !== "cancelled" &&
+                item.productStatus !== "returned" && item.productStatus !==
+                "return rejected" ) { %>
+
+                <!-- Cancel button -->
+                <a
+                  href="#"
+                  class="btn btn-outline-primary cancel-order"
+                  data-product-id="<%= item.productId._id %>"
+                >
+                  <i class="fa-solid fa-xmark"></i> Cancel
+                </a>
+
+                <% } %>
+              </div>
+
+              <!-- LIVE STATUS TEXT (Now JS can update this) -->
+              <span
+                class="status-text <%= item.productStatus === 'cancelled' ? 'text-danger' : item.productStatus === 'delivered' ? 'text-success' : item.productStatus === 'Shipped' ? 'text-warning' : 'text-primary' %> fw-bold"
               >
-                <i class="fa-solid fa-xmark"></i> Cancel
-              </a>
-              <% } %>
+                Status: <%= item.productStatus.charAt(0).toUpperCase() +
+                item.productStatus.slice(1) %>
+              </span>
             </div>
             <% } %>
           </div>
 
-          <% if(orderDetails.paymentStatus !=="pending" ||
-          orderDetails.paymentMethod==="COD" ) { %>
-          <span
-            class="status-text <%= item.productStatus === 'cancelled' ? 'text-danger' : item.productStatus === 'delivered' ? 'text-success' : item.productStatus === 'Shipped' ? 'text-warning' : 'text-primary' %> fw-bold"
-          >
-            Status: <%= item.productStatus==='Shipped' ? 'Shipped' :
-            (item.productStatus.charAt(0).toUpperCase() +
-            item.productStatus.slice(1)) %>
-          </span>
-          <% } %>
-
           <hr class="my-4" />
+
           <% }); %>
         </div>
       </div>

@@ -136,7 +136,7 @@ const returnRequest = async (req, res) => {
                 $group: {
                     _id: "$_id",
                     userId: { $first: "$userId" },
-                    orderNumber: { $first: "$_id" },
+                    orderNumber: { $first: "$orderNumber" },
                     orderDate: { $first: "$createdAt" },
                     totalAmount: { $first: "$orderAmount" },
                     deliveryAddress: { $first: "$deliveryAddress" },

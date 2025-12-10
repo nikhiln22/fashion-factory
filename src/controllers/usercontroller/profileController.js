@@ -659,7 +659,10 @@ const wallet = async (req, res) => {
     const wishlistCount = userdata.wishlist.length;
     const walletDetails = await walletModel
       .findOne({ userId: userId })
-      .populate("transaction.orderId");
+      .populate({
+        path: "transaction.orderId",
+        select: "orderNumber",
+      });
     if (walletDetails) {
       const formattedTransactions = walletDetails.transaction
         .map((transaction) => {
@@ -668,8 +671,9 @@ const wallet = async (req, res) => {
             ...transaction.toObject(),
             formattedDate,
             orderReference: transaction.orderId
-              ? transaction.orderId._id
+              ? transaction.orderId.orderNumber
               : "N/A",
+            orderId: transaction.orderId ? transaction.orderId._id : null,
           };
         })
         .sort((a, b) => (a._id > b._id ? -1 : 1));

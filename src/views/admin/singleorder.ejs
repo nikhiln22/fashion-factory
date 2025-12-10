@@ -9,143 +9,153 @@
         border: 1px solid #000000;
     }
 </style>
-        <section class="content-main">
-            <div class="content-header">
-                <div>
-                    <h1 class="content-title card-title">Order Details</h1>
-                </div>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h1 class="content-title card-title">Order Details</h1>
+        </div>
+    </div>
+
+    <div class="col-lg-12 mt-4">
+        <div class="table-responsive">
+            <table class="table table-bordered mt-2 text-center">
+                <thead>
+                    <tr class="table-primary">
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Date</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% orderDetails.orderedItem.forEach(function(item, i){ %>
+                    <% if(item.productId && item.productId.name){ %>
+
+                    <input type="hidden" id="productId<%=i%>" value="<%=item.productId._id%>">
+                    <input type="hidden" id="orderId<%=i%>" value="<%=orderDetails._id%>">
+
+                    <tr>
+                        <td>
+                            <img src="/<%=item.productId.image[0]%>" style="max-width: 50px; max-height: 50px;" alt="Product Image">
+                        </td>
+
+                        <td><%= item.productId.name %></td>
+
+                        <td><%= orderDetails.createdAt.toLocaleDateString() %></td>
+
+                        <td><%= item.quantity %></td>
+
+                        <td>₹<%= item.totalProductPrice %></td>
+
+                        <td><%= item.productStatus %></td>
+
+                        <td>
+                            <% 
+                                const status = item.productStatus.toLowerCase();
+
+                                const disableAdminChange = 
+                                    status === "cancelled" ||
+                                    status === "returned" ||
+                                    status === "delivered" ||
+                                    status === "return rejected" ||
+                                    status === "return initiated";
+
+                            %>
+
+                            <button 
+                                class="btn btn-success border changeStatusBtn"
+                                data-index="<%=i%>"
+                                <%= disableAdminChange ? "disabled" : "" %>
+                            >
+                                Change Status
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <% } %>
+                    <% }) %>
+                </tbody>
+
+            </table>
+        </div> 
+    </div> 
+</section>
+
+
+<!-- MODAL -->
+<div class="modal fade" id="statusChangeModal" tabindex="-1" aria-labelledby="statusChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="statusChangeModalLabel">Change Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-                <div class="col-lg-12 mt-4">
-                    <div class="table-responsive">
-                        <table class="table table-bordered mt-2 text-center"">
-                            <thead>
-                                <tr class="table-primary">
-                                    <th>Image</th>
-                                    <th>Product Name</th>
-                                    <th>Date</th>
-                                    <th>Quantity</th>
-                                    <th>Total Price</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <%orderDetails.orderedItem.forEach(function(item,i){%>
-                                    <% if(item.productId && item.productId.name){%>
-                                        <input type="hidden" name="" id="status" value=" <%=item.status%>">
-                                        <input type="hidden" name="" id="productId<%=i%>"
-                                            value="<%=item.productId._id%>">
-                                        <input type="hidden" name="" id="orderId<%=i%>"
-                                            value="<%=orderDetails._id%>">
 
-                                        <tr>
-                                            <td><img src="/<%=item.productId.image[0]%> "
-                                                style="max-width: 50px; max-height: 50px;"
-                                                    alt="Product Name"></td>
-                                            <td>
-                                                <%=item.productId.name%>
-                                            </td>
-                                            <td>
-                                                <%=orderDetails.createdAt.toLocaleDateString()%>
-                                            </td>
-                                            <td>
-                                                <%=item.quantity%>
-                                            </td>
-                                            <td>₹<%=item.totalProductPrice%>
-                                            </td>
-                                            <td>
-                                                <%=item.productStatus%>
-                                            </td>
-                                            <td>
-                                            
-                                                <button class="btn btn-success border changeStatusBtn"
-                                                    data-index="<%=i%>">Change Status</button>
-                                            </td>
-                                        </tr>
-                                        <%}%>
-                                            <% })%>
-                            </tbody>
-                        </table>
-                    </div> 
-                </div> 
-        </section> 
+            <div class="modal-body">
+                <select class="form-select" id="modalOrderStatus">
+                    <option value="pending">Pending</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
 
-           <div class="modal fade" id="statusChangeModal" tabindex="-1" aria-labelledby="statusChangeModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="statusChangeModalLabel">Change Order Status</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <select class="form-select" id="modalOrderStatus">
-                                <option value="pending">Pending</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                                </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="saveStatus">Save changes</button>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Admin SHOULD NOT cancel orders -->
+                    <!-- <option value="cancelled">Cancelled</option> -->
+                </select>
             </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const status=document.getElementById('status').value
-            const selectElem=document.getElementById('modalOrderStatus')
-            const options=selectElem.options
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveStatus">Save changes</button>
+            </div>
 
-            for(var i=0;i< options.length;i++){
-                if(options[i].value === status){
-                    selectElem.selectedIndex =i;
-                    break;
+        </div>
+    </div>
+</div>
 
-                }
-            }
-            
-            var statusChangeModal = new bootstrap.Modal(document.getElementById('statusChangeModal'), {
-                keyboard: false
-            });
 
-            document.querySelectorAll('.btn-success').forEach(item => {
-                item.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    statusChangeModal.show();
-                });
-            });
-            document.querySelectorAll('.changeStatusBtn').forEach(item => {
-                item.addEventListener('click', function () {
-                
-                    const index = this.getAttribute('data-index');
-                    const productId = document.getElementById(`productId${index}`).value;
-                    const orderId = document.getElementById(`orderId${index}`).value;
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-                    document.getElementById('saveStatus').addEventListener('click', function () {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
-                        const selectedOrderStatus = document.getElementById('modalOrderStatus').value;
+    var statusChangeModal = new bootstrap.Modal(document.getElementById('statusChangeModal'), {
+        keyboard: false
+    });
 
-                        axios.post('/admin/updatestatus', { productId, orderId, selectedOrderStatus })
-                            .then(res => {
-                                if (res.data.success) {
-                                    window.location.href = '/admin/singleorder?orderId=' + orderId; 
-                                    statusChangeModal.hide();
-                                }
-                            }).catch(err => {
-                                console.log('error in axios');
-                                statusChangeModal.hide();
-                            });
+    document.querySelectorAll('.changeStatusBtn').forEach(item => {
+        item.addEventListener('click', function () {
+            const index = this.getAttribute('data-index');
+            const productId = document.getElementById(`productId${index}`).value;
+            const orderId = document.getElementById(`orderId${index}`).value;
+
+            // Show modal
+            statusChangeModal.show();
+
+            // Save button
+            document.getElementById('saveStatus').onclick = function () {
+
+                const selectedOrderStatus = document.getElementById('modalOrderStatus').value;
+
+                axios.post('/admin/updatestatus', { productId, orderId, selectedOrderStatus })
+                    .then(res => {
+                        if (res.data.success) {
+                            window.location.href = '/admin/singleorder?orderId=' + orderId; 
+                        }
                     })
-                })
-            });
-        })
+                    .catch(err => {
+                        console.log('error in axios');
+                    });
+            };
+        });
+    });
 
-    </script>
+});
+</script>
 
-      
 <%- include('adminfooter') %>
