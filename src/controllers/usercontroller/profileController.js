@@ -60,7 +60,9 @@ const updateProfilePost = async (req, res) => {
       username,
       _id: { $ne: userId },
     });
-    console.log(existingUser);
+
+    console.log("existingUser from the update profile post:", existingUser);
+
     if (existingUser) {
       req.flash("userExist", "Username is already taken");
       return res.redirect("/updateprofile");
@@ -71,7 +73,8 @@ const updateProfilePost = async (req, res) => {
       { username, phone },
       { new: true, runValidators: true }
     );
-    console.log(updatedUser);
+
+    console.log("updatedUser details in the update profile post:", updatedUser);
 
     if (!updatedUser) {
       req.flash("error", "User not found");

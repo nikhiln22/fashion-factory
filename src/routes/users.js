@@ -8,7 +8,7 @@ const checkOutController = require("../controllers/usercontroller/checkOutContro
 const paymentController = require("../controllers/usercontroller/paymentController");
 const { ifLogged, logged, signed, forgot } = require("../middlewares/userAuth");
 require("../../src/config/googleAuth");
-const passport = require("passport")
+const passport = require("passport");
 
 // userRoute.get("/googlesignin", userController.googleSignIn);
 // userRoute.get("/google/callback", userController.googleCallback);
@@ -27,6 +27,8 @@ userRoute.get(
       return res.redirect("/login");
     }
     req.session.userId = req.user._id;
+    req.session.isAuth = true;
+    console.log("req.session.userId:", req.session.userId);
     res.redirect("/");
   }
 );

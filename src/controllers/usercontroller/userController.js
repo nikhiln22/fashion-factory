@@ -700,6 +700,7 @@ module.exports = {
   // googleSignIn,
   // googleCallback,
   // authFailure,
+  generateuniqueRefferalCode,
   forgotPassword,
   forgotPasswordPost,
   newpassword,

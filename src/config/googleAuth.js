@@ -1,5 +1,6 @@
 const passport = require("passport");
 const userModel = require("../model/userModel");
+const userController = require("../controllers/usercontroller/userController");
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
@@ -18,7 +19,9 @@ passport.use(
       try {
         console.log("Google profile fetched successfully: ------->", profile);
 
-        let user = await userModel.find({ googleId: profile.id });
+        let user = await userModel.findOne({ googleId: profile.id });
+
+        console.log("userdetails in the googleAuth:", user);
 
         if (!user) {
           user = await userModel.findOne({ email: profile.emails[0].value });
@@ -28,11 +31,14 @@ passport.use(
           return done(null, false, { message: "blocked" });
         }
 
+        const referralCode = await userController.generateuniqueRefferalCode();
+
         if (!user) {
           user = new userModel({
             username: profile.displayName,
             email: profile.emails[0].value,
             googleId: profile.id,
+            referralCode: referralCode,
           });
           await user.save();
         }

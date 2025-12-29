@@ -14,11 +14,11 @@ var userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
+      // required: true,
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
     },
     isAdmin: {
       type: Boolean,
@@ -38,7 +38,7 @@ var userSchema = new mongoose.Schema(
     ],
     referralCode: {
       type: String,
-      required: true,
+      // required: true,
     },
     googleId: {
       type: String,
