@@ -125,9 +125,8 @@
             </div>
         </div>
     </div>
-    <!-- End login section  -->
 
-    <!-- <%- include('footer') -%> -->
+    <%- include('footer') -%>
 
     <script>
         function validateEmail() {
@@ -164,10 +163,10 @@
             var eyeIcon = document.querySelector(".account__login--password__icon");
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
-                eyeIcon.innerHTML = "&#128064;"; // Change to open eye icon
+                eyeIcon.innerHTML = "&#128064;";
             } else {
                 passwordInput.type = "password";
-                eyeIcon.innerHTML = "&#128065;"; // Change to closed eye icon
+                eyeIcon.innerHTML = "&#128065;";
             }
         }
 
@@ -183,10 +182,10 @@
 
                     setTimeout(function () {
                         messages.forEach(function (message) {
-                            message.remove();  // This removes only the message elements
+                            message.remove(); 
                         });
                     }, 500);
-                }, 5000);  // Messages will start fading out after 5 seconds
+                }, 5000); 
             }
         });
     </script>
